@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BibleVerse.BL\BibleVerse.BL.csproj" />
+    <ProjectReference Include="..\BibleVerse.DAL\BibleVerse.DAL.csproj" />
+  </ItemGroup>
+
+</Project>
