@@ -1,10 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BibleVerse.DTO
 {
+    [Table("OrgSettings")]
     public class OrgSettings
     {
         [Key]
@@ -23,8 +25,10 @@ namespace BibleVerse.DTO
 
         public bool CalendarSharing { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime ChangeDateTime { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime CreateDateTime { get; set; }
     }
 }

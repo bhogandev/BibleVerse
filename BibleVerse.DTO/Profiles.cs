@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace BibleVerse.DTO
 {
+    [Table("Profiles")]
     public class Profiles
     {
         [Key]
@@ -22,8 +24,10 @@ namespace BibleVerse.DTO
 
         public bool IsDeleted { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime ChangeDateTime { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime CreateDateTime { get; set; }
     }
 }

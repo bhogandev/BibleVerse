@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace BibleVerse.DTO
 {
-   public class Users
+    [Table("Users")]
+    public class Users
     {
         [Key]
         public string UserId { get; set; }
@@ -41,8 +43,10 @@ namespace BibleVerse.DTO
 
         public bool isDeleted { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime ChangeDateTime { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime CreateDateTime { get; set; }
     }
 }

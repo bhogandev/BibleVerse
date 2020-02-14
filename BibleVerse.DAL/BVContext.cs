@@ -8,7 +8,10 @@ namespace BibleVerse.DAL
 {
     public class BVContext : DbContext
     {
-        public BVContext(DbContextOptions options) : base(options){}
+        public BVContext(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(@"Server=MAINPC;Database=BibleVerseOPP;Trusted_Connection=True;");
+        }
         protected override void OnModelCreating(ModelBuilder mb)
         {
             base.OnModelCreating(mb);
