@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse", "BibleVerse\BibleVerse.csproj", "{7538F17C-6E64-493B-BFFD-4F11015037CE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerseAPI", "BibleVerseAPI\BibleVerseAPI.csproj", "{7DBB795D-553A-4D65-AEBA-D681FB52493B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.BL", "BibleVerse.BL\BibleVerse.BL.csproj", "{B2F1F0CF-D084-41CE-B73C-184E37C7DFB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.DAL", "BibleVerse.DAL\BibleVerse.DAL.csproj", "{AC5800D5-BA01-4F2A-B044-921DEC0A692A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.DTO", "BibleVerse.DTO\BibleVerse.DTO.csproj", "{F89E3BFD-C352-4126-8901-34F416922C7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerse.DTO", "BibleVerse.DTO\BibleVerse.DTO.csproj", "{F89E3BFD-C352-4126-8901-34F416922C7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse", "BibleVerse\BibleVerse.csproj", "{7A0ED237-3B80-47A6-9147-2DC10FACC8BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BVCommon", "BVCommon\BVCommon.csproj", "{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7538F17C-6E64-493B-BFFD-4F11015037CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7538F17C-6E64-493B-BFFD-4F11015037CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7538F17C-6E64-493B-BFFD-4F11015037CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7538F17C-6E64-493B-BFFD-4F11015037CE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7DBB795D-553A-4D65-AEBA-D681FB52493B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7DBB795D-553A-4D65-AEBA-D681FB52493B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DBB795D-553A-4D65-AEBA-D681FB52493B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -31,14 +27,18 @@ Global
 		{B2F1F0CF-D084-41CE-B73C-184E37C7DFB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2F1F0CF-D084-41CE-B73C-184E37C7DFB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2F1F0CF-D084-41CE-B73C-184E37C7DFB9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AC5800D5-BA01-4F2A-B044-921DEC0A692A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AC5800D5-BA01-4F2A-B044-921DEC0A692A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AC5800D5-BA01-4F2A-B044-921DEC0A692A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AC5800D5-BA01-4F2A-B044-921DEC0A692A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F89E3BFD-C352-4126-8901-34F416922C7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F89E3BFD-C352-4126-8901-34F416922C7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F89E3BFD-C352-4126-8901-34F416922C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F89E3BFD-C352-4126-8901-34F416922C7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A0ED237-3B80-47A6-9147-2DC10FACC8BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A0ED237-3B80-47A6-9147-2DC10FACC8BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A0ED237-3B80-47A6-9147-2DC10FACC8BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A0ED237-3B80-47A6-9147-2DC10FACC8BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

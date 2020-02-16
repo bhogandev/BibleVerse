@@ -21,9 +21,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BibleVerse.BL\BibleVerse.BL.csproj" />
-    <ProjectReference Include="..\BibleVerse.DAL\BibleVerse.DAL.csproj" />
     <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
-    <ProjectReference Include="..\BibleVerse\BibleVerse.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BibleVerse.DAL">
+      <HintPath>..\BibleVerse.DAL\bin\Debug\netcoreapp3.0\BibleVerse.DAL.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
