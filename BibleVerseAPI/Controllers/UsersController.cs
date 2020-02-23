@@ -6,63 +6,54 @@ using BibleVerse.DAL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BVCommon;
+using BibleVerse.DTO.Repository;
+using BibleVerse.DTO;
 
 namespace BibleVerseAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly BVContext _context;
+        private readonly UsersRepository _repository;
 
-        public UsersController(BVContext context) => _context = context;
+        public UsersController(UsersRepository repository) => _repository = repository;
 
-        /*
-        // GET: api/Users/GetAllUserIds
         [HttpGet]
-        [Route("GetAllUserIds")]
-        public ActionResult<string> GetAllUserIds(BibleVerse.DTO.Users newUser)
+        public IActionResult Get()
         {
-            System.Linq.IQueryable<string> newUID;
-            bool idCreated = false;
-            int retryTimes = 0;
-
-            while (idCreated == false && retryTimes < 3)
+            if (_repository.GetAllUsers().Count > 0)
             {
-                var genUID = BVFunctions.CreateUserID();
-                newUID = from c in _context.Users
-                         where c.UserId == BVFunctions.CreateUserID()
-                         select c.UserId;
-
-
-                if (newUID == null) // If userID is not already in DB
-                {
-                    newUser.UserId = newUID.ToString();
-                    _context.Users.Add(newUser); // Add user
-
-                    // Verify User Was Created In DB Successfully
-
-                   var nu = _context.Users.Find(newUser);
-
-                    if(nu != null)
-                    {
-                        idCreated = true;
-                        return "Success";
-                    }
-                }
-
-                retryTimes++;
+                return Ok(_repository.GetAllUsers());
+            } else if(_repository.GetAllUsers().Count == 0)
+            {
+                return NotFound("No Users Found");
+            } else
+            {
+                return BadRequest("Bad Request");
             }
-
-            return "Failure";
         }
-        */
 
-        [HttpGet]
-        public IEnumerable<BibleVerse.DTO.Users> Get()
+        
+        [HttpPost("CreateUser")]
+        public IActionResult CreateUser(Users newUser)
         {
-            return _context.Users.ToList();
+            var userCreation = _repository.CreateUser(newUser);
+
+            if(userCreation == "Success")
+            {
+                return Ok("User Created!");
+
+            } else if(userCreation == "Failure")
+            {
+                return Conflict("An Error Occured! Try Again");
+            } else
+            {
+                return BadRequest("Bad Request!");
+            }
+            
         }
+        
 
     }
 }

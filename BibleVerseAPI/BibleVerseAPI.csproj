@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BibleVerse.BL\BibleVerse.BL.csproj" />
-    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
     <ProjectReference Include="..\BibleVerse\BibleVerse.csproj" />
   </ItemGroup>
 
