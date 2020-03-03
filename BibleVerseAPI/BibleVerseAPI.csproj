@@ -5,23 +5,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.1">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BibleVerse.BL\BibleVerse.BL.csproj" />
-    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
+    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -30,4 +34,20 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="BibleVerse.DTO\Assignments.cs" />
+    <Compile Remove="BibleVerse.DTO\Organization.cs" />
+    <Compile Remove="BibleVerse.DTO\Posts.cs" />
+    <Compile Remove="BibleVerse.DTO\OrgSettings.cs" />
+    <Compile Remove="BibleVerse.DTO\Users.cs" />
+    <Compile Remove="BibleVerse.DTO\Photos.cs" />
+    <Compile Remove="BibleVerse.DTO\Profiles.cs" />
+    <Compile Remove="BibleVerse.DTO\Videos.cs" />
+    <Compile Remove="BibleVerse.DTO\UserAssignments.cs" />
+    <Compile Remove="BibleVerse.DTO\UserCourses.cs" />
+    <Compile Remove="BibleVerse.DTO\Messages.cs" />
+    <Compile Remove="BibleVerse.DTO\Repository\UsersRepository.cs" />
+    <Compile Remove="BilbeVerseDAL\BVContext.cs" />
+    <Compile Remove="BibleVerse.DTO\Courses.cs" />
+  </ItemGroup>
 </Project>

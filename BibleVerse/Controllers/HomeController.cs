@@ -28,7 +28,12 @@ namespace BibleVerse.Controllers
             return View();
         }
 
-        public IActionResult Settings()
+        public IActionResult About()
+        {
+            return View();
+        }
+
+        public IActionResult Login()
         {
             return View();
         }

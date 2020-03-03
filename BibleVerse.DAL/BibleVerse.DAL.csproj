@@ -16,9 +16,4 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BibleVerse.BL\BibleVerse.BL.csproj" />
-    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
-  </ItemGroup>
-
 </Project>

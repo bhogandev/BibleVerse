@@ -3,12 +3,13 @@ using BibleVerse.DTO;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using BibleVerseAPI.Models;
 
 namespace BibleVerse.DAL
 {
     public class BVContext : DbContext
     {
-
+        
         public BVContext(DbContextOptions<BVContext> options) : base(options) { }
 
         public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<BVContext>
