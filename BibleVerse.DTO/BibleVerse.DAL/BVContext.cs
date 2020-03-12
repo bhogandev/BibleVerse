@@ -18,7 +18,7 @@ namespace BibleVerse.DTO
                 IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile(@Directory.GetCurrentDirectory() + "/../BibleVerseAPI/appsettings.json").Build();
                 var builder = new DbContextOptionsBuilder<BVContext>();
                 var connectionString = configuration.GetConnectionString("DatabaseConnection");
-                builder.UseSqlServer(connectionString);
+                builder.UseSqlServer(connectionString, b => b.MigrationsAssembly("BibleVerseAPI"));
                 return new BVContext(builder.Options);
             }
 

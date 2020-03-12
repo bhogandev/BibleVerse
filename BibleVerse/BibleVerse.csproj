@@ -12,15 +12,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc" Version="3.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
     <ProjectReference Include="..\BVCommon\BVCommon.csproj" />
-    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +27,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helper\" />
-    <Folder Include="Views\Login\" />
   </ItemGroup>
 </Project>

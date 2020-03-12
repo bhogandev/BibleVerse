@@ -17,21 +17,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BibleVerse.BL\BibleVerse.BL.csproj" />
-    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="BibleVerse.DAL">
-      <HintPath>..\BibleVerse.DAL\bin\Debug\netcoreapp3.0\BibleVerse.DAL.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -49,5 +35,11 @@
     <Compile Remove="BibleVerse.DTO\Repository\UsersRepository.cs" />
     <Compile Remove="BilbeVerseDAL\BVContext.cs" />
     <Compile Remove="BibleVerse.DTO\Courses.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
+    <ProjectReference Include="..\BibleVerse\BibleVerse.csproj" />
+    <ProjectReference Include="..\BVCommon\BVCommon.csproj" />
   </ItemGroup>
 </Project>

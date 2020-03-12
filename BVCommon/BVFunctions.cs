@@ -8,7 +8,7 @@ namespace BVCommon
         public static string CreateUserID()
         {
             string generatedUserId = "";
-            int uidLength = 21;
+            int uidLength = 27;
 
 
             string[] alpha = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
@@ -31,7 +31,7 @@ namespace BVCommon
                     }
                 }
 
-                if (generatedUserId.Length < 32)
+                if (generatedUserId.Length < 27)
                 {
                     generatedUserId += '-'; // Add a - for serialization
                 }
