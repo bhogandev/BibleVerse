@@ -8,11 +8,12 @@ using BVCommon;
 using BibleVerse.DTO.Repository;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace BibleVerseAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     public class RegistrationController : ControllerBase
     {
         private readonly RegistrationRepository _repository;
@@ -36,9 +37,9 @@ namespace BibleVerseAPI.Controllers
 
         
         [HttpPost]
-        public IActionResult CreateUser([FromBody] string userRequest)
+        public IActionResult CreateUser([FromBody] object userRequest)
         {
-            Users newUser = JsonConvert.DeserializeObject<Users>(userRequest);
+            Users newUser = JsonConvert.DeserializeObject<Users>(userRequest.ToString());
 
             var userCreation = _repository.CreateUser(newUser);
 

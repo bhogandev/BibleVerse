@@ -24,10 +24,10 @@ namespace BibleVerse.DTO
 
         public bool IsDeleted { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Required]
         public DateTime ChangeDateTime { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Required]
         public DateTime CreateDateTime { get; set; }
     }
 }

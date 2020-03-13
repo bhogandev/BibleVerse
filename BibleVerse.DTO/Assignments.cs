@@ -43,10 +43,10 @@ namespace BibleVerse.DTO
 
         public DateTime ExprDateTime { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Required]
         public DateTime ChangeDateTime { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Required]
         public DateTime CreateDateTime { get; set; }
     }
 }

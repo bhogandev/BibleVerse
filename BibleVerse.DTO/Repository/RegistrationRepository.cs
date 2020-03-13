@@ -35,20 +35,21 @@ namespace BibleVerse.DTO.Repository
             {
                 var genUID = BVFunctions.CreateUserID();
                 newUID = from c in _context.Users
-                         where c.UserId == BVFunctions.CreateUserID()
+                         where c.UserId == genUID
                          select c.UserId;
 
-
-                if (newUID == null) // If userID is not already in DB
+                if (newUID.FirstOrDefault() == null) // If userID is not already in DB
                 {
-                    newUser.UserId = newUID.ToString();
-                    _context.Users.Add(newUser); // Add user
-
+                    newUser.UserId = genUID;
+                    _context.Users.Add(newUser);// Add user
+                    _context.SaveChanges();
                     // Verify User Was Created In DB Successfully
 
-                    var nu = _context.Users.Find(newUser);
+                    var nu = from c in _context.Users
+                             where c.UserId == newUser.UserId
+                             select c;
 
-                    if (nu != null)
+                    if (nu.FirstOrDefault().UserId == newUser.UserId)
                     {
                         idCreated = true;
                         return "Success";

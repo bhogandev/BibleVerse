@@ -68,12 +68,14 @@ namespace BibleVerse.Controllers
                 Age = age,
                 OrganizationId = organizationID,
                 isSuspended = false,
-                isDeleted = false
+                isDeleted = false,
+                ChangeDateTime = DateTime.Now,
+                CreateDateTime = DateTime.Now
             };
 
             HttpClient client = _api.Initial();
             var requestBody = new StringContent(JsonConvert.SerializeObject(newUser), Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("Registration/CreateUser",  requestBody);
+            var result = await client.PostAsync("Registration",  requestBody);
 
             //Verify user was created
             var r = result.Content.ReadAsStringAsync();
@@ -81,11 +83,11 @@ namespace BibleVerse.Controllers
             if (r.IsCompletedSuccessfully)
             {
                 Console.WriteLine("Success");
-                return View();
+                return View("Index");
             } else
             {
                 Console.WriteLine("Fail");
-                return View();
+                return View("Index");
             }
         }
 

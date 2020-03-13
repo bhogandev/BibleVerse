@@ -27,7 +27,7 @@ namespace BibleVerse.DTO
 
         public DateTime SentDateTime { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Required]
         public DateTime CreateDateTime { get; set; }
     }
 }
