@@ -1,34 +1,23 @@
-﻿@model BibleVerse.DTO.Users
+﻿@model BibleVerse.DTO.Users;
 @{
     ViewData["Title"] = "Login";
 }
+    <div class="container">
+        <h1 class="text-center">Login</h1>
 
-<h1>Login</h1>
+        <div class="container">
+            @using (Html.BeginForm("LoginUser", "Login", FormMethod.Post))
+            {
+            <form class="form-group" method="post" action="Login/LoginUser">
+                <label for="userEml">Email:</label>
+                <input id="userEml" name="Email" type="email" class="form-control" required />
+                <label for="userPwd">Password:</label>
+                <input id="userPwd" name="Password" type="password" class="form-control" required />
+                <br />
+                <input type="submit" class="btn btn-primary form-control" />
+            </form>
+            }
+        </div>
 
-@using (Html.BeginForm("CreateUser", "Login", FormMethod.Post))
-{
-    <div>
-        <h2>Create User</h2>
-        <form class="form-group" method="post" action="Login/CreateUser">
-            <label for="userEml">Email:</label>
-            <input id="userEml" name="Email" type="email" class="form-control" required />
-            <label for="userName">Username:</label>
-            <input id="userName" name="Username" type="text" class="form-control" required />
-            <label for="userPwd">Password:</label>
-            <input id="userPwd" name="Password" type="password" class="form-control" required />
-            <label for="confirmPwd">Confirm Password:</label>
-            <input id="confirmPwd" name="ConfirmPwd" type="password" class="form-control" required />
-            <label for="userPhone">Phone Number:</label>
-            <input id="userPhone" name="PhoneNum" type="tel" class="form-control" />
-            <label for="orgId">Organization ID:</label>
-            <input id="orgId" name="OrganizationId" type="text" class="form-control" required />
-            <label for="userDOB">Date of Birth:</label>
-            <input id="userDOB" name="DOB" type="date" class="form-control" required />
-            <br/>
-            <input type="submit" class="btn btn-primary form-control" />
-        </form>
+        <p>Don't have an account? Click <a asp-area="" asp-controller="Register" asp-action="Index">here</a> to register</p>
     </div>
-     
-}
-
-

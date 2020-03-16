@@ -18,83 +18,46 @@ namespace BibleVerse.Controllers
         BibleVerseAPI _api = new BibleVerseAPI();
         public IActionResult Index()
         {
-            /*
-            string users = "";
-            HttpClient client = _api.Initial();
-            var result = await client.GetAsync("Registration");
-            
-            if(result.IsSuccessStatusCode)
-            {
-                try
-                {
-                    var res = result.Content.ReadAsStringAsync().Result;
-                    users = res;
-                } catch(Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-            */
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser()
+        public async Task<IActionResult> LoginUser()
         {
-            // Write Logic to Create User
-            string defaultuid = "000000-000000-000000-000000";
-            string username = Request.Form["Username"].ToString();
-            string password = Request.Form["Password"].ToString();
-            string email = Request.Form["Email"].ToString();
-            string phoneNum = Request.Form["PhoneNum"].ToString();
-            string organizationID = Request.Form["OrganizationId"].ToString();
-            DateTime dob = DateTime.Parse(Request.Form["DOB"].ToString());
-            int age = 0;
-
-            Users newUser = new Users()
+            // Write Logic to Login User
+            LoginRequestModel userLogin = new LoginRequestModel()
             {
-                UserId = defaultuid,
-                Username = username,
-                Password = password,
-                Email = email,
-                Level = 1,
-                ExpPoints = 0,
-                RwdPoints = 0,
-                Status = "Member",
-                OnlineStatus = "Offline",
-                Friends = 0,
-                PhoneNum = phoneNum,
-                DOB = dob,
-                Age = age,
-                OrganizationId = organizationID,
-                isSuspended = false,
-                isDeleted = false,
-                ChangeDateTime = DateTime.Now,
-                CreateDateTime = DateTime.Now
+                Email = Request.Form["Email"].ToString(),
+                Password = Request.Form["Password"].ToString()
             };
 
             HttpClient client = _api.Initial();
-            var requestBody = new StringContent(JsonConvert.SerializeObject(newUser), Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("Registration",  requestBody);
-
-            //Verify user was created
+            var requestBody = new StringContent(JsonConvert.SerializeObject(userLogin), Encoding.UTF8, "application/json");
+            var result = await client.PostAsync("Login", requestBody);
             var r = result.Content.ReadAsStringAsync();
 
-            if (r.IsCompletedSuccessfully)
+            if(r.IsCompletedSuccessfully)
             {
-                Console.WriteLine("Success");
-                return View("Index");
+                if (result.ReasonPhrase == "OK")
+                {
+                    Users currUser = JsonConvert.DeserializeObject<Users>(r.Result.ToString());
+                    return View("Index"); // Return user titmeline view and pass current user data
+                } else if(result.ReasonPhrase == "Conflict")
+                {
+                    return View("Index");
+                } else if(result.ReasonPhrase == "BadRequest")
+                {
+                    return View("Index");
+                }
+                else
+                {
+                    return View("Index");
+                }
             } else
             {
-                Console.WriteLine("Fail");
+                Console.WriteLine("Error Occured");
                 return View("Index");
             }
-        }
-
-        public IActionResult Register()
-        { 
-          //Make API call to register user by passing user information      
-            return View();
         }
     }
 } 

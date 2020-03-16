@@ -61,5 +61,45 @@ namespace BibleVerse.DTO.Repository
 
             return "Failure";
         }
+
+        public LoginResponseModel LoginUser(LoginRequestModel loginRequest)
+        {
+            bool userFound = false;
+            int retryTimes = 0;
+            LoginResponseModel loginResponse = new LoginResponseModel();
+            IQueryable<Users> currUser;
+
+            while (userFound == false && retryTimes < 3)
+            {
+                currUser = from u in _context.Users
+                           where ((u.Email == loginRequest.Email) && (u.Password == loginRequest.Password))
+                           select u;
+                if (currUser.FirstOrDefault() != null)
+                {
+                    if (currUser.FirstOrDefault().Email == loginRequest.Email)
+                    {
+                        currUser.FirstOrDefault().OnlineStatus = "Online";
+                        currUser.FirstOrDefault().ChangeDateTime = DateTime.Now;
+                        _context.SaveChanges();
+                        userFound = true;
+                        loginResponse.ResponseStatus = "Success";
+                        loginResponse.ResponseUser = currUser.ToList<Users>().First();
+                    }
+                }
+                else
+                {
+                    retryTimes++;
+                }
+            }
+
+            if(userFound)
+            {
+                return loginResponse;
+            } else
+            {
+                loginResponse.ResponseStatus = "Failed";
+                return loginResponse;
+            }
+        }
     }
 }
