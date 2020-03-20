@@ -16,48 +16,52 @@ namespace BibleVerse.Controllers
     public class Login : Controller
     {
         BibleVerseAPI _api = new BibleVerseAPI();
+
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            //Write logic here to verify user is not already signed in. If so, User is redirected to dashboard
+
+                return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> LoginUser()
+        public async Task<IActionResult> Index(LoginRequestModel userLogin)
         {
-            // Write Logic to Login User
-            LoginRequestModel userLogin = new LoginRequestModel()
+            if (ModelState.IsValid)
             {
-                Email = Request.Form["Email"].ToString(),
-                Password = Request.Form["Password"].ToString()
-            };
+                HttpClient client = _api.Initial();
+                StringContent requestBody = new StringContent(JsonConvert.SerializeObject(userLogin), Encoding.UTF8, "application/json");
+                HttpResponseMessage result = await client.PostAsync("Login", requestBody);
+                var r = result.Content.ReadAsStringAsync();
 
-            HttpClient client = _api.Initial();
-            var requestBody = new StringContent(JsonConvert.SerializeObject(userLogin), Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("Login", requestBody);
-            var r = result.Content.ReadAsStringAsync();
-
-            if(r.IsCompletedSuccessfully)
-            {
-                if (result.ReasonPhrase == "OK")
+                if (r.IsCompletedSuccessfully)
                 {
-                    Users currUser = JsonConvert.DeserializeObject<Users>(r.Result.ToString());
-                    return View("Index"); // Return user titmeline view and pass current user data
-                } else if(result.ReasonPhrase == "Conflict")
-                {
-                    return View("Index");
-                } else if(result.ReasonPhrase == "BadRequest")
-                {
-                    return View("Index");
+                    if (result.ReasonPhrase == "OK") // If API call returns OK, redirect to User Dashboard with user information
+                    {
+                        TempData["currUser"] = r.Result.ToString();
+                        return RedirectToAction("Index", "BBV");
+                    }
+                    else if (result.ReasonPhrase == "Conflict") // If API call returns Conflict return Login Screen and display reason call failed
+                    {
+                        string errorCode = r.Result.ToString();
+                        TempData["error"] = errorCode;
+                        return RedirectToAction("Index");
+                    }
+                    else if (result.ReasonPhrase == "BadRequest") // If API call returns BadRequest, return Login Screen and display Bad Request 
+                    {
+                        return View("Index", r.Result);
+                    }
                 }
                 else
                 {
-                    return View("Index");
+                    // Log Error
+                    Console.WriteLine("Error Occured");
+                    return View("Index"); // Return user to Login Screen displaying an Error has occurred
                 }
-            } else
-            {
-                Console.WriteLine("Error Occured");
-                return View("Index");
             }
+
+            return View();
         }
     }
 } 

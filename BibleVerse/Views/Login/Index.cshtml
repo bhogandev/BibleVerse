@@ -1,23 +1,32 @@
-﻿@model BibleVerse.DTO.Users;
+﻿@model BibleVerse.DTO.LoginRequestModel;
 @{
     ViewData["Title"] = "Login";
+    string error = "";
+
+    if(TempData["error"] != null)
+    {
+        error = TempData["error"].ToString();
+    }
 }
     <div class="container">
         <h1 class="text-center">Login</h1>
-
+        @* Place error messages here *@
+        <span id="errorSpan" class="text-center" style="color:red;">@error</span>
         <div class="container">
-            @using (Html.BeginForm("LoginUser", "Login", FormMethod.Post))
+            @using (Html.BeginForm("Index", "Login", FormMethod.Post))
             {
-            <form class="form-group" method="post" action="Login/LoginUser">
-                <label for="userEml">Email:</label>
-                <input id="userEml" name="Email" type="email" class="form-control" required />
-                <label for="userPwd">Password:</label>
-                <input id="userPwd" name="Password" type="password" class="form-control" required />
-                <br />
-                <input type="submit" class="btn btn-primary form-control" />
-            </form>
-            }
-        </div>
+            <div class="form-group">
+                @Html.LabelFor(x => x.Email)
+                @Html.TextBoxFor(x => x.Email, new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.Email)
 
-        <p>Don't have an account? Click <a asp-area="" asp-controller="Register" asp-action="Index">here</a> to register</p>
+                @Html.LabelFor(x => x.Password)
+                @Html.TextBoxFor(x => x.Password, new { @class = "form-control", @type = "password" })
+                @Html.ValidationMessageFor(x => x.Password)
+                <br/>
+                <input type="submit" class="btn btn-primary form-control" />
+            </div>
+            }
+            </div>
+        <p>Don't have an account? Click <a asp-controller="Register" asp-action="Index">here</a> to register</p>
     </div>

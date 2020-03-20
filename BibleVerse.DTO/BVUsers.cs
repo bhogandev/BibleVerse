@@ -7,16 +7,19 @@ using System.Text;
 namespace BibleVerse.DTO
 {
     [Table("Users")]
-    public class Users
+    public class BVUsers
     {
         [Key]
         public string UserId { get; set; }
 
         [Required]
+        [StringLength(30)]
         public string Username { get; set; }
 
         [Required]
+        [StringLength(255)]
         public string Password { get; set; }
+
         [Required]
         public string Email { get; set; }
 
@@ -34,6 +37,8 @@ namespace BibleVerse.DTO
 
         public string PhoneNum { get; set; }
 
+        [Required]
+        [Display(Name = "Date of Birth")]
         public DateTime DOB { get; set; }
 
         public int Age { get; set; }
