@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BibleVerseAPI.Migrations
 {
-    public partial class initial : Migration
+    public partial class OriginTables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -55,6 +55,22 @@ namespace BibleVerseAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Courses", x => x.CourseId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ELogs",
+                columns: table => new
+                {
+                    ElogID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Severity = table.Column<int>(nullable: false),
+                    Service = table.Column<string>(nullable: true),
+                    Message = table.Column<string>(nullable: true),
+                    CreateDateTime = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ELogs", x => x.ElogID);
                 });
 
             migrationBuilder.CreateTable(
@@ -214,33 +230,6 @@ namespace BibleVerseAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(nullable: false),
-                    Username = table.Column<string>(nullable: false),
-                    Email = table.Column<string>(nullable: false),
-                    Level = table.Column<int>(nullable: false),
-                    ExpPoints = table.Column<int>(nullable: false),
-                    RwdPoints = table.Column<int>(nullable: false),
-                    Status = table.Column<string>(nullable: true),
-                    OnlineStatus = table.Column<string>(nullable: true),
-                    Friends = table.Column<int>(nullable: false),
-                    PhoneNum = table.Column<string>(nullable: true),
-                    DOB = table.Column<DateTime>(nullable: false),
-                    Age = table.Column<int>(nullable: false),
-                    OrganizationId = table.Column<string>(nullable: false),
-                    isSuspended = table.Column<bool>(nullable: false),
-                    isDeleted = table.Column<bool>(nullable: false),
-                    ChangeDateTime = table.Column<DateTime>(nullable: false),
-                    CreateDateTime = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Videos",
                 columns: table => new
                 {
@@ -269,6 +258,9 @@ namespace BibleVerseAPI.Migrations
                 name: "Courses");
 
             migrationBuilder.DropTable(
+                name: "ELogs");
+
+            migrationBuilder.DropTable(
                 name: "Messages");
 
             migrationBuilder.DropTable(
@@ -291,9 +283,6 @@ namespace BibleVerseAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserCourses");
-
-            migrationBuilder.DropTable(
-                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Videos");

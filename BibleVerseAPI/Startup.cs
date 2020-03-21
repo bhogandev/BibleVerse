@@ -29,7 +29,7 @@ namespace BibleVerseAPI
         {
             services.AddControllers();
             services.AddScoped<RegistrationRepository>();
-            services.AddDbContext<BibleVerse.DTO.BVContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
+            services.AddDbContext<BibleVerse.DTO.BVIdentityContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

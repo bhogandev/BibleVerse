@@ -7,9 +7,8 @@ using System.IO;
 
 namespace BibleVerse.DTO
 {
-    public class BVIdentityContext : IdentityDbContext
+    public class BVIdentityContext : IdentityDbContext<Users>
     {
-
         public BVIdentityContext(DbContextOptions<BVIdentityContext> options) : base(options) { }
 
         public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<BVIdentityContext>
@@ -29,7 +28,7 @@ namespace BibleVerse.DTO
         protected override void OnModelCreating(ModelBuilder mb)
         {
             base.OnModelCreating(mb);
-            mb.Entity<BVUsers>();
+            mb.Entity<Users>();
             mb.Entity<Assignments>();
             mb.Entity<Courses>();
             mb.Entity<Messages>();
@@ -44,7 +43,7 @@ namespace BibleVerse.DTO
             mb.Entity<ELog>();
         }
 
-        public virtual DbSet<BVUsers> BVUsers { get; set; }
+        public virtual DbSet<Users> BVUsers { get; set; }
         public virtual DbSet<Assignments> Assignments { get; set; }
         public virtual DbSet<Courses> Courses { get; set; }
         public virtual DbSet<Messages> Messages { get; set; }

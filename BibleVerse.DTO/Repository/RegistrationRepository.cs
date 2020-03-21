@@ -8,9 +8,9 @@ namespace BibleVerse.DTO.Repository
 {
     public class RegistrationRepository
     {
-        private readonly BVContext _context;
+        private readonly BVIdentityContext _context;
 
-        public RegistrationRepository(BVContext context)
+        public RegistrationRepository(BVIdentityContext context)
         {
             this._context = context;
 
@@ -72,7 +72,7 @@ namespace BibleVerse.DTO.Repository
             while (userFound == false && retryTimes < 3)
             {
                 currUser = from u in _context.Users
-                           where ((u.Email == loginRequest.Email) && (u.Password == loginRequest.Password))
+                           where ((u.Email == loginRequest.Email) && (u.PasswordHash == loginRequest.Password))
                            select u;
                 if (currUser.FirstOrDefault() != null)
                 {

@@ -38,8 +38,8 @@ namespace BibleVerse.Controllers
             Users newUser = new Users()
             {
                 UserId = defaultuid,
-                Username = username,
-                Password = password,
+                UserName = username,
+                PasswordHash = password,
                 Email = email,
                 Level = 1,
                 ExpPoints = 0,
@@ -47,7 +47,7 @@ namespace BibleVerse.Controllers
                 Status = "Member",
                 OnlineStatus = "Offline",
                 Friends = 0,
-                PhoneNum = phoneNum,
+                PhoneNumber = phoneNum,
                 DOB = dob,
                 Age = age,
                 OrganizationId = organizationID,

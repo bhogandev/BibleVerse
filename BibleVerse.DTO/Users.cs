@@ -2,26 +2,27 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 using System.Text;
 
 namespace BibleVerse.DTO
 {
     [Table("Users")]
-    public class BVUsers
+    public class Users : IdentityUser
     {
         [Key]
         public string UserId { get; set; }
 
         [Required]
         [StringLength(30)]
-        public string Username { get; set; }
+        public override string UserName { get; set; }
 
         [Required]
         [StringLength(255)]
-        public string Password { get; set; }
+        public override string PasswordHash { get; set; }
 
         [Required]
-        public string Email { get; set; }
+        public override string Email { get; set; }
 
         public int Level { get; set; }
 
@@ -34,8 +35,6 @@ namespace BibleVerse.DTO
         public string OnlineStatus { get; set; }
 
         public int Friends { get; set; }
-
-        public string PhoneNum { get; set; }
 
         [Required]
         [Display(Name = "Date of Birth")]

@@ -27,7 +27,7 @@ namespace BibleVerseAPI.Controllers
 
             if(loginResponse.ResponseStatus == "Success")
             {
-                loginResponse.ResponseUser.Password = "";
+                loginResponse.ResponseUser.PasswordHash = "";
                 return Ok(JsonConvert.SerializeObject(loginResponse.ResponseUser));
             } else if(loginResponse.ResponseStatus == "Failed")
             {

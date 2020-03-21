@@ -36,6 +36,12 @@
     <Compile Remove="BibleVerse.DTO\Repository\UsersRepository.cs" />
     <Compile Remove="BilbeVerseDAL\BVContext.cs" />
     <Compile Remove="BibleVerse.DTO\Courses.cs" />
+    <Compile Remove="Migrations\20200321175927_Initial.cs" />
+    <Compile Remove="Migrations\20200321175927_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200321180840_Initial.cs" />
+    <Compile Remove="Migrations\20200321180840_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20200321181750_Initial.cs" />
+    <Compile Remove="Migrations\20200321181750_Initial.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
