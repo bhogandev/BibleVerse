@@ -17,7 +17,6 @@ namespace BibleVerse.Controllers
     public class Login : Controller
     {
         BibleVerseAPI _api = new BibleVerseAPI();
-        UserManager<Users> userManager;
 
         [HttpGet]
         public IActionResult Index()

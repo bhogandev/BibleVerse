@@ -11,12 +11,14 @@ namespace BibleVerse.DTO.Repository
     public class RegistrationRepository
     {
         private readonly BVIdentityContext _context;
-
-        UserManager<Users> userManager;
         
-        public RegistrationRepository(UserManager<Users> _userManager , BVIdentityContext context)
+        UserManager<Users> userManager;
+        SignInManager<Users> signInManager;
+        
+        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context)
         {
             userManager = _userManager;
+            signInManager = _signInManager;
             this._context = context;
         }
 
@@ -88,26 +90,27 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
-        public LoginResponseModel LoginUser(LoginRequestModel loginRequest)
+        public async Task<LoginResponseModel> LoginUser(LoginRequestModel loginRequest)
         {
             bool userFound = false;
             int retryTimes = 0;
             LoginResponseModel loginResponse = new LoginResponseModel();
-            IQueryable<Users> currUser;
+            IQueryable<Users> currUser; 
 
             while (userFound == false && retryTimes < 3)
             {
-                currUser = from u in _context.Users
-                           where ((u.Email == loginRequest.Email) && (u.PasswordHash == loginRequest.Password))
+                currUser = from u in userManager.Users
+                           where u.Email == loginRequest.Email
                            select u;
                 if (currUser.FirstOrDefault() != null)
                 {
-                    if (currUser.FirstOrDefault().Email == loginRequest.Email)
+                    userFound = true;
+                   var res = await signInManager.PasswordSignInAsync(currUser.FirstOrDefault().UserName, loginRequest.Password, true, true);
+
+                    if(res.Succeeded)
                     {
                         currUser.FirstOrDefault().OnlineStatus = "Online";
                         currUser.FirstOrDefault().ChangeDateTime = DateTime.Now;
-                        _context.SaveChanges();
-                        userFound = true;
                         loginResponse.ResponseStatus = "Success";
                         loginResponse.ResponseUser = currUser.ToList<Users>().First();
                     }

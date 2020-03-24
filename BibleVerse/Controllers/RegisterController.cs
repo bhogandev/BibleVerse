@@ -61,7 +61,7 @@ namespace BibleVerse.Controllers
                 //Check if responseMessage = success. If so, proceed. If not, return Reposne errors to user
                 if (result.StatusCode == HttpStatusCode.OK)
                 {
-                    return RedirectToAction("Index","Register");
+                    return RedirectToAction("Index","Login");
                 }
                 else if (result.StatusCode == HttpStatusCode.Conflict)
                 {
