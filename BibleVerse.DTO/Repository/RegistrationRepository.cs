@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using System.Text;
 
 namespace BibleVerse.DTO.Repository
@@ -10,14 +12,12 @@ namespace BibleVerse.DTO.Repository
     {
         private readonly BVIdentityContext _context;
 
-        public RegistrationRepository(BVIdentityContext context)
+        UserManager<Users> userManager;
+        
+        public RegistrationRepository(UserManager<Users> _userManager , BVIdentityContext context)
         {
+            userManager = _userManager;
             this._context = context;
-
-            if (_context.Users.Count() == 0)
-            {
-                Console.WriteLine("Index Out Of Range");
-            }
         }
 
         public List<Users> GetAllUsers()
@@ -25,41 +25,67 @@ namespace BibleVerse.DTO.Repository
             return _context.Users.ToList();
         }
 
-        public string CreateUser(Users newUser)
+        public async Task<RegistrationResponseModel> CreateUser(Users newUser)
         {
             System.Linq.IQueryable<string> newUID;
             bool idCreated = false;
+            bool userExistsAlready = false;
             int retryTimes = 0;
+            RegistrationResponseModel apiResponse = new RegistrationResponseModel();
+            apiResponse.ResponseErrors = new List<string>();
 
-            while (idCreated == false && retryTimes < 3)
-            {
-                var genUID = BVFunctions.CreateUserID();
-                newUID = from c in _context.Users
-                         where c.UserId == genUID
-                         select c.UserId;
-
-                if (newUID.FirstOrDefault() == null) // If userID is not already in DB
-                {
-                    newUser.UserId = genUID;
-                    _context.Users.Add(newUser);// Add user
-                    _context.SaveChanges();
-                    // Verify User Was Created In DB Successfully
-
-                    var nu = from c in _context.Users
-                             where c.UserId == newUser.UserId
+            var userWEmail = from c in userManager.Users
+                             where c.Email == newUser.Email
                              select c;
 
-                    if (nu.FirstOrDefault().UserId == newUser.UserId)
-                    {
-                        idCreated = true;
-                        return "Success";
-                    }
-                }
-
-                retryTimes++;
+            if(userWEmail.FirstOrDefault() != null)
+            {
+                userExistsAlready = true;
             }
 
-            return "Failure";
+            if (!userExistsAlready)// If user doesn't exist already
+            {
+                while (idCreated == false && retryTimes < 3)
+                {
+                    var genUID = BVFunctions.CreateUserID();
+                    newUID = from c in userManager.Users
+                             where c.UserId == genUID
+                             select c.UserId;
+
+                    if (newUID.FirstOrDefault() == null) // If userID is not already in DB
+                    {
+                        newUser.UserId = genUID;
+                        var res = await userManager.CreateAsync(newUser, newUser.PasswordHash);
+
+                        if (res.Succeeded)
+                        {
+                            idCreated = true;
+                            apiResponse.ResponseMessage = "Success";
+                        }
+                        else
+                        {
+                            //Check against error codes. If normal error, return to user, otherwise Log error in Elog and return generic error
+                            apiResponse.ResponseMessage = "Failure";
+                            foreach(IdentityError e in res.Errors.ToList())
+                            {
+                                apiResponse.ResponseErrors.Add(e.Description);
+                            }
+                            
+                        }
+
+                        return apiResponse;
+                    }
+
+                    retryTimes++;
+                }
+                apiResponse.ResponseMessage = "Retry Timeout Failure";
+                return apiResponse;
+            } else //If user exits already
+            {
+                apiResponse.ResponseMessage = "Email already exists";
+                apiResponse.ResponseErrors.Add("Email Already Exists");
+                return apiResponse;
+            }
         }
 
         public LoginResponseModel LoginUser(LoginRequestModel loginRequest)

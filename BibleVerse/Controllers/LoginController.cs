@@ -8,6 +8,7 @@ using BibleVerse.Helper;
 using BibleVerse.DTO;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 
@@ -16,6 +17,7 @@ namespace BibleVerse.Controllers
     public class Login : Controller
     {
         BibleVerseAPI _api = new BibleVerseAPI();
+        UserManager<Users> userManager;
 
         [HttpGet]
         public IActionResult Index()

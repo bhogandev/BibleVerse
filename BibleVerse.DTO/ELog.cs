@@ -1,8 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
 namespace BibleVerse.DTO
 {
     public class ELog
     {
+        [Key]
         public int ElogID { get; set; }
 
         public int Severity { get; set; }

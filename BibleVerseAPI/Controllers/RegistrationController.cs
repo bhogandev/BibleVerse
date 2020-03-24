@@ -37,24 +37,27 @@ namespace BibleVerseAPI.Controllers
 
         
         [HttpPost]
-        public IActionResult CreateUser([FromBody] object userRequest)
+        public async Task<ObjectResult> CreateUser([FromBody] object userRequest)
         {
-            Users newUser = JsonConvert.DeserializeObject<Users>(userRequest.ToString());
+            Users newU = JsonConvert.DeserializeObject<Users>(userRequest.ToString());
 
-            var userCreation = _repository.CreateUser(newUser);
+            var apiResponse = await _repository.CreateUser(newU);
 
-            if(userCreation == "Success")
+            if(apiResponse.ResponseMessage == "Success")
             {
-                return Ok("User Created!");
+                return Ok(apiResponse);
 
-            } else if(userCreation == "Failure")
+            } else if(apiResponse.ResponseMessage == "Failure")
             {
-                return Conflict("An Error Occured! Try Again");
+                return Conflict(apiResponse);
+            } else if(apiResponse.ResponseMessage == "Email already exists")
+            {
+                return Conflict(apiResponse);
             } else
             {
-                return BadRequest("Bad Request!");
+                // Create an ELog and Log error
+                return BadRequest("An Unexpected Error Occured");
             }
-            
         }
         
 

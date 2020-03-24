@@ -39,5 +39,18 @@ namespace BVCommon
 
             return generatedUserId; // Return Generated User Id
         }
+
+        // Find User Age
+        public static int GetUserAge(DateTime userDOB)
+        {
+            DateTime dateToday = DateTime.Today;
+
+            int userAge = dateToday.Year - userDOB.Year;
+
+            if(dateToday.DayOfYear < userDOB.DayOfYear) { userAge--;  }
+
+            return userAge;
+
+        }
     }
 }

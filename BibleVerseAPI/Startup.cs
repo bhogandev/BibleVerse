@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using BibleVerse.DTO;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +31,8 @@ namespace BibleVerseAPI
         {
             services.AddControllers();
             services.AddScoped<RegistrationRepository>();
-            services.AddDbContext<BibleVerse.DTO.BVIdentityContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
+            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>();
+            services.AddDbContext<BVIdentityContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
