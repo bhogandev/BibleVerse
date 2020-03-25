@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace BibleVerse.DTO
@@ -8,7 +9,8 @@ namespace BibleVerse.DTO
             [Required]
             public string ResponseStatus { get; set; }
 
-            [Required]
             public Users ResponseUser { get; set; }
+
+            public List<Error> ResponseErrors { get; set; }
     }
 }

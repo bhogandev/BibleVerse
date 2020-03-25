@@ -31,7 +31,7 @@ namespace BibleVerseAPI
         {
             services.AddControllers();
             services.AddScoped<RegistrationRepository>();
-            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>();
+            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>().AddDefaultTokenProviders();
             services.AddDbContext<BVIdentityContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
         }
 

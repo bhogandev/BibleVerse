@@ -1,10 +1,13 @@
 ﻿using BVCommon;
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using System.Text;
+using System.Security.Policy;
+using System.Net.Http;
 
 namespace BibleVerse.DTO.Repository
 {
@@ -58,11 +61,13 @@ namespace BibleVerse.DTO.Repository
                     {
                         newUser.UserId = genUID;
                         var res = await userManager.CreateAsync(newUser, newUser.PasswordHash);
-
+         
                         if (res.Succeeded)
                         {
                             idCreated = true;
                             apiResponse.ResponseMessage = "Success";
+                            apiResponse.ConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+                            apiResponse.UserId = newUser.Id;
                         }
                         else
                         {
@@ -90,6 +95,43 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
+        public async Task<EComResponseModel> ConfirmEmail(EmailConfirmationModel ecom)
+        {
+            var user = await userManager.FindByIdAsync(ecom.userID);
+            EComResponseModel eComResponse = new EComResponseModel();
+            eComResponse.ResponseErrors = new List<IdentityError>();
+
+
+            if (user != null)
+            {
+                var emailConfirmation = await userManager.ConfirmEmailAsync(user, ecom.token);
+
+                if (emailConfirmation.Succeeded)
+                {
+                    eComResponse.ResponseStatus = "Email Confirmed";
+                }
+                else
+                {
+                    eComResponse.ResponseStatus = "Email Confirmation Failed";
+                    foreach (IdentityError e in emailConfirmation.Errors)
+                    {
+                        eComResponse.ResponseErrors.Add(e);
+                    }
+                }
+                return eComResponse;
+            } else
+            {
+                eComResponse.ResponseStatus = "An Error Occurred";
+                IdentityError error = new IdentityError()
+                {
+                    Code = "GENERROR",
+                    Description = "User Not Found On Request For Confirmation"
+                };
+                eComResponse.ResponseErrors.Add(error);
+                return eComResponse;
+            }
+        }
+
         public async Task<LoginResponseModel> LoginUser(LoginRequestModel loginRequest)
         {
             bool userFound = false;
@@ -104,7 +146,7 @@ namespace BibleVerse.DTO.Repository
                            select u;
                 if (currUser.FirstOrDefault() != null)
                 {
-                    userFound = true;
+                   userFound = true;
                    var res = await signInManager.PasswordSignInAsync(currUser.FirstOrDefault().UserName, loginRequest.Password, true, true);
 
                     if(res.Succeeded)
@@ -113,6 +155,17 @@ namespace BibleVerse.DTO.Repository
                         currUser.FirstOrDefault().ChangeDateTime = DateTime.Now;
                         loginResponse.ResponseStatus = "Success";
                         loginResponse.ResponseUser = currUser.ToList<Users>().First();
+                    } else
+                    {
+                        List<string> identityError = ELogFunctions.GetSignInError(res);
+                        Error error = new Error()
+                        {
+                            Code = identityError[0],
+                            Description = identityError[1]
+                        };
+                        loginResponse.ResponseStatus = "Failed";
+                        loginResponse.ResponseErrors = new List<Error>();
+                        loginResponse.ResponseErrors.Add(error);
                     }
                 }
                 else
@@ -120,15 +173,7 @@ namespace BibleVerse.DTO.Repository
                     retryTimes++;
                 }
             }
-
-            if(userFound)
-            {
                 return loginResponse;
-            } else
-            {
-                loginResponse.ResponseStatus = "Failed";
-                return loginResponse;
-            }
         }
     }
 }

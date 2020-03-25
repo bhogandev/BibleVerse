@@ -7,8 +7,6 @@ using BibleVerse.DTO.Repository;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace BibleVerseAPI.Controllers
 {
     [ApiController]
@@ -24,17 +22,27 @@ namespace BibleVerseAPI.Controllers
         {
 
             var loginResponse = _repository.LoginUser(JsonConvert.DeserializeObject<LoginRequestModel>(userRequest.ToString()));
+            var lr = JsonConvert.SerializeObject(loginResponse.Result);
 
-            if(loginResponse.ResponseStatus == "Success")
+            if (loginResponse.IsCompletedSuccessfully)
             {
-                loginResponse.ResponseUser.PasswordHash = "";
-                return Ok(JsonConvert.SerializeObject(loginResponse.ResponseUser));
-            } else if(loginResponse.ResponseStatus == "Failed")
-            {
-                return Conflict("Invalid Login Credentials");
+                if (loginResponse.Result.ResponseStatus == "Success")
+                {
+                    loginResponse.Result.ResponseUser.PasswordHash = "";
+                    return Ok(lr);
+                }
+                else if (loginResponse.Result.ResponseStatus == "Failed")
+                {
+                    return Conflict(lr);
+                }
+                else
+                {
+                    return BadRequest(lr);
+                }
             } else
             {
-                return BadRequest("An Error Occured");
+                //Create an Elog error
+                return BadRequest("An Error Occurred");
             }
         }
     }

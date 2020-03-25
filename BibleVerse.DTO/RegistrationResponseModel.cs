@@ -8,6 +8,10 @@ namespace BibleVerse.DTO
     {
         public string ResponseMessage { get; set; }
 
+        public string ConfirmationToken { get; set; }
+
+        public string UserId { get; set; }
+
         public List<string> ResponseErrors { get; set; }
     }
 }

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Net;
+using BibleVerseDTO.Services;
 
 namespace BibleVerse.Controllers
 {
@@ -61,6 +62,11 @@ namespace BibleVerse.Controllers
                 //Check if responseMessage = success. If so, proceed. If not, return Reposne errors to user
                 if (result.StatusCode == HttpStatusCode.OK)
                 {
+                    RegistrationResponseModel registrationResponse = JsonConvert.DeserializeObject<RegistrationResponseModel>(result.Content.ReadAsStringAsync().Result);
+
+                    //Send Confirmation Email using confirmation Token
+                    string confirmationLink = Url.Action("ConfirmEmail", "Register", new { userid = registrationResponse.UserId, token = registrationResponse.ConfirmationToken }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
+                    EmailService.Send(nu.Email, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
                     return RedirectToAction("Index","Login");
                 }
                 else if (result.StatusCode == HttpStatusCode.Conflict)
@@ -81,5 +87,31 @@ namespace BibleVerse.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            EmailConfirmationModel ecom = new EmailConfirmationModel()
+            {
+                userID = userId,
+                token = token
+            };
+
+            HttpClient client = _api.Initial();
+            var requestBody = new StringContent(JsonConvert.SerializeObject(ecom));
+            var result = await client.PostAsync("Email", requestBody);
+
+            if(result.StatusCode == HttpStatusCode.OK)
+            {
+                //Return confirmation screen
+                return View();
+            } else
+            {
+                //Return confirmation screen with failed message passed via ViewBag
+                ViewBag.Errors = JsonConvert.DeserializeObject<List<IdentityError>>(result.Content.ReadAsStringAsync().Result);
+                return View();
+            }
+            
+
+        }
     }
 }

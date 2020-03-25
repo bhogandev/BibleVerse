@@ -40,18 +40,20 @@ namespace BibleVerse.Controllers
                 {
                     if (result.ReasonPhrase == "OK") // If API call returns OK, redirect to User Dashboard with user information
                     {
-                        TempData["currUser"] = r.Result.ToString();
+                        //Here is where user will be directed to their account home page and basic user Information is passed to the next controller
                         return RedirectToAction("Index", "BBV");
                     }
                     else if (result.ReasonPhrase == "Conflict") // If API call returns Conflict return Login Screen and display reason call failed
                     {
-                        string errorCode = r.Result.ToString();
-                        TempData["error"] = errorCode;
+                        List<Error> errors = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseErrors;
+                        ViewBag.Errors = errors;
                         return RedirectToAction("Index");
                     }
                     else if (result.ReasonPhrase == "BadRequest") // If API call returns BadRequest, return Login Screen and display Bad Request 
                     {
-                        return View("Index", r.Result);
+                        List<Error> errors = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ToString()).ResponseErrors;
+                        ViewBag.Errors = errors;
+                        return View("Index");
                     }
                 }
                 else

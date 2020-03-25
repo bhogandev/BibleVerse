@@ -1,32 +1,39 @@
 ﻿@model BibleVerse.DTO.LoginRequestModel;
+@using BibleVerse.DTO;
 @{
     ViewData["Title"] = "Login";
-    string error = "";
-
-    if(TempData["error"] != null)
-    {
-        error = TempData["error"].ToString();
-    }
 }
     <div class="container">
         <h1 class="text-center">Login</h1>
         @* Place error messages here *@
-        <span id="errorSpan" class="text-center" style="color:red;">@error</span>
+        <div id="Errors" class="text-danger">
+            <ul>
+                @{
+                    if (ViewBag.Errors != null)
+                    {
+                        foreach (Error error in ViewBag.Errors)
+                        {
+                            <li>@error.Description</li>
+                        }
+                    }
+                }
+            </ul>
+        </div>
         <div class="container">
             @using (Html.BeginForm("Index", "Login", FormMethod.Post))
             {
-            <div class="form-group">
-                @Html.LabelFor(x => x.Email)
-                @Html.TextBoxFor(x => x.Email, new { @class = "form-control" })
-                @Html.ValidationMessageFor(x => x.Email)
+                <div class="form-group">
+                    @Html.LabelFor(x => x.Email)
+                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(x => x.Email)
 
-                @Html.LabelFor(x => x.Password)
-                @Html.TextBoxFor(x => x.Password, new { @class = "form-control", @type = "password" })
-                @Html.ValidationMessageFor(x => x.Password)
-                <br/>
-                <input type="submit" class="btn btn-primary form-control" />
-            </div>
+                    @Html.LabelFor(x => x.Password)
+                    @Html.TextBoxFor(x => x.Password, new { @class = "form-control", @type = "password" })
+                    @Html.ValidationMessageFor(x => x.Password)
+                    <br />
+                    <input type="submit" class="btn btn-primary form-control" />
+                </div>
             }
-            </div>
+        </div>
         <p>Don't have an account? Click <a asp-controller="Register" asp-action="Index">here</a> to register</p>
     </div>

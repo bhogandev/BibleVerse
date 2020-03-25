@@ -35,7 +35,6 @@ namespace BibleVerseAPI.Controllers
             }
         }
 
-        
         [HttpPost]
         public async Task<ObjectResult> CreateUser([FromBody] object userRequest)
         {
@@ -59,6 +58,7 @@ namespace BibleVerseAPI.Controllers
                 return BadRequest("An Unexpected Error Occured");
             }
         }
+        
         
 
     }
