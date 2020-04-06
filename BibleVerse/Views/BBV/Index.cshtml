@@ -1,13 +1,18 @@
-﻿@using Newtonsoft.Json
-@model BibleVerse.DTO.Users;
+﻿@model BibleVerse.DTO.PostModel;
+@using BibleVerse.DTO
+@using Newtonsoft.Json
 @{
-    var currUser = ViewBag.CurrentUser;
-    TempData["userStatus"] = "logged in";
+    Layout = "../Shared/_UserLayout.cshtml";
+    ViewData["Title"] = "Home";
+    UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(ViewBag.CurrUser.ToString());
 }
 <div class="container">
-    <h1>Welcome @currUser.Username</h1>
-
-    User ID: @currUser.UserId
-    Username: @currUser.Username
-    User DOB: @currUser.DOB
+    <div id="upstat">
+        @Html.BeginForm("", "", FormMethod.Post)
+        {
+            @Html.TextAreaFor(x => x.Body)
+            <input type="submit" value="Create Post"/>
+        }
+    </div>
+    <div id="tl"></div>
 </div>

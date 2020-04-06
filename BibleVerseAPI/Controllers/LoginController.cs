@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication;
 using BibleVerse.DTO.Repository;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
@@ -28,7 +29,6 @@ namespace BibleVerseAPI.Controllers
             {
                 if (loginResponse.Result.ResponseStatus == "Success")
                 {
-                    loginResponse.Result.ResponseUser.PasswordHash = "";
                     return Ok(lr);
                 }
                 else if (loginResponse.Result.ResponseStatus == "Failed")

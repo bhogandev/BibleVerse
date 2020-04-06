@@ -18,7 +18,7 @@
                  }
             </ul>
         </div>
-        @using (Html.BeginForm("Index", "Register", FormMethod.Post))
+        @using (Html.BeginForm("Register", "Home", FormMethod.Post))
         {
             @Html.LabelFor(x => x.Email);
             @Html.TextBoxFor(x => x.Email, new { @class = "form-control", @type = "email"});

@@ -20,7 +20,7 @@
             </ul>
         </div>
         <div class="container">
-            @using (Html.BeginForm("Index", "Login", FormMethod.Post))
+            @using (Html.BeginForm("Login", "Home", FormMethod.Post))
             {
                 <div class="form-group">
                     @Html.LabelFor(x => x.Email)
@@ -35,5 +35,5 @@
                 </div>
             }
         </div>
-        <p>Don't have an account? Click <a asp-controller="Register" asp-action="Index">here</a> to register</p>
+        <p>Don't have an account? Click <a asp-controller="Home" asp-action="Register">here</a> to register</p>
     </div>

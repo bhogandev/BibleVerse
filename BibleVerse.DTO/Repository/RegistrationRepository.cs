@@ -5,6 +5,7 @@ using Microsoft.AspNetCore;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
 using System.Text;
 using System.Security.Policy;
 using System.Net.Http;
@@ -153,8 +154,23 @@ namespace BibleVerse.DTO.Repository
                     {
                         currUser.FirstOrDefault().OnlineStatus = "Online";
                         currUser.FirstOrDefault().ChangeDateTime = DateTime.Now;
-                        loginResponse.ResponseStatus = "Success";
-                        loginResponse.ResponseUser = currUser.ToList<Users>().First();
+                        //Log action in user actions table
+                       var userUpdate = await userManager.UpdateAsync(currUser.FirstOrDefault());
+                        if (userUpdate.Succeeded)
+                        {
+                            loginResponse.ResponseStatus = "Success";
+                            loginResponse.ResponseUser = currUser.ToList<Users>().First();
+                        } else
+                        {
+                            Error error = new Error()
+                            {
+                                Code = "ERRORONUSERUPDATE",
+                                Description = "Error updating user after successful login"
+                            };
+                            loginResponse.ResponseStatus = "Failed";
+                            loginResponse.ResponseErrors = new List<Error>();
+                            loginResponse.ResponseErrors.Add(error);
+                        }
                     } else
                     {
                         List<string> identityError = ELogFunctions.GetSignInError(res);
@@ -174,6 +190,39 @@ namespace BibleVerse.DTO.Repository
                 }
             }
                 return loginResponse;
+        }
+
+        public async Task<string> LogoutUser(UserViewModel currUser)
+        {
+            //Write Logic here to sign user out
+            var user = await userManager.FindByEmailAsync(currUser.Email);
+
+            if (user != null)
+            {
+                currUser.OnlineStatus = "Offline";
+
+                user.OnlineStatus = "Offline";
+                user.Level = currUser.Level;
+                user.RwdPoints = currUser.RwdPoints;
+                user.ExpPoints = currUser.ExpPoints;
+                user.Friends = currUser.Friends;
+
+                var result = await userManager.UpdateAsync(user); //Update user with final view model at time of signout
+
+                if (result.Succeeded)
+                {
+                    return "User Successfully Updated";
+                }
+                else
+                {
+                    //Log in ELog
+                    return "Error: User Final Update Not Completed Upon Logout";
+                }
+            } else
+            {
+                //Log in ELog
+                return "Error: User turned up NULL";
+            }
         }
     }
 }

@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <div>
+        <div id="ubar" class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Index">BibleVerse</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="uar-inner" class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <div id="ubar-nav">
+                    <ul>
+                        <li>
+                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+                <div id="ubar-menu">
+                </div>
+            </div>
+        </div>
+        @RenderBody()
+    </div>
+</body>
+</html>
