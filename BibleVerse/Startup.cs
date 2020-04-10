@@ -29,6 +29,10 @@ namespace BibleVerse
             services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>();
             services.AddControllersWithViews();
             services.ConfigureApplicationCookie(option => option.LoginPath = "/BBV");
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(05);
+            });
             
         }
 
@@ -50,6 +54,7 @@ namespace BibleVerse
             app.UseRouting();
             app.UseAuthorization();
             app.UseAuthentication();
+            app.UseSession();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

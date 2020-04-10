@@ -5,6 +5,8 @@ namespace BibleVerse.DTO
 {
     public class PostModel
     {
+        public  string UserName { get; set; }
+
         public string Body { get; set; }
 
         public int Likes { get; set; }

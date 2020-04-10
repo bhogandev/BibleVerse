@@ -28,28 +28,40 @@ namespace BibleVerse.Controllers
 
         public IActionResult Index(UserViewModel user)
         {
-            ViewBag.CurrUser = TempData["currUser"];
-            if (TempData["currUser"] == null)
+            if (HttpContext.Session.GetString("user") == null)
             {
-                return RedirectToAction("Index", "Login");
+                return RedirectToAction("Login", "Home");
             }
+
+            //Grab user's timeline posts
             return View();
         }
 
 
         [HttpPost]
-        public async IActionResult CreatePost(PostModel newPost)
+        public async Task<IActionResult> CreatePost(PostModel newPost)
         {
-            HttpClient client = _api.Initial();
-            var requestBody = new StringContent(JsonConvert.SerializeObject(newPost), Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("Post", requestBody);
-
-            //Verify user was created
-            var r = result.Content.ReadAsStringAsync();
-
-            if(r.IsCompletedSuccessfully)
+            if (HttpContext.Session.GetString("user") != null)
             {
+                HttpClient client = _api.Initial();
+                var requestBody = new StringContent(JsonConvert.SerializeObject(newPost), Encoding.UTF8, "application/json");
+                var result = await client.PostAsync("Post", requestBody);
 
+                //Verify user was created
+                var r = result.Content.ReadAsStringAsync();
+
+                if (r.IsCompletedSuccessfully)
+                {
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index");
             }
 
 

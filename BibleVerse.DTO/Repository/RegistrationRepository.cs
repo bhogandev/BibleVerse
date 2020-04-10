@@ -33,7 +33,7 @@ namespace BibleVerse.DTO.Repository
 
         public async Task<RegistrationResponseModel> CreateUser(Users newUser)
         {
-            System.Linq.IQueryable<string> newUID;
+            IQueryable<string> newUID;
             bool idCreated = false;
             bool userExistsAlready = false;
             int retryTimes = 0;

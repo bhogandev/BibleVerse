@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Logging;
 using BibleVerse.Models;
 using BVCommon;
@@ -16,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Net;
 using BibleVerseDTO.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace BibleVerse.Controllers
 {
@@ -86,7 +88,7 @@ namespace BibleVerse.Controllers
 
 
                         //Here is where user will be directed to their account home page and basic user Information is passed to the next controller
-                        TempData["currUser"] = JsonConvert.SerializeObject(returnUser);
+                        HttpContext.Session.SetString("user", JsonConvert.SerializeObject(returnUser));
 
                         return RedirectToAction("Index", "BBV");
                     }

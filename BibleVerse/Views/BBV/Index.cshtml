@@ -1,16 +1,18 @@
 ﻿@model BibleVerse.DTO.PostModel;
 @using BibleVerse.DTO
+@using Microsoft.AspNetCore.Http;
 @using Newtonsoft.Json
 @{
     Layout = "../Shared/_UserLayout.cshtml";
     ViewData["Title"] = "Home";
-    UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(ViewBag.CurrUser.ToString());
+    UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
 }
 <div class="container">
     <div id="upstat">
-        @Html.BeginForm("", "", FormMethod.Post)
+        @Html.BeginForm("CreatePost", "BBV", FormMethod.Post)
         {
             @Html.TextAreaFor(x => x.Body)
+            <input type="text" name="UserName" value="@user.UserName" hidden/>
             <input type="submit" value="Create Post"/>
         }
     </div>
