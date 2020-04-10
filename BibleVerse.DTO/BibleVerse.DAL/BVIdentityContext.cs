@@ -41,6 +41,10 @@ namespace BibleVerse.DTO
             mb.Entity<UserCourses>();
             mb.Entity<Videos>();
             mb.Entity<ELog>();
+            mb.Entity<UserAWS>();
+            mb.Entity<UserRelationships>();
+            mb.Entity<UserHistory>();
+            mb.Entity<Notifications>();
         }
 
         public virtual DbSet<Users> BVUsers { get; set; }
@@ -56,5 +60,9 @@ namespace BibleVerse.DTO
         public virtual DbSet<UserCourses> UserCourses { get; set; }
         public virtual DbSet<Videos> Videos { get; set; }
         public virtual DbSet<ELog> ELogs { get; set; }
+        public virtual DbSet<Notifications> Notifications { get; set; }
+        public virtual DbSet<UserHistory> UserHistory { get; set; }
+        public virtual DbSet<UserAWS> UserAWS { get; set; }
+        public virtual DbSet<UserRelationships> UserRelationships { get; set; }
     }
 }

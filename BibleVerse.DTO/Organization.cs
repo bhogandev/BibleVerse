@@ -27,6 +27,8 @@ namespace BibleVerse.DTO
 
         public string PhoneNum { get; set; }
 
+        public string Bucket { get; set; }
+
         public string SubsciberId { get; set; }
 
         [Required]
