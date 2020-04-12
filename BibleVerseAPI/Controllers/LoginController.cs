@@ -35,6 +35,10 @@ namespace BibleVerseAPI.Controllers
                 {
                     return Conflict(lr);
                 }
+                else if(loginResponse.Result.ResponseStatus == "Email not confirmed")
+                {
+                    return Conflict(lr);
+                }
                 else
                 {
                     return BadRequest(lr);

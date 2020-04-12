@@ -21,6 +21,26 @@ namespace BibleVerse.DTO.Repository
             this._context = context;
         }
 
+        //Get Posts for user
+        public async Task<List<Posts>> GetUserPosts(string userName)
+        {
+            IQueryable<Posts> posts;
+            List<Posts> userPosts = new List<Posts>();
+            posts = from p in _context.Posts
+                    where (p.Username == userName) && (p.IsDeleted != true)
+                    select p;
+            if (posts.Count() > 0)
+            {
+                foreach (Posts p in posts)
+                {
+                    userPosts.Add(p);
+                }
+            }
+
+            return userPosts;
+        }
+
+        //Create Post For User
         public async Task<string> CreateUserPost(PostModel newPost)
         {
             IQueryable<Posts> postID;

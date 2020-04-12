@@ -15,25 +15,16 @@ namespace BibleVerseAPI.Controllers
 
         public EmailController(RegistrationRepository repository) => _repository = repository;
 
-
-        // GET: api/values
+        //GET 
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ObjectResult> Get(string userid, string token)
         {
-            return new string[] { "value1", "value2" };
-        }
+            EmailConfirmationModel ecom = new EmailConfirmationModel()
+            {
+                userID = userid,
+                token = token
+            };
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public async Task<ObjectResult> ConfirmEmail(EmailConfirmationModel ecom)
-        {
             var eComResponse = await _repository.ConfirmEmail(ecom);
 
             if (eComResponse.ResponseStatus == "Email Confirmed")

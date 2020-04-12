@@ -10,7 +10,7 @@ namespace BibleVerseDTO.Services
         {
             var client = new SmtpClient("smtp.gmail.com", 587);
             client.UseDefaultCredentials = false;
-            client.Credentials = new NetworkCredential("BibleVerseLLC@gmail.com", "password");
+            client.Credentials = new NetworkCredential("BibleVerseLLC@gmail.com", "John316!");
             client.EnableSsl = true
             ;
             client.Send("info@BibleVerse.com", ToAddress, Subject, Body);

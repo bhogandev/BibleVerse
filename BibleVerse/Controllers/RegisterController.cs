@@ -88,11 +88,11 @@ namespace BibleVerse.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        public async Task<IActionResult> ConfirmEmail(string userid, string token)
         {
             EmailConfirmationModel ecom = new EmailConfirmationModel()
             {
-                userID = userId,
+                userID = userid,
                 token = token
             };
 

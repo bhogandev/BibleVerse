@@ -6,6 +6,13 @@
     Layout = "../Shared/_UserLayout.cshtml";
     ViewData["Title"] = "Home";
     UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
+    List<Posts> tlPosts = new List<Posts>();
+
+    if(Context.Session.GetString("posts") != "No Posts Found")
+    {
+        tlPosts = JsonConvert.DeserializeObject<List<Posts>>(Context.Session.GetString("posts"));
+    }
+
 }
 <div class="container">
     <div id="upstat">
@@ -16,5 +23,16 @@
             <input type="submit" value="Create Post"/>
         }
     </div>
-    <div id="tl"></div>
+    <div id="tl">
+        @{
+            foreach(Posts post in tlPosts)
+            {
+                <div id="@post.PostId" class="post">
+                    <span><b>@post.Username</b></span> <span>@post.CreateDateTime.TimeOfDay</span>
+                    <br/>
+                    <p>@post.Body</p>
+                </div>
+            }
+        }
+    </div>
 </div>

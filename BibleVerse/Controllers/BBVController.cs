@@ -26,14 +26,30 @@ namespace BibleVerse.Controllers
         }
 
 
-        public IActionResult Index(UserViewModel user)
+        public async Task<IActionResult> Index(UserViewModel user)
         {
             if (HttpContext.Session.GetString("user") == null)
             {
                 return RedirectToAction("Login", "Home");
             }
 
-            //Grab user's timeline posts
+            //Get Users Posts
+            HttpClient client = _api.Initial();
+            var userName = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
+            var result = await client.GetAsync("Post?userName=" + userName.UserName);
+
+            //Verify user was created
+            var r = result.Content.ReadAsStringAsync();
+
+
+            if(r.IsCompletedSuccessfully)
+            {
+                HttpContext.Session.SetString("posts", r.Result);
+            } else
+            {
+                HttpContext.Session.SetString("posts", "An errr occured while retrieving your posts");
+            }
+
             return View();
         }
 
@@ -52,6 +68,7 @@ namespace BibleVerse.Controllers
 
                 if (r.IsCompletedSuccessfully)
                 {
+
                     return RedirectToAction("Index");
                 }
                 else
@@ -69,9 +86,22 @@ namespace BibleVerse.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            /*
-            UserViewModel  signedInUser = JsonConvert.DeserializeObject<UserViewModel>(ViewBag.CurrUser);
-            
+            Users currUser = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
+            UserViewModel signedInUser = new UserViewModel()
+            {
+                UserID = currUser.UserId,
+                UserName = currUser.UserName,
+                Email = currUser.Email,
+                Age = currUser.Age,
+                ExpPoints = currUser.ExpPoints,
+                Friends = currUser.Friends,
+                Level = currUser.Level,
+                OnlineStatus = "Offline",
+                Status = currUser.Status,
+                RwdPoints = currUser.RwdPoints,
+                OrganizationId = currUser.OrganizationId
+            };
+
             if(ModelState.IsValid)
             {
                 //Write Logic to update user information based on userView model at sign out time
@@ -101,11 +131,8 @@ namespace BibleVerse.Controllers
             } else
             {
                 TempData["Errors"] = "User Not Currently Signed In";
-                return Index(signedInUser);
+                return RedirectToAction("Index", "Home");
             }
-            */
-            await signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
         }
     }
 }

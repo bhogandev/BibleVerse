@@ -31,6 +31,23 @@ namespace BibleVerse.DTO.Repository
             return _context.Users.ToList();
         }
 
+        public bool ValidatteOrg(string OrgId)
+        {
+            IQueryable<Organization> org;
+
+            org = from o in _context.Organization
+                  where o.OrganizationId == OrgId
+                  select o;
+
+            if(org.FirstOrDefault() != null)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
         public async Task<RegistrationResponseModel> CreateUser(Users newUser)
         {
             IQueryable<string> newUID;
@@ -51,42 +68,56 @@ namespace BibleVerse.DTO.Repository
 
             if (!userExistsAlready)// If user doesn't exist already
             {
-                while (idCreated == false && retryTimes < 3)
+                bool OrgExists = ValidatteOrg(newUser.OrganizationId);
+
+                if (OrgExists)
                 {
-                    var genUID = BVFunctions.CreateUserID();
-                    newUID = from c in userManager.Users
-                             where c.UserId == genUID
-                             select c.UserId;
 
-                    if (newUID.FirstOrDefault() == null) // If userID is not already in DB
+                    while (idCreated == false && retryTimes < 3)
                     {
-                        newUser.UserId = genUID;
-                        var res = await userManager.CreateAsync(newUser, newUser.PasswordHash);
-         
-                        if (res.Succeeded)
+                        var genUID = BVFunctions.CreateUserID();
+                        newUID = from c in userManager.Users
+                                 where c.UserId == genUID
+                                 select c.UserId;
+
+                        if (newUID.FirstOrDefault() == null) // If userID is not already in DB
                         {
-                            idCreated = true;
-                            apiResponse.ResponseMessage = "Success";
-                            apiResponse.ConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
-                            apiResponse.UserId = newUser.Id;
-                        }
-                        else
-                        {
-                            //Check against error codes. If normal error, return to user, otherwise Log error in Elog and return generic error
-                            apiResponse.ResponseMessage = "Failure";
-                            foreach(IdentityError e in res.Errors.ToList())
+                            newUser.UserId = genUID;
+                            var res = await userManager.CreateAsync(newUser, newUser.PasswordHash);
+
+                            if (res.Succeeded)
                             {
-                                apiResponse.ResponseErrors.Add(e.Description);
+                                idCreated = true;
+                                apiResponse.ResponseMessage = "Success";
+                                apiResponse.ConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+
+                                apiResponse.UserId = newUser.Id;
                             }
-                            
+                            else
+                            {
+                                //Check against error codes. If normal error, return to user, otherwise Log error in Elog and return generic error
+                                apiResponse.ResponseMessage = "Failure";
+                                foreach (IdentityError e in res.Errors.ToList())
+                                {
+                                    apiResponse.ResponseErrors.Add(e.Description);
+                                }
+
+                            }
+
+                            return apiResponse;
                         }
 
-                        return apiResponse;
+                        retryTimes++;
                     }
-
-                    retryTimes++;
+                    apiResponse.ResponseMessage = "Retry Timeout Failure";
+                    return apiResponse;
                 }
-                apiResponse.ResponseMessage = "Retry Timeout Failure";
+                else
+                {
+                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseErrors.Add("Organization Not Found");
+                }
+
                 return apiResponse;
             } else //If user exits already
             {
@@ -105,19 +136,31 @@ namespace BibleVerse.DTO.Repository
 
             if (user != null)
             {
-                var emailConfirmation = await userManager.ConfirmEmailAsync(user, ecom.token);
+                if(user.EmailConfirmed == false)
+                { 
+                    var emailConfirmation = await userManager.ConfirmEmailAsync(user, ecom.token);
 
-                if (emailConfirmation.Succeeded)
-                {
-                    eComResponse.ResponseStatus = "Email Confirmed";
-                }
-                else
+                    if (emailConfirmation.Succeeded)
+                    {
+                        eComResponse.ResponseStatus = "Email Confirmed";
+                    }
+                    else
+                    {
+                        eComResponse.ResponseStatus = "Email Confirmation Failed";
+                        foreach (IdentityError e in emailConfirmation.Errors)
+                        {
+                            eComResponse.ResponseErrors.Add(e);
+                        }
+                    }
+                } else
                 {
                     eComResponse.ResponseStatus = "Email Confirmation Failed";
-                    foreach (IdentityError e in emailConfirmation.Errors)
+                    IdentityError error = new IdentityError()
                     {
-                        eComResponse.ResponseErrors.Add(e);
-                    }
+                        Code = "EMAILALREADYCONFIRMED",
+                        Description = "Email is already confirmed!"
+                    };
+                    eComResponse.ResponseErrors.Add(error);
                 }
                 return eComResponse;
             } else
@@ -135,10 +178,12 @@ namespace BibleVerse.DTO.Repository
 
         public async Task<LoginResponseModel> LoginUser(LoginRequestModel loginRequest)
         {
+            // Handle if user is suspended currently and handle if user is deleted or if user has not confirmed  email yet
             bool userFound = false;
             int retryTimes = 0;
             LoginResponseModel loginResponse = new LoginResponseModel();
-            IQueryable<Users> currUser; 
+            IQueryable<Users> currUser;
+            IQueryable<Posts> iPosts;
 
             while (userFound == false && retryTimes < 3)
             {
@@ -152,24 +197,39 @@ namespace BibleVerse.DTO.Repository
 
                     if(res.Succeeded)
                     {
-                        currUser.FirstOrDefault().OnlineStatus = "Online";
-                        currUser.FirstOrDefault().ChangeDateTime = DateTime.Now;
-                        //Log action in user actions table
-                       var userUpdate = await userManager.UpdateAsync(currUser.FirstOrDefault());
-                        if (userUpdate.Succeeded)
+                        if (currUser.FirstOrDefault().EmailConfirmed == true)
                         {
-                            loginResponse.ResponseStatus = "Success";
-                            loginResponse.ResponseUser = currUser.ToList<Users>().First();
+                            currUser.FirstOrDefault().OnlineStatus = "Online"; // Set user status to online
+                            currUser.FirstOrDefault().ChangeDateTime = DateTime.Now;
+                            //Log action in user actions table
+                            var userUpdate = await userManager.UpdateAsync(currUser.FirstOrDefault());
+                            if (userUpdate.Succeeded)
+                            {
+                                loginResponse.ResponseStatus = "Success";
+                                loginResponse.ResponseUser = currUser.ToList<Users>().First();
+                            }
+                            else
+                            {
+                                Error error = new Error()
+                                {
+                                    Code = "ERRORONUSERUPDATE",
+                                    Description = "Error updating user after successful login"
+                                };
+                                loginResponse.ResponseStatus = "Failed";
+                                loginResponse.ResponseErrors = new List<Error>();
+                                loginResponse.ResponseErrors.Add(error);
+                            }
                         } else
                         {
-                            Error error = new Error()
-                            {
-                                Code = "ERRORONUSERUPDATE",
-                                Description = "Error updating user after successful login"
-                            };
-                            loginResponse.ResponseStatus = "Failed";
+                            //Return Login Failure and redirect user to confirmation screen
+                            loginResponse.ResponseStatus = "Email not confirmed";
                             loginResponse.ResponseErrors = new List<Error>();
-                            loginResponse.ResponseErrors.Add(error);
+                            Error e = new Error()
+                            {
+                                Code = "EMAILNOTCONFIRMED",
+                                Description = "Email not confirmed. Please confirm email."
+                            };
+                            loginResponse.ResponseErrors.Add(e);
                         }
                     } else
                     {
@@ -199,13 +259,13 @@ namespace BibleVerse.DTO.Repository
 
             if (user != null)
             {
-                currUser.OnlineStatus = "Offline";
-
-                user.OnlineStatus = "Offline";
+                user.OnlineStatus = currUser.OnlineStatus;
                 user.Level = currUser.Level;
                 user.RwdPoints = currUser.RwdPoints;
                 user.ExpPoints = currUser.ExpPoints;
                 user.Friends = currUser.Friends;
+                user.Status = currUser.Status;
+                user.ChangeDateTime = DateTime.Now;
 
                 var result = await userManager.UpdateAsync(user); //Update user with final view model at time of signout
 

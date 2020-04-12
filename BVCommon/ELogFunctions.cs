@@ -24,8 +24,8 @@ namespace BVCommon
                 error.Add("Two factor authentication required");
             } else
             {
-                error.Add("N/A");
-                error.Add("N/A");
+                error.Add("ACCOUNTNOTFOUND");
+                error.Add("Account Not Found With Those Credentials");
             }
 
             if(error.Count > 2) //Make sure there's only one error being sent back

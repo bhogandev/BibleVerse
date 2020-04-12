@@ -18,6 +18,7 @@ using System.Text;
 using System.Net;
 using BibleVerseDTO.Services;
 using Microsoft.AspNetCore.Http;
+using System.Web;
 
 namespace BibleVerse.Controllers
 {
@@ -56,6 +57,34 @@ namespace BibleVerse.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userid, string token)
+        {
+            EmailConfirmationModel ecom = new EmailConfirmationModel()
+            {
+                userID = userid,
+                token = token
+            };
+
+            HttpClient client = _api.Initial();
+            var requestBody = new StringContent(JsonConvert.SerializeObject(ecom));
+            var result = await client.GetAsync("Email/?userid=" + ecom.userID + "&token=" + ecom.token);
+
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                //Return confirmation screen
+                return View();
+            }
+            else
+            {
+                //Return confirmation screen with failed message passed via ViewBag
+                ViewBag.Errors = JsonConvert.DeserializeObject<List<IdentityError>>(result.Content.ReadAsStringAsync().Result.ToString());
+                return View();
+            }
+
+
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequestModel userLogin)
         {
@@ -71,6 +100,7 @@ namespace BibleVerse.Controllers
                     if (result.ReasonPhrase == "OK") // If API call returns OK, redirect to User Dashboard with user information
                     {
                         Users resultUser = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseUser;
+                        List<Posts> initalPosts = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).InitialPosts;
                         UserViewModel returnUser = new UserViewModel()
                         {
                             UserID = resultUser.UserId,
@@ -89,20 +119,20 @@ namespace BibleVerse.Controllers
 
                         //Here is where user will be directed to their account home page and basic user Information is passed to the next controller
                         HttpContext.Session.SetString("user", JsonConvert.SerializeObject(returnUser));
-
+                        HttpContext.Session.SetString("posts", JsonConvert.SerializeObject(initalPosts));
                         return RedirectToAction("Index", "BBV");
                     }
                     else if (result.ReasonPhrase == "Conflict") // If API call returns Conflict return Login Screen and display reason call failed
                     {
                         List<Error> errors = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseErrors;
                         ViewBag.Errors = errors;
-                        return RedirectToAction("Login");
+                        return View();
                     }
                     else if (result.ReasonPhrase == "BadRequest") // If API call returns BadRequest, return Login Screen and display Bad Request 
                     {
                         List<Error> errors = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ToString()).ResponseErrors;
                         ViewBag.Errors = errors;
-                        return View("Login");
+                        return View();
                     }
                 }
                 else
@@ -156,7 +186,7 @@ namespace BibleVerse.Controllers
                     RegistrationResponseModel registrationResponse = JsonConvert.DeserializeObject<RegistrationResponseModel>(result.Content.ReadAsStringAsync().Result);
 
                     //Send Confirmation Email using confirmation Token
-                    string confirmationLink = Url.Action("ConfirmEmail", "Register", new { userid = registrationResponse.UserId, token = registrationResponse.ConfirmationToken }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
+                    string confirmationLink = Url.Action("ConfirmEmail", "Home", new { userid = registrationResponse.UserId, token = HttpUtility.UrlEncode(registrationResponse.ConfirmationToken) }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
                     EmailService.Send(nu.Email, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
                     return RedirectToAction("Login", "Home");
                 }

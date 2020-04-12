@@ -18,6 +18,31 @@ namespace BibleVerseAPI.Controllers
 
         public PostController(UserActionRepository repository) => _repository = repository;
 
+        [HttpGet]
+        public IActionResult Get(string userName)
+        {
+            List<Posts> userPosts = _repository.GetUserPosts(userName).Result;
+
+            if(userPosts !=  null)
+            {
+                if(userPosts.Count > 0)
+                {
+                    return Ok(userPosts);
+                } else if(userPosts.Count == 0)
+                {
+                    return Ok("No Posts Found");
+                }
+                else
+                {
+                    return Conflict("Unable to Retrieve Posts");
+                }
+            } else
+            {
+                //create Elog Error
+                return BadRequest("An Error Occurred");
+            }
+        }
+
         // POST api/values
         [HttpPost]
         public IActionResult CreatePost([FromBody] object userPost)

@@ -12,5 +12,7 @@ namespace BibleVerse.DTO
             public Users ResponseUser { get; set; }
 
             public List<Error> ResponseErrors { get; set; }
+
+            public List<Posts> InitialPosts { get; set; }
     }
 }
