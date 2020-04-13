@@ -57,31 +57,93 @@ namespace BibleVerse.Controllers
             return View();
         }
 
+        public IActionResult ConfrimEmail()
+        {
+            return View();
+        }
+
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string userid, string token)
         {
-            EmailConfirmationModel ecom = new EmailConfirmationModel()
+            if (userid != null && token != null)
             {
-                userID = userid,
-                token = token
+                EmailConfirmationModel ecom = new EmailConfirmationModel()
+                {
+                    userID = userid,
+                    token = token
+                };
+
+                HttpClient client = _api.Initial();
+                var requestBody = new StringContent(JsonConvert.SerializeObject(ecom));
+                var result = await client.GetAsync("Email/?userid=" + ecom.userID + "&token=" + ecom.token);
+
+                if (result.StatusCode == HttpStatusCode.OK)
+                {
+                    //Return confirmation screen
+                    return View();
+                }
+                else
+                {
+                    //Return confirmation screen with failed message passed via ViewBag
+                    ViewBag.Errors = JsonConvert.DeserializeObject<List<IdentityError>>(result.Content.ReadAsStringAsync().Result.ToString());
+                    return View();
+                }
+            } else
+            {
+                ViewBag.ResendConfirmation = true;
+                return View();
+            }
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResendConfirmation(string userEmail)
+        {
+            UserViewModel requestUser = new UserViewModel()
+            {
+                Email = userEmail
             };
 
             HttpClient client = _api.Initial();
-            var requestBody = new StringContent(JsonConvert.SerializeObject(ecom));
-            var result = await client.GetAsync("Email/?userid=" + ecom.userID + "&token=" + ecom.token);
+            StringContent requestBody = new StringContent(JsonConvert.SerializeObject(requestUser), Encoding.UTF8, "application/json");
+            HttpResponseMessage result = await client.PostAsync("Email", requestBody);
+            var r = result.Content.ReadAsStringAsync();
 
-            if (result.StatusCode == HttpStatusCode.OK)
+            if(r.IsCompletedSuccessfully)
             {
-                //Return confirmation screen
-                return View();
-            }
-            else
-            {
-                //Return confirmation screen with failed message passed via ViewBag
-                ViewBag.Errors = JsonConvert.DeserializeObject<List<IdentityError>>(result.Content.ReadAsStringAsync().Result.ToString());
-                return View();
-            }
+                if(result.ReasonPhrase == "OK")
+                {
+                    RegistrationResponseModel registrationResponse = JsonConvert.DeserializeObject<RegistrationResponseModel>(result.Content.ReadAsStringAsync().Result);
 
+                    //Send Confirmation Email using confirmation Token
+                    string confirmationLink = Url.Action("ConfirmEmail", "Home", new { userid = registrationResponse.UserId, token = HttpUtility.UrlEncode(registrationResponse.ConfirmationToken) }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
+                    EmailService.Send(userEmail, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
+                    return View("ConfirmEmail");
+
+                } else if(result.ReasonPhrase == "Conflict")
+                {
+                    List<string> errors = JsonConvert.DeserializeObject<RegistrationResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseErrors;
+                    ViewBag.Errors = errors;
+                    ViewBag.ResendConfirmation = true;
+                    return View("ConfirmEmail");
+                } else
+                {
+                    Error e = new Error()
+                    {
+                        Code = "BADREQUESTERROR",
+                        Description = "An Unexpected Error Occured, Please Try Again"
+                    };
+                    List<Error> errors = new List<Error>();
+                    errors.Add(e);
+                    ViewBag.Errors = errors;
+                    return View("ConfirmEmail");
+                }
+            } else
+            {
+                // Log Error in ELog
+                Console.WriteLine("Error Occured");
+                return View("ConfirmEmail"); // Return user to Login Screen displaying an Error has occurred
+            }
 
         }
 

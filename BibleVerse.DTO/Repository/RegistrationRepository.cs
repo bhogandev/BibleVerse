@@ -31,7 +31,7 @@ namespace BibleVerse.DTO.Repository
             return _context.Users.ToList();
         }
 
-        public bool ValidatteOrg(string OrgId)
+        public bool ValidateOrg(string OrgId)
         {
             IQueryable<Organization> org;
 
@@ -68,7 +68,7 @@ namespace BibleVerse.DTO.Repository
 
             if (!userExistsAlready)// If user doesn't exist already
             {
-                bool OrgExists = ValidatteOrg(newUser.OrganizationId);
+                bool OrgExists = ValidateOrg(newUser.OrganizationId);
 
                 if (OrgExists)
                 {
@@ -125,6 +125,36 @@ namespace BibleVerse.DTO.Repository
                 apiResponse.ResponseErrors.Add("Email Already Exists");
                 return apiResponse;
             }
+        }
+
+        public async Task<RegistrationResponseModel> ResendConfirmation(UserViewModel requestUser)
+        {
+            RegistrationResponseModel apiResponse = new RegistrationResponseModel();
+            apiResponse.ResponseErrors = new List<string>();
+
+            //Check if user actually exists
+            var user = await userManager.FindByEmailAsync(requestUser.Email);
+
+            if(user != null)
+            {
+                if (!user.EmailConfirmed)
+                {
+                    //resend user confirmation link
+                    apiResponse.ResponseMessage = "Success";
+                    apiResponse.ConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                    apiResponse.UserId = user.Id;
+                } else
+                {
+                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseErrors.Add("User Already Confirmed");
+                }
+            } else
+            {
+                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseErrors.Add("User Not Found!");
+            }
+
+            return apiResponse;
         }
 
         public async Task<EComResponseModel> ConfirmEmail(EmailConfirmationModel ecom)

@@ -5,34 +5,63 @@
     ViewData["Title"] = "Confirmation";
     string confirmationMessage = "";
     List<IdentityError> errors = new List<IdentityError>();
-
-    if(ViewBag.Errors != null)
+    List<string> recomErrors = new List<string>();
+    if (ViewBag.Errors != null && ViewBag.ResendConfirmation == null)
     {
         confirmationMessage = "Account not confirmed! There were the following errors:";
         errors = ViewBag.Errors;
-    } else
+    }
+    else if(ViewBag.ResendConfirmation == null && ViewBag.Errors == null)
     {
         confirmationMessage = "Email Confirmation Successful!";
     }
 }
 
-<h1>Account Confirmation</h1>
-<div>
-   <span style="color: red;">@confirmationMessage</span>
-    @{
-        if(errors.Count < 1)
-        {
-            <a asp-area="" asp-controller="Home" asp-action="Login">Login Here!</a>
-        } else
-        {
-            <ul style="color: red;">
-                @{
-                    foreach(IdentityError e in errors)
-                    {
-                        <li>@e.Description</li>
+@{
+    if (ViewBag.ResendConfirmation == null)
+    {
+        <h1>Account Confirmation</h1>
+        <div>
+            <span style="color: red;">@confirmationMessage</span>
+            @{
+                if (errors.Count < 1)
+                {
+                    <a asp-area="" asp-controller="Home" asp-action="Login">Login Here!</a>
+                }
+                else
+                {
+                    <ul style="color: red;">
+                    @{
+                        foreach (IdentityError e in errors)
+                        {
+                            <li>@e.Description</li>
+                        }
+                    }
+                    </ul>
+                }
+            }
+        </div>
+     } else
+     {
+        <h1>Resend Confirmation</h1>
+        <ul style="color: red;">
+        @{
+            if (ViewBag.Errors != null)
+            {
+                recomErrors = ViewBag.Errors;
+                foreach (string e in recomErrors)
+                {
+                    <li>@e</li>
                     }
                 }
-            </ul>
-        }
-    }
-</div>
+            }
+        </ul>
+        <div class="container">
+            <form class="form-group" asp-action="ResendConfirmation" asp-controller="Home" method="post">
+                <label for="userEmail" class="form-control">Account Email:</label>
+                <input id="userEmail" name="userEmail" class="form-control" type="email" required/>
+                <input type="submit" class="form-control" value="Send Confirmation Link" />
+            </form>
+        </div>
+     }
+}

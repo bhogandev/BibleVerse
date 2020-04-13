@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BibleVerse.DTO;
 using BibleVerse.DTO.Repository;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace BibleVerseAPI.Controllers
 {
@@ -35,6 +36,29 @@ namespace BibleVerseAPI.Controllers
             {
                 return Conflict(eComResponse.ResponseErrors);
             }
+        }
+
+        [HttpPost]
+        public async Task<ObjectResult> ResendConfirmation([FromBody] object ru)
+        {
+            UserViewModel requestUser = JsonConvert.DeserializeObject<UserViewModel>(ru.ToString());
+
+            var response = await _repository.ResendConfirmation(requestUser);
+
+                if(response.ResponseMessage == "Success")
+                {
+                    return Ok(response);
+                } else if(response.ResponseMessage ==  "Failure")
+                {
+                    return Conflict(response);
+                } else
+                {
+                    RegistrationResponseModel genModel = new RegistrationResponseModel()
+                    {
+                        ResponseMessage = "An error occurred during reconfirmation"
+                    };
+                    return BadRequest(response);
+                }
         }
 
         // PUT api/values/5

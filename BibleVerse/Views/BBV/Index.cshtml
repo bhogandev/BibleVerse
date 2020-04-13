@@ -16,12 +16,11 @@
 }
 <div class="container">
     <div id="upstat">
-        @Html.BeginForm("CreatePost", "BBV", FormMethod.Post)
-        {
+        <form class="form-group" asp-action="CreatePost" asp-controller="BBV">
             @Html.TextAreaFor(x => x.Body)
-            <input type="text" name="UserName" value="@user.UserName" hidden/>
-            <input type="submit" value="Create Post"/>
-        }
+            <input type="text" name="UserName" value="@user.UserName" hidden />
+            <input type="submit" value="Create Post" />
+        </form>
     </div>
     <div id="tl">
         @{
