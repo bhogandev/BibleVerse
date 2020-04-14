@@ -32,6 +32,7 @@ namespace BibleVerse.Controllers
             _logger = logger;
         }
 
+        #region Initial  Views
         public IActionResult Index()
         {
             return View();
@@ -61,7 +62,9 @@ namespace BibleVerse.Controllers
         {
             return View();
         }
+        #endregion
 
+        #region Complex Views & Actions
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string userid, string token)
         {
@@ -250,6 +253,12 @@ namespace BibleVerse.Controllers
                     //Send Confirmation Email using confirmation Token
                     string confirmationLink = Url.Action("ConfirmEmail", "Home", new { userid = registrationResponse.UserId, token = HttpUtility.UrlEncode(registrationResponse.ConfirmationToken) }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
                     EmailService.Send(nu.Email, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
+
+                    //Create AWS Buckets For User Storage
+                    var awsresult = await client.PostAsync("AWS", requestBody);
+
+
+
                     return RedirectToAction("Login", "Home");
                 }
                 else if (result.StatusCode == HttpStatusCode.Conflict)
@@ -269,6 +278,7 @@ namespace BibleVerse.Controllers
                 return View("Register");
             }
         }
+        #endregion
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
