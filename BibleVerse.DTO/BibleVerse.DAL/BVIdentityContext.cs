@@ -45,6 +45,8 @@ namespace BibleVerse.DTO
             mb.Entity<UserRelationships>();
             mb.Entity<UserHistory>();
             mb.Entity<Notifications>();
+            mb.Entity<Subscriptions>();
+            mb.Entity<SubscriptionsHistory>();
         }
 
         public virtual DbSet<Users> BVUsers { get; set; }
@@ -64,5 +66,7 @@ namespace BibleVerse.DTO
         public virtual DbSet<UserHistory> UserHistory { get; set; }
         public virtual DbSet<UserAWS> UserAWS { get; set; }
         public virtual DbSet<UserRelationships> UserRelationships { get; set; }
+        public virtual DbSet<Subscriptions> Subscriptions { get; set; }
+        public virtual DbSet<SubscriptionsHistory> SubscriptionsHistory { get; set; }
     }
 }
