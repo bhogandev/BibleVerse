@@ -78,21 +78,60 @@ namespace BibleVerse.DTO.Repository
 
                     if(newOrgID.FirstOrDefault() == null)
                     {
-                        newOrg.OrganizationId = genOrgID;
-                        _context.Organization.Add(newOrg);
-                        _context.SaveChanges();
+                        IQueryable<string> newGenID;
+                        bool subIdCreated = false;
+                        int subRetryTimes = 0;
 
-                        var createdOrg = from c in _context.Organization
-                                         where c.OrganizationId == newOrg.OrganizationId
-                                         select c;
-
-                        if(createdOrg.FirstOrDefault() != null)
+                        while(!subIdCreated && retryTimes < 3)
                         {
-                            idCreated = true;
-                            apiResponse.ResponseMessage = "Success";
-                            apiResponse.ResponseBody = genOrgID;
-                            return apiResponse;
+                            var genSubID = BVFunctions.CreateUserID();
+                            newGenID = from c in _context.Subscriptions
+                                       where c.SubscriptionID == genSubID
+                                       select c.SubscriptionID;
+
+                            if(newGenID.FirstOrDefault() == null)
+                            {
+                                newOrg.OrganizationId = genOrgID;
+            
+                                Subscriptions userSubscription = new Subscriptions()
+                                {
+                                    SubscriptionID = genSubID,
+                                    OrganizationID = newOrg.OrganizationId,
+                                    SubscriptionType = newOrg.Misc,
+                                    ChangeDateTime = DateTime.Now,
+                                    CreateDateTime = DateTime.Now
+                                };
+
+                                newOrg.SubsciberId = userSubscription.SubscriptionID;
+                                newOrg.Misc = "";
+                                newOrg.CreateDateTime = DateTime.Now;
+                                newOrg.ChangeDateTime = DateTime.Now;
+
+                                _context.Organization.Add(newOrg);
+                                _context.SaveChanges();
+
+                                var createdOrg = from c in _context.Organization
+                                                 where c.OrganizationId == newOrg.OrganizationId
+                                                 select c;
+
+                                if (createdOrg.FirstOrDefault() != null)
+                                {
+                                    var createdSub = from c in _context.Subscriptions
+                                                     where c.SubscriptionID == userSubscription.SubscriptionID
+                                                     select c;
+
+                                    if (createdSub.FirstOrDefault() != null)
+                                    {
+                                        idCreated = true;
+                                        subIdCreated = true;
+                                        apiResponse.ResponseMessage = "Success";
+                                        apiResponse.ResponseBody = genOrgID;
+                                        return apiResponse;
+                                    }
+                                }
+                            }
                         }
+                        subRetryTimes++;
                     }
                     retryTimes++;
                 }

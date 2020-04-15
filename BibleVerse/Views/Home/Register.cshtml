@@ -57,6 +57,10 @@
                     @Html.TextBoxFor(x => x.Email, new { @class = "form-control", @type = "email" });
                     @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" });
                     <br />
+                    @Html.LabelFor(x => x.Description);
+                    @Html.TextBoxFor(x => x.Description, new { @class = "form-control", @type = "email" });
+                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" });
+                    <br />
                     @Html.LabelFor(x => x.PhoneNumber);
                     @Html.TextBoxFor(x => x.PhoneNumber, new { @class = "form-control", @type = "text" });
                     @Html.ValidationMessageFor(x => x.PhoneNumber, "", new { @class = "text-danger" });
@@ -64,7 +68,7 @@
                     <label for="SubscriptionPlan">Subscription Plan:</label>
                     <select name="SubscriptionPlan" id="SubscriptionPlan" class="form-control" asp-items="Html.GetEnumSelectList<BibleVerse.DTO.RegisterViewModel.SubscriptionTypes>()">
                     </select>
-                    <br/>
+                    <br />
                     <input type="submit" value="Create Organization" class="btn btn-primary" />
                 }
             }
@@ -97,7 +101,14 @@
                     @Html.ValidationMessageFor(x => x.PhoneNumber, "", new { @class = "text-danger" });
                     <br />
                     @Html.LabelFor(x => x.OrganizationID);
-                    @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control" });
+                        if (ViewBag.OrgCode != null)
+                        {
+                            @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control", @value = ViewBag.OrgCode });
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control"});
+                        }
                     @Html.ValidationMessageFor(x => x.OrganizationID, "", new { @class = "text-danger" });
                     <br />
 

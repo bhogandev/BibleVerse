@@ -30,6 +30,10 @@ namespace BibleVerse.DTO
 
         public string Name { get; set; }
 
+        public string Description { get; set; }
+
+        public string ReferenceCode { get; set; }
+
         public SubscriptionTypes SubscriptionPlan { get; set; }
 
         public enum SubscriptionTypes

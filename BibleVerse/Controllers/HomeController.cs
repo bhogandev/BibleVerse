@@ -112,8 +112,9 @@ namespace BibleVerse.Controllers
             {
                 Name = orgBody.Name,
                 Email = orgBody.Email,
+                Description = orgBody.Description,
                 PhoneNum = orgBody.PhoneNumber,
-                SubsciberId = orgBody.SubscriptionPlan.ToString()
+                Misc = orgBody.SubscriptionPlan.ToString()
             };
 
             HttpClient client = _api.Initial();
