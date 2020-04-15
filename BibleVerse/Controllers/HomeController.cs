@@ -58,6 +58,12 @@ namespace BibleVerse.Controllers
             return View();
         }
 
+        public IActionResult RegisterOrg()
+        {
+            ViewBag.OrgSetup = true;
+            return View("Register");
+        }
+
         public IActionResult ConfrimEmail()
         {
             return View();
@@ -97,6 +103,48 @@ namespace BibleVerse.Controllers
                 return View();
             }
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterOrg(RegisterViewModel orgBody)
+        {
+            Organization newOrg = new Organization()
+            {
+                Name = orgBody.Name,
+                Email = orgBody.Email,
+                PhoneNum = orgBody.PhoneNumber,
+                SubsciberId = orgBody.SubscriptionPlan.ToString()
+            };
+
+            HttpClient client = _api.Initial();
+            StringContent requestBody = new StringContent(JsonConvert.SerializeObject(newOrg), Encoding.UTF8, "application/json");
+            HttpResponseMessage result = await client.PostAsync("Register/CreateOrg", requestBody);
+            var r = result.Content.ReadAsStringAsync();
+            ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
+
+            if (r.IsCompletedSuccessfully)
+            {
+                if(result.ReasonPhrase == "OK")
+                {
+                    ViewBag.OrgCode = response.ResponseBody;
+                    return RedirectToAction("Register", "Home"); // Return user to create their user account
+                } else if(result.ReasonPhrase == "Conflict")
+                {
+                    ViewBag.Errors = response.ResponseErrors;
+                    ViewBag.OrgSetup = true;
+                    return View("RegisterOrg");
+                } else
+                {
+                    ViewBag.OrgSetup = true;
+                    ViewBag.Errors = response.ResponseErrors;
+                    return View("RegisterOrg");
+                }  
+            } else
+            {
+                // Log Error in ELog
+                Console.WriteLine("Error Occured");
+                return View("ConfirmEmail"); // Return user to Login Screen displaying an Error has occurred
+            }
         }
 
         [HttpPost]
@@ -210,6 +258,8 @@ namespace BibleVerse.Controllers
 
             return View();
         }
+
+
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel newUser)

@@ -48,6 +48,67 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
+        public async Task<ApiResponseModel> CreateOrganization(Organization newOrg)
+        {
+            IQueryable<string> newOrgID;
+            bool idCreated = false;
+            bool orgExistsAlready = false;
+            int retryTimes = 0;
+            ApiResponseModel apiResponse = new ApiResponseModel();
+            apiResponse.ResponseErrors = new List<string>();
+
+            var org = from c in _context.Organization
+                      where c.Email == newOrg.Email
+                      select c;
+
+            if(org.FirstOrDefault() != null)
+            {
+                orgExistsAlready = true;
+            }
+
+            if(!orgExistsAlready)
+            {
+               // Create OrganizationID
+               while(idCreated == false && retryTimes < 3)
+                {
+                    var genOrgID = BVFunctions.CreateUserID();
+                    newOrgID = from c in _context.Organization
+                               where c.OrganizationId == genOrgID
+                               select c.OrganizationId;
+
+                    if(newOrgID.FirstOrDefault() == null)
+                    {
+                        newOrg.OrganizationId = genOrgID;
+                        _context.Organization.Add(newOrg);
+                        _context.SaveChanges();
+
+                        var createdOrg = from c in _context.Organization
+                                         where c.OrganizationId == newOrg.OrganizationId
+                                         select c;
+
+                        if(createdOrg.FirstOrDefault() != null)
+                        {
+                            idCreated = true;
+                            apiResponse.ResponseMessage = "Success";
+                            apiResponse.ResponseBody = genOrgID;
+                            return apiResponse;
+                        }
+                    }
+                    retryTimes++;
+                }
+
+            } else
+            {
+                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseErrors.Add("An organization with this email already exists.");
+                return apiResponse;
+            }
+
+            apiResponse.ResponseMessage = "Failure";
+            apiResponse.ResponseErrors.Add("Organization Creation Failed. Please try again.");
+            return apiResponse;
+        }
+
         public async Task<RegistrationResponseModel> CreateUser(Users newUser)
         {
             IQueryable<string> newUID;

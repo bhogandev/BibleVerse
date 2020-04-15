@@ -59,7 +59,28 @@ namespace BibleVerseAPI.Controllers
             }
         }
         
-        
+        [HttpPost]
+        [Route("api/[Controller]/CreateOrg")]
+        public async Task<ObjectResult> CreateOrg([FromBody] object userOrg)
+        {
+            Organization newOrg = JsonConvert.DeserializeObject<Organization>(userOrg.ToString());
+
+            var apiResponse = await _repository.CreateOrganization(newOrg);
+
+            if(apiResponse.ResponseMessage == "Success")
+            {
+                return Ok(apiResponse);
+            } else if(apiResponse.ResponseMessage == "Failure")
+            {
+                return Conflict(apiResponse);
+            } else
+            {
+                apiResponse.ResponseMessage = "BadRequest";
+                apiResponse.ResponseErrors = new List<string>();
+                apiResponse.ResponseErrors.Add("An Unexpected Error Occured. Please try again");
+                return BadRequest(apiResponse);
+            }
+        }
 
     }
 }

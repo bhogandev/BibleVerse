@@ -1,55 +1,109 @@
 ﻿@model BibleVerse.DTO.RegisterViewModel
 @{
     ViewData["Title"] = "Join The BibleVerse Community";
+    bool orgMode = false;
+    if (ViewBag.OrgSetup != null)
+    {
+        orgMode = true;
+    }
 }
 
     <div class="center">
-        <h1 class="text-center">Sign up now and join your church community!</h1>
+        @{
+            if (orgMode)
+            {
+                <h1 class="text-center">Create Your Church Community!</h1>
+            }
+            else
+            {
+                <h1 class="text-center">Sign up now and join your church community!</h1>
+            }
+        }
+
         <div id="Errors" class="text-danger">
             <ul>
                 @{
                     if (ViewBag.Errors != null)
                     {
-                        foreach(string error in ViewBag.Errors)
+                        foreach (string error in ViewBag.Errors)
                         {
                             <li>@error</li>
                         }
                     }
-                 }
+                }
             </ul>
         </div>
-        @using (Html.BeginForm("Register", "Home", FormMethod.Post))
-        {
-            @Html.LabelFor(x => x.Email);
-            @Html.TextBoxFor(x => x.Email, new { @class = "form-control", @type = "email"});
-            @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" });
-            <br />
-            @Html.LabelFor(x => x.UserName);
-            @Html.TextBoxFor(x => x.UserName, new { @class = "form-control" });
-            @Html.ValidationMessageFor(x => x.UserName, "", new { @class = "text-danger" });
-            <br />
-            @Html.LabelFor(x => x.Password);
-            @Html.TextBoxFor(x => x.Password, new { @class = "form-control", @type = "password" });
-            @Html.ValidationMessageFor(x => x.Password, "", new { @class = "text-danger" });
-            <br />
-            @Html.LabelFor(x => x.ConfirmPassword);
-            @Html.TextBoxFor(x => x.ConfirmPassword, new { @class = "form-control", @type = "password" });
-            @Html.ValidationMessageFor(x => x.ConfirmPassword, "", new { @class = "text-danger" });
-            <br/>
-            @Html.LabelFor(x => x.DOB);
-            @Html.EditorFor(x => x.DOB, new { @class = "form-control" });
-            @Html.ValidationMessageFor(x => x.DOB, "", new { @class = "text-danger" });
-            <br />
-            @Html.LabelFor(x => x.PhoneNumber);
-            @Html.TextBoxFor(x => x.PhoneNumber, new { @class = "form-control" });
-            @Html.ValidationMessageFor(x => x.PhoneNumber, "", new { @class = "text-danger" });
-            <br />
-            @Html.LabelFor(x => x.OrganizationID);
-            @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control" });
-            @Html.ValidationMessageFor(x => x.OrganizationID, "", new { @class = "text-danger" });
-            <br />
+        @{
+            if (orgMode)
+            {
+                <ul>
+                    @{
+                        if (ViewBag.Errors != null)
+                        {
+                            foreach (string e in ViewBag.Errors)
+                            {
+                                <li>@e</li>
+                            }
+                        }
+                    }
+                </ul>
+                @using (Html.BeginForm("RegisterOrg", "Home", FormMethod.Post))
+                {
+                    @Html.LabelFor(x => x.Name);
+                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control", @type = "text" });
+                    @Html.ValidationMessageFor(x => x.Name, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.Email);
+                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control", @type = "email" });
+                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.PhoneNumber);
+                    @Html.TextBoxFor(x => x.PhoneNumber, new { @class = "form-control", @type = "text" });
+                    @Html.ValidationMessageFor(x => x.PhoneNumber, "", new { @class = "text-danger" });
+                    <br />
+                    <label for="SubscriptionPlan">Subscription Plan:</label>
+                    <select name="SubscriptionPlan" id="SubscriptionPlan" class="form-control" asp-items="Html.GetEnumSelectList<BibleVerse.DTO.RegisterViewModel.SubscriptionTypes>()">
+                    </select>
+                    <br/>
+                    <input type="submit" value="Create Organization" class="btn btn-primary" />
+                }
+            }
+            else
+            {
+                @using (Html.BeginForm("Register", "Home", FormMethod.Post))
+                {
+                    @Html.LabelFor(x => x.Email);
+                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control", @type = "email" });
+                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.UserName);
+                    @Html.TextBoxFor(x => x.UserName, new { @class = "form-control" });
+                    @Html.ValidationMessageFor(x => x.UserName, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.Password);
+                    @Html.TextBoxFor(x => x.Password, new { @class = "form-control", @type = "password" });
+                    @Html.ValidationMessageFor(x => x.Password, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.ConfirmPassword);
+                    @Html.TextBoxFor(x => x.ConfirmPassword, new { @class = "form-control", @type = "password" });
+                    @Html.ValidationMessageFor(x => x.ConfirmPassword, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.DOB);
+                    @Html.EditorFor(x => x.DOB, new { @class = "form-control" });
+                    @Html.ValidationMessageFor(x => x.DOB, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.PhoneNumber);
+                    @Html.TextBoxFor(x => x.PhoneNumber, new { @class = "form-control" });
+                    @Html.ValidationMessageFor(x => x.PhoneNumber, "", new { @class = "text-danger" });
+                    <br />
+                    @Html.LabelFor(x => x.OrganizationID);
+                    @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control" });
+                    @Html.ValidationMessageFor(x => x.OrganizationID, "", new { @class = "text-danger" });
+                    <br />
 
-            <input type="submit" value="Register" class="btn btn-primary" />
+                    <input type="submit" value="Register" class="btn btn-primary" />
+                }
+            }
         }
     </div>
 

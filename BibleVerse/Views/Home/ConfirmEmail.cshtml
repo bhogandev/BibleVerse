@@ -58,8 +58,8 @@
         </ul>
         <div class="container">
             <form class="form-group" asp-action="ResendConfirmation" asp-controller="Home" method="post">
-                <label for="userEmail" class="form-control">Account Email:</label>
-                <input id="userEmail" name="userEmail" class="form-control" type="email" required/>
+                <label for="userEmail">Account Email:</label>
+                <input id="userEmail" name="userEmail" class="form-control" type="email" placeholder="Enter Email For Account Here" required/>
                 <input type="submit" class="form-control" value="Send Confirmation Link" />
             </form>
         </div>

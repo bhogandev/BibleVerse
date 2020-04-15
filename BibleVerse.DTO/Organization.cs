@@ -34,6 +34,8 @@ namespace BibleVerse.DTO
         [Required]
         public string OrgSettingsId { get; set; }
 
+        public string Misc { get; set; }
+
         public bool IsSuspended { get; set; }
 
         public bool IsDeleted { get; set; }

@@ -28,5 +28,16 @@ namespace BibleVerse.DTO
         [Required]
         public string OrganizationID { get; set; }
 
+        public string Name { get; set; }
+
+        public SubscriptionTypes SubscriptionPlan { get; set; }
+
+        public enum SubscriptionTypes
+        {
+            Free = 1,
+            Bronze = 2,
+            Gold = 3,
+            Platinum = 4
+        }
     }
 }
