@@ -47,7 +47,7 @@ namespace BibleVerseAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            
             app.UseAuthentication();
 
             app.UseAuthorization();

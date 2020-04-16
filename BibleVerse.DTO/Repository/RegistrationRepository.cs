@@ -48,6 +48,7 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
+        //Create an organization
         public async Task<ApiResponseModel> CreateOrganization(Organization newOrg)
         {
             IQueryable<string> newOrgID;
@@ -56,7 +57,9 @@ namespace BibleVerse.DTO.Repository
             int retryTimes = 0;
             ApiResponseModel apiResponse = new ApiResponseModel();
             apiResponse.ResponseErrors = new List<string>();
+            apiResponse.ResponseBody = new List<string>();
 
+            //See if Organization Exists already
             var org = from c in _context.Organization
                       where c.Email == newOrg.Email
                       select c;
@@ -66,33 +69,34 @@ namespace BibleVerse.DTO.Repository
                 orgExistsAlready = true;
             }
 
-            if(!orgExistsAlready)
+            if(!orgExistsAlready) //If org doesn't exist, create org
             {
-               // Create OrganizationID
-               while(idCreated == false && retryTimes < 3)
+                // Create OrganizationID
+                while (idCreated == false && retryTimes < 3)
                 {
                     var genOrgID = BVFunctions.CreateUserID();
                     newOrgID = from c in _context.Organization
                                where c.OrganizationId == genOrgID
                                select c.OrganizationId;
 
-                    if(newOrgID.FirstOrDefault() == null)
+                    if (newOrgID.FirstOrDefault() == null) //If generated ID isn't being used, assign it to org entity
                     {
                         IQueryable<string> newGenID;
                         bool subIdCreated = false;
                         int subRetryTimes = 0;
 
-                        while(!subIdCreated && retryTimes < 3)
+                        //Create SubscriptionID
+                        while (!subIdCreated && retryTimes < 3)
                         {
                             var genSubID = BVFunctions.CreateUserID();
                             newGenID = from c in _context.Subscriptions
                                        where c.SubscriptionID == genSubID
                                        select c.SubscriptionID;
 
-                            if(newGenID.FirstOrDefault() == null)
+                            if (newGenID.FirstOrDefault() == null) //If subscription ID isn't being used, assign it to sub entity
                             {
                                 newOrg.OrganizationId = genOrgID;
-            
+
                                 Subscriptions userSubscription = new Subscriptions()
                                 {
                                     SubscriptionID = genSubID,
@@ -102,40 +106,91 @@ namespace BibleVerse.DTO.Repository
                                     CreateDateTime = DateTime.Now
                                 };
 
+                                OrgSettings defaultOrgSettings = new OrgSettings()
+                                {
+                                    OrgSettingsId = newOrg.OrganizationId,
+                                    OrganizationName = newOrg.Name,
+                                    SharingEnabled = true,
+                                    CalendarSharing = true,
+                                    FollowersEnabled = true,
+                                    MemMsgEnabled = true,
+                                    OrgMsgEnabled = true,
+                                    ChangeDateTime = DateTime.Now,
+                                    CreateDateTime = DateTime.Now
+                                };
+
                                 newOrg.SubsciberId = userSubscription.SubscriptionID;
                                 newOrg.Misc = "";
                                 newOrg.CreateDateTime = DateTime.Now;
                                 newOrg.ChangeDateTime = DateTime.Now;
+                                newOrg.OrgSettingsId = newOrg.OrganizationId;
 
+                                _context.OrgSettings.Add(defaultOrgSettings);
                                 _context.Organization.Add(newOrg);
+                                _context.Subscriptions.Add(userSubscription);
                                 _context.SaveChanges();
 
                                 var createdOrg = from c in _context.Organization
                                                  where c.OrganizationId == newOrg.OrganizationId
                                                  select c;
 
-                                if (createdOrg.FirstOrDefault() != null)
+                                if (createdOrg.FirstOrDefault() != null) // If organization is actually created
                                 {
                                     var createdSub = from c in _context.Subscriptions
                                                      where c.SubscriptionID == userSubscription.SubscriptionID
                                                      select c;
 
-                                    if (createdSub.FirstOrDefault() != null)
+                                    if (createdSub.FirstOrDefault() != null) //if sub is actually created
                                     {
-                                        idCreated = true;
-                                        subIdCreated = true;
-                                        apiResponse.ResponseMessage = "Success";
-                                        apiResponse.ResponseBody = genOrgID;
-                                        return apiResponse;
+                                        bool refCodeCreated = false;
+                                        int refRetryTimes = 0;
+
+                                        while (!refCodeCreated && refRetryTimes < 3) // Create Ref Log +  Code
+                                        {
+                                            string refCode = BVFunctions.CreateRefCode();
+
+                                            var createdRefCode = from c in _context.RefCodeLogs
+                                                                 where c.RefCode == refCode
+                                                                 select c;
+
+                                            if (createdRefCode.FirstOrDefault() == null)  // If ref code isn't being used
+                                            {
+                                                RefCodeLogs newRefLog = new RefCodeLogs()
+                                                {
+                                                    OrganizationID = newOrg.OrganizationId,
+                                                    RefCode = refCode,
+                                                    RefCodeType = "Owner Referral Code",
+                                                    isUsed = false,
+                                                    isExpired = false,
+                                                    ChangeDateTime = DateTime.Now,
+                                                    CreateDateTime = DateTime.Now
+                                                };
+
+                                                _context.RefCodeLogs.Add(newRefLog); //Add  ref code to table
+                                                _context.SaveChanges();
+
+                                                //Exit Loop
+                                                idCreated = true;
+                                                subIdCreated = true;
+                                                refCodeCreated = true;
+
+                                                //Set api response to success and add data to pass
+                                                apiResponse.ResponseMessage = "Success";
+                                                apiResponse.ResponseBody.Add(genOrgID);
+                                                apiResponse.ResponseBody.Add(refCode);
+                                                return apiResponse;
+                                            }
+                                            retryTimes++;
+                                        }
                                     }
                                 }
+
                             }
+                            subRetryTimes++;
                         }
-                        subRetryTimes++;
                     }
                     retryTimes++;
                 }
-
             } else
             {
                 apiResponse.ResponseMessage = "Failure";
@@ -148,6 +203,7 @@ namespace BibleVerse.DTO.Repository
             return apiResponse;
         }
 
+        //Create a User
         public async Task<RegistrationResponseModel> CreateUser(Users newUser)
         {
             IQueryable<string> newUID;
@@ -183,10 +239,52 @@ namespace BibleVerse.DTO.Repository
                         if (newUID.FirstOrDefault() == null) // If userID is not already in DB
                         {
                             newUser.UserId = genUID;
+
+                            //Check if referal code changes  user status
+                            if(newUser.Status != "Member") //If actual reference code is passed
+                            {
+                                var newUserStatus = from c in _context.RefCodeLogs
+                                                    where c.RefCode == newUser.Status
+                                                    select c;
+
+                                if(newUserStatus.FirstOrDefault() != null) //If ref code is found
+                                {
+                                    var userStatus = BVFunctions.RetreiveStatusFromRefCode(newUserStatus.FirstOrDefault().RefCodeType);
+
+                                    if(!userStatus.Contains("Error"))
+                                    {
+                                        newUser.Status = userStatus;
+                                        newUserStatus.First().isUsed = true;
+                                        newUserStatus.First().ChangeDateTime = DateTime.Now;
+                                        _context.RefCodeLogs.Update(newUserStatus.FirstOrDefault());
+                                        _context.SaveChanges();
+
+                                    } else
+                                    {
+                                        apiResponse.ResponseMessage = "Failure";
+                                        apiResponse.ResponseErrors.Add("Referral Code is Invalid");
+                                        return apiResponse;
+                                    }
+                                } else
+                                {
+                                    apiResponse.ResponseMessage = "Failure";
+                                    apiResponse.ResponseErrors.Add("Referral Code is Invalid");
+                                    return apiResponse;
+                                }
+                            }
+
                             var res = await userManager.CreateAsync(newUser, newUser.PasswordHash);
 
                             if (res.Succeeded)
                             {
+                                var org = from o in _context.Organization
+                                      where o.OrganizationId == newUser.OrganizationId
+                                      select o;
+
+                                org.FirstOrDefault().Members++;
+                                _context.Organization.Update(org.FirstOrDefault());
+                                _context.SaveChanges();
+
                                 idCreated = true;
                                 apiResponse.ResponseMessage = "Success";
                                 apiResponse.ConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(newUser);

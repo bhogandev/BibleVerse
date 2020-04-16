@@ -82,5 +82,18 @@ namespace BVCommon
 
             return refCode;
         }
+
+        //Get User Status From Referral Code
+        public static string RetreiveStatusFromRefCode(string refCodeType)
+        {
+            if(refCodeType == "Owner Referral Code")
+            {
+                return "Owner";
+            } else
+            {
+                return "Error: Not Valid Code";
+            }
+        }
+
     }
 }

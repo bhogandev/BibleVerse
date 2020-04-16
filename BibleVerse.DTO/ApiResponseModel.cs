@@ -9,6 +9,6 @@ namespace BibleVerse.DTO
 
         public List<string> ResponseErrors { get; set; }
 
-        public string ResponseBody { get; set; }
+        public List<string> ResponseBody { get; set; }
     }
 }

@@ -13,7 +13,7 @@ using System.Net.Http;
 namespace BibleVerseAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class RegistrationController : ControllerBase
     {
         private readonly RegistrationRepository _repository;
@@ -26,7 +26,7 @@ namespace BibleVerseAPI.Controllers
             if (_repository.GetAllUsers().Count > 0)
             {
                 return Ok(_repository.GetAllUsers());
-            } else if(_repository.GetAllUsers().Count == 0)
+            } else if(_repository.GetAllUsers().Count == 0) 
             {
                 return NotFound("No Users Found");
             } else
@@ -35,7 +35,9 @@ namespace BibleVerseAPI.Controllers
             }
         }
 
+        
         [HttpPost]
+        [ActionName("CreateUser")]
         public async Task<ObjectResult> CreateUser([FromBody] object userRequest)
         {
             Users newU = JsonConvert.DeserializeObject<Users>(userRequest.ToString());
@@ -60,7 +62,7 @@ namespace BibleVerseAPI.Controllers
         }
         
         [HttpPost]
-        [Route("api/[Controller]/CreateOrg")]
+        [ActionName("CreateOrg")]
         public async Task<ObjectResult> CreateOrg([FromBody] object userOrg)
         {
             Organization newOrg = JsonConvert.DeserializeObject<Organization>(userOrg.ToString());

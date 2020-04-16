@@ -119,7 +119,7 @@ namespace BibleVerse.Controllers
 
             HttpClient client = _api.Initial();
             StringContent requestBody = new StringContent(JsonConvert.SerializeObject(newOrg), Encoding.UTF8, "application/json");
-            HttpResponseMessage result = await client.PostAsync("Register/CreateOrg", requestBody);
+            HttpResponseMessage result = await client.PostAsync("Registration/CreateOrg", requestBody);
             var r = result.Content.ReadAsStringAsync();
             ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
 
@@ -127,8 +127,13 @@ namespace BibleVerse.Controllers
             {
                 if(result.ReasonPhrase == "OK")
                 {
-                    ViewBag.OrgCode = response.ResponseBody;
-                    return RedirectToAction("Register", "Home"); // Return user to create their user account
+
+                    //Create Email to send to organization and provide owner with owner referal code and instructions
+                    string refCode = response.ResponseBody[1];
+                    EmailService.Send(newOrg.Email, "Your Organization Credentials", "Thank you for registering your organization with BibleVerse. \n Your organization ID is:  \n"  + response.ResponseBody[0] + "Please use the refferal code below to create your organization owner account: \n" + refCode);
+
+                    ViewBag.OrgCode = response.ResponseBody[0];
+                    return View("Register"); // Return user to create their user account
                 } else if(result.ReasonPhrase == "Conflict")
                 {
                     ViewBag.Errors = response.ResponseErrors;
@@ -265,6 +270,11 @@ namespace BibleVerse.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel newUser)
         {
+            if(newUser.ReferenceCode == null)
+            {
+                newUser.ReferenceCode = "Member";
+            }
+
             Users nu = new Users()
             {
                 UserId = "000000-000000-000000-000000",
@@ -274,7 +284,7 @@ namespace BibleVerse.Controllers
                 Level = 1,
                 ExpPoints = 0,
                 RwdPoints = 0,
-                Status = "Member",
+                Status = newUser.ReferenceCode,
                 OnlineStatus = "Offline",
                 Friends = 0,
                 PhoneNumber = newUser.PhoneNumber,
@@ -289,7 +299,7 @@ namespace BibleVerse.Controllers
 
             HttpClient client = _api.Initial();
             var requestBody = new StringContent(JsonConvert.SerializeObject(nu), Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("Registration", requestBody);
+            var result = await client.PostAsync("Registration/CreateUser", requestBody);
 
             //Verify user was created
             var r = result.Content.ReadAsStringAsync();

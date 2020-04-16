@@ -58,8 +58,8 @@
                     @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" });
                     <br />
                     @Html.LabelFor(x => x.Description);
-                    @Html.TextBoxFor(x => x.Description, new { @class = "form-control", @type = "email" });
-                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" });
+                    @Html.TextBoxFor(x => x.Description, new { @class = "form-control", @type = "text" });
+                    @Html.ValidationMessageFor(x => x.Description, "", new { @class = "text-danger" });
                     <br />
                     @Html.LabelFor(x => x.PhoneNumber);
                     @Html.TextBoxFor(x => x.PhoneNumber, new { @class = "form-control", @type = "text" });
@@ -101,17 +101,20 @@
                     @Html.ValidationMessageFor(x => x.PhoneNumber, "", new { @class = "text-danger" });
                     <br />
                     @Html.LabelFor(x => x.OrganizationID);
-                        if (ViewBag.OrgCode != null)
-                        {
-                            @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control", @value = ViewBag.OrgCode });
-                        }
-                        else
-                        {
-                            @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control"});
-                        }
+                    if (ViewBag.OrgCode != null)
+                    {
+                        @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control", @value = ViewBag.OrgCode });
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(x => x.OrganizationID, new { @class = "form-control" });
+                    }
                     @Html.ValidationMessageFor(x => x.OrganizationID, "", new { @class = "text-danger" });
                     <br />
-
+                    @Html.LabelFor(x => x.ReferenceCode);
+                    @Html.TextBoxFor(x => x.ReferenceCode, new { @class = "form-control" });
+                    @Html.ValidationMessageFor(x => x.ReferenceCode, "", new { @class = "text-danger" });
+                    <br />
                     <input type="submit" value="Register" class="btn btn-primary" />
                 }
             }
