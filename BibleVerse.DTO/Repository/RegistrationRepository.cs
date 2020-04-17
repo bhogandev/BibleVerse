@@ -250,16 +250,26 @@ namespace BibleVerse.DTO.Repository
                                 if(newUserStatus.FirstOrDefault() != null) //If ref code is found
                                 {
                                     var userStatus = BVFunctions.RetreiveStatusFromRefCode(newUserStatus.FirstOrDefault().RefCodeType);
+                                    RefCodeLogs genRefCode = newUserStatus.First();
 
-                                    if(!userStatus.Contains("Error"))
+                                    if(!userStatus.Contains("Error") && genRefCode.isUsed != true)
                                     {
                                         newUser.Status = userStatus;
-                                        newUserStatus.First().isUsed = true;
-                                        newUserStatus.First().ChangeDateTime = DateTime.Now;
-                                        _context.RefCodeLogs.Update(newUserStatus.FirstOrDefault());
+                                        genRefCode.isUsed = true;
+                                        genRefCode.ChangeDateTime = DateTime.Now;
+                                        _context.RefCodeLogs.Update(genRefCode);
                                         _context.SaveChanges();
 
-                                    } else
+                                    } else if(genRefCode.isUsed == true)
+                                    {
+                                        apiResponse.ResponseMessage = "Failure";
+                                        apiResponse.ResponseErrors.Add("Referral Code Has Already Been Used!");
+                                    }else if (genRefCode.isExpired == true)
+                                    {
+                                        apiResponse.ResponseMessage = "Failure";
+                                        apiResponse.ResponseErrors.Add("Referral Code Has Expired. Please Request Another Or Customer Support");
+                                    }
+                                    else
                                     {
                                         apiResponse.ResponseMessage = "Failure";
                                         apiResponse.ResponseErrors.Add("Referral Code is Invalid");

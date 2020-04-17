@@ -48,6 +48,7 @@ namespace BibleVerse.DTO
             mb.Entity<Subscriptions>();
             mb.Entity<SubscriptionsHistory>();
             mb.Entity<RefCodeLogs>();
+            mb.Entity<SiteConfigs>();
         }
 
         public virtual DbSet<Users> BVUsers { get; set; }
@@ -70,5 +71,6 @@ namespace BibleVerse.DTO
         public virtual DbSet<Subscriptions> Subscriptions { get; set; }
         public virtual DbSet<SubscriptionsHistory> SubscriptionsHistory { get; set; }
         public virtual DbSet<RefCodeLogs> RefCodeLogs { get; set; }
+        public virtual DbSet<SiteConfigs> SiteConfigs { get; set; }
     }
 }

@@ -127,6 +127,21 @@ namespace BibleVerse.Controllers
             {
                 if(result.ReasonPhrase == "OK")
                 {
+                    newOrg.OrganizationId = response.ResponseBody[0];
+
+                    //Create Bucket for organization
+                    requestBody = new StringContent(JsonConvert.SerializeObject(newOrg), Encoding.UTF8, "application/json");
+                    HttpResponseMessage awsres = await client.PostAsync("AWS/CreateOrgBucket", requestBody);
+                    var awsr = awsres.Content.ReadAsStringAsync();
+
+                    if(awsr.IsCompletedSuccessfully)
+                    {
+
+                    } else
+                    {
+                       //Create Elog Error and Support Task
+                       
+                    }
 
                     //Create Email to send to organization and provide owner with owner referal code and instructions
                     string refCode = response.ResponseBody[1];

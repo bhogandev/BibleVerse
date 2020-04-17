@@ -18,6 +18,7 @@ namespace BibleVerseAPI.Controllers
 
         public PostController(UserActionRepository repository) => _repository = repository;
 
+        //Get All Of User's Posts
         [HttpGet]
         public IActionResult Get(string userName)
         {
@@ -42,6 +43,8 @@ namespace BibleVerseAPI.Controllers
                 return BadRequest("An Error Occurred");
             }
         }
+
+        //Get Timeline Posts
 
         // POST api/values
         [HttpPost]
