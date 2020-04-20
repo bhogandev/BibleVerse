@@ -66,7 +66,7 @@ namespace BibleVerse.Controllers
 
                     //Send Confirmation Email using confirmation Token
                     string confirmationLink = Url.Action("ConfirmEmail", "Register", new { userid = registrationResponse.UserId, token = registrationResponse.ConfirmationToken }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
-                    _emailService.Send(nu.Email, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
+                    EmailService.Send(nu.Email, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
                     return RedirectToAction("Index","Login");
                 }
                 else if (result.StatusCode == HttpStatusCode.Conflict)

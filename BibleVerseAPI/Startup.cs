@@ -34,6 +34,8 @@ namespace BibleVerseAPI
             services.AddScoped<RegistrationRepository>();
             services.AddScoped<UserActionRepository>();
             services.AddScoped<AWSRepository>();
+            services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
+            services.AddAWSService<IAmazonS3>();
             services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>().AddDefaultTokenProviders();
             services.AddDbContext<BVIdentityContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
         }

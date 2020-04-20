@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 namespace BibleVerseAPI.Controllers
 {
+    [ApiController]
     [Route("api/[controller]/[action]")]
     public class AWSController : Controller
     {
@@ -16,20 +17,21 @@ namespace BibleVerseAPI.Controllers
 
         public AWSController(AWSRepository repository) => _repository = repository;
 
+        /*
         [HttpPost]
         [ActionName("CreateUserDir")]
-        public void CreateUserDir([FromBody]string newUser)
+        public async Task<ObjectResult> CreateUserDir([FromBody]string newUser)
         {
             //Run Method in aws repository to create user dir in org bucket
 
         }
-
+        */
         
         [HttpPost]
         [ActionName("CreateOrgBucket")]
-        public void CreateOrgBucket([FromBody] string org)
+        public async Task<ObjectResult> CreateOrgBucket([FromBody] object org)
         {
-            /*
+            
             Organization newOrg = JsonConvert.DeserializeObject<Organization>(org.ToString());
 
             var apiResponse = await _repository.CreateOrgBucket(newOrg);
@@ -49,7 +51,7 @@ namespace BibleVerseAPI.Controllers
                 apiResponse.ResponseErrors.Add("An Unexpected Error Occured. Please try again");
                 return BadRequest(apiResponse);
             }
-            */
+            
         }
     }  
 }

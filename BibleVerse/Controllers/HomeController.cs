@@ -333,7 +333,10 @@ namespace BibleVerse.Controllers
                     //Create AWS Buckets For User Storage
                     var awsresult = await client.PostAsync("AWS", requestBody);
 
-
+                    if(awsresult.StatusCode == HttpStatusCode.OK)
+                    {
+                        //Do something here
+                    }
 
                     return RedirectToAction("Login", "Home");
                 }

@@ -10,11 +10,6 @@ namespace BibleVerseDTO.Services
     {
         private readonly BVIdentityContext _context;
 
-        public EmailService(BVIdentityContext context)
-        {
-            this._context = context;
-        }
-
         public static void Send(string ToAddress, string Subject, string Body)
         {
             var client = new SmtpClient("smtp.gmail.com", 587);
