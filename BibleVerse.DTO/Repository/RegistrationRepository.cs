@@ -204,13 +204,13 @@ namespace BibleVerse.DTO.Repository
         }
 
         //Create a User
-        public async Task<RegistrationResponseModel> CreateUser(Users newUser)
+        public async Task<ApiResponseModel> CreateUser(Users newUser)
         {
             IQueryable<string> newUID;
             bool idCreated = false;
             bool userExistsAlready = false;
             int retryTimes = 0;
-            RegistrationResponseModel apiResponse = new RegistrationResponseModel();
+            ApiResponseModel apiResponse = new ApiResponseModel();
             apiResponse.ResponseErrors = new List<string>();
 
             var userWEmail = from c in userManager.Users
@@ -233,7 +233,7 @@ namespace BibleVerse.DTO.Repository
                     {
                         var genUID = BVFunctions.CreateUserID();
                         newUID = from c in userManager.Users
-                                 where c.UserId == genUID
+                                 where c.UserId == genUID 
                                  select c.UserId;
 
                         if (newUID.FirstOrDefault() == null) // If userID is not already in DB
@@ -264,7 +264,7 @@ namespace BibleVerse.DTO.Repository
                                     {
                                         apiResponse.ResponseMessage = "Failure";
                                         apiResponse.ResponseErrors.Add("Referral Code Has Already Been Used!");
-                                    }else if (genRefCode.isExpired == true)
+                                    }else if (genRefCode.isExpired == true) //Compare to Expire Date?
                                     {
                                         apiResponse.ResponseMessage = "Failure";
                                         apiResponse.ResponseErrors.Add("Referral Code Has Expired. Please Request Another Or Customer Support");
@@ -287,19 +287,19 @@ namespace BibleVerse.DTO.Repository
 
                             if (res.Succeeded)
                             {
+                                
                                 var org = from o in _context.Organization
                                       where o.OrganizationId == newUser.OrganizationId
                                       select o;
 
-                                org.FirstOrDefault().Members++;
+                                org.FirstOrDefault().Members++; // Uneccessary?
                                 _context.Organization.Update(org.FirstOrDefault());
                                 _context.SaveChanges();
 
                                 idCreated = true;
                                 apiResponse.ResponseMessage = "Success";
-                                apiResponse.ConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
-
-                                apiResponse.UserId = newUser.Id;
+                                apiResponse.Misc = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+                                apiResponse.User = newUser;
                             }
                             else
                             {

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Amazon.S3.Model;
 using System.Collections.Generic;
 using System.Net;
+using BVCommon;
 
 namespace BibleVerse.DTO.Repository
 {
@@ -24,6 +25,85 @@ namespace BibleVerse.DTO.Repository
         }
 
         
+        public async Task<ApiResponseModel> CreateUserDir(Users user)
+        {
+            string userDir = user.UserId.ToLower();
+            ApiResponseModel apiResponse = new ApiResponseModel();
+            apiResponse.ResponseErrors = new List<string>();
+            apiResponse.ResponseBody = new List<string>();
+
+            try
+            {
+                // Check if user folder already exists
+                var listbucketRequst = new ListObjectsV2Request()
+                {
+                    BucketName = user.OrganizationId.ToLower()
+                    , Prefix = user.UserId.ToLower()
+                };
+
+                var bucketList = await _client.ListObjectsV2Async(listbucketRequst);
+
+                if(bucketList.KeyCount == 0)
+                {
+                    //create user folder
+                    var userBucketRequest = new PutObjectRequest()
+                    {
+                        BucketName = user.OrganizationId.ToLower(),
+                        Key = user.UserId.ToLower() + "/"
+                    };
+
+                    var userBucketResponse = await _client.PutObjectAsync(userBucketRequest);
+
+                    if(userBucketResponse.HttpStatusCode == HttpStatusCode.OK)
+                    {
+                        //create sub folders
+                        var userPubBucketRequest = new PutObjectRequest()
+                        {
+                            BucketName = user.OrganizationId.ToLower(),
+                            Key = user.UserId.ToLower() + "/" + user.Id.ToLower() + "_pub/"
+                        };
+
+                        var userPrivBucketRequest = new PutObjectRequest()
+                        {
+                            BucketName = user.OrganizationId.ToLower(),
+                            Key = user.UserId.ToLower() + "/" + user.Id.ToLower() + "_priv/"
+                        };
+
+                        var pubResponse = await _client.PutObjectAsync(userPubBucketRequest);
+                        var privResponse = await _client.PutObjectAsync(userPrivBucketRequest);
+
+                        if((pubResponse.HttpStatusCode == HttpStatusCode.OK) && (privResponse.HttpStatusCode == HttpStatusCode.OK))
+                        {
+                            apiResponse.ResponseMessage = "Success";
+                            UserAWS useraws = new UserAWS()
+                            {
+                                ID = user.UserId,
+                                Bucket = user.OrganizationId.ToLower(),
+                                PublicDir = user.UserId.ToLower() + "/" + user.Id.ToLower() + "_pub/",
+                                PrivateDir = user.UserId.ToLower() + "/" + user.Id.ToLower() + "_priv/",
+                                ChangeDateTime = DateTime.Now,
+                                CreateDateTime = DateTime.Now
+                            };
+
+                            // Store information in UserAWS
+                            _context.UserAWS.Add(useraws);
+                            _context.SaveChanges();
+                        }
+                    }
+
+                    return apiResponse;
+                }
+
+            }catch(Exception ex)
+            {
+                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseErrors.Add(ex.InnerException.ToString());
+            }
+
+            return apiResponse;
+        }
+
+    
         public async Task<ApiResponseModel> CreateOrgBucket(Organization org)
         {
             string orgBucket = org.OrganizationId.ToLower();
@@ -44,6 +124,18 @@ namespace BibleVerse.DTO.Repository
 
                     if (response.HttpStatusCode == HttpStatusCode.OK)
                     {
+                        string orgInit = BVFunctions.CreateInit(org.Name);
+
+                        //Create org Dir
+                        var putdirRequest = new PutObjectRequest()
+                        {
+                            BucketName = orgBucket,
+                            Key = org.OrganizationId + "_init/",
+                            ContentBody = orgInit
+                        };
+
+                        var initResponse = await _client.PutObjectAsync(putdirRequest);
+
                         apiResponse.ResponseMessage = "Success";
                         //Add bucket information to tables
 
@@ -54,6 +146,7 @@ namespace BibleVerse.DTO.Repository
                         Organization realOrg = dbOrg.First();
 
                         realOrg.Bucket = orgBucket;
+                        realOrg.ChangeDateTime = DateTime.Now;
                         _context.Organization.Update(realOrg);
                         _context.SaveChanges();
                     }
@@ -74,6 +167,18 @@ namespace BibleVerse.DTO.Repository
             }
             catch (Exception ex)
             {
+                //Create ELog Error
+                ELog e = new ELog()
+                {
+                    Message = ex.Message.ToString(),
+                    Service = "AWS",
+                    Severity = 3,
+                    CreateDateTime = DateTime.Now
+                };
+
+                _context.ELogs.Add(e);
+                _context.SaveChanges();
+
                 apiResponse.ResponseMessage = "Failure";
                 apiResponse.ResponseBody.Add(ex.ToString());
             }

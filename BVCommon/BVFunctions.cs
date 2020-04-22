@@ -95,5 +95,12 @@ namespace BVCommon
             }
         }
 
+        //Create init file for dirs in buckets
+        public static string CreateInit(string masterName)
+        {
+            string initBody;
+            initBody = "Dir Master:" + masterName + "\n" + "Created On:" + DateTime.Now.ToString();
+            return initBody;
+        }
     }
 }

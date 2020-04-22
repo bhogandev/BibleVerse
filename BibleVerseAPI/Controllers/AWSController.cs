@@ -17,15 +17,33 @@ namespace BibleVerseAPI.Controllers
 
         public AWSController(AWSRepository repository) => _repository = repository;
 
-        /*
+        
         [HttpPost]
         [ActionName("CreateUserDir")]
-        public async Task<ObjectResult> CreateUserDir([FromBody]string newUser)
+        public async Task<ObjectResult> CreateUserDir([FromBody] object newUser)
         {
             //Run Method in aws repository to create user dir in org bucket
+            Users nu = JsonConvert.DeserializeObject<Users>(newUser.ToString());
 
+            var apiResponse = await _repository.CreateUserDir(nu);
+
+            if (apiResponse.ResponseMessage == "Success")
+            {
+                return Ok(apiResponse);
+            }
+            else if (apiResponse.ResponseMessage == "Failure")
+            {
+                return Conflict(apiResponse);
+            }
+            else
+            {
+                apiResponse.ResponseMessage = "BadRequest";
+                apiResponse.ResponseErrors = new List<string>();
+                apiResponse.ResponseErrors.Add("An Unexpected Error Occured. Please try again");
+                return BadRequest(apiResponse);
+            }
         }
-        */
+        
         
         [HttpPost]
         [ActionName("CreateOrgBucket")]

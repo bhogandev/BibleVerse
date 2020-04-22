@@ -314,7 +314,7 @@ namespace BibleVerse.Controllers
 
             HttpClient client = _api.Initial();
             var requestBody = new StringContent(JsonConvert.SerializeObject(nu), Encoding.UTF8, "application/json");
-            var result = await client.PostAsync("Registration/CreateUser", requestBody);
+            var result = await client.PostAsync("Registration/CreateUser", requestBody); // Avoid locks!
 
             //Verify user was created
             var r = result.Content.ReadAsStringAsync();
@@ -324,25 +324,30 @@ namespace BibleVerse.Controllers
                 //Check if responseMessage = success. If so, proceed. If not, return Reposne errors to user
                 if (result.StatusCode == HttpStatusCode.OK)
                 {
-                    RegistrationResponseModel registrationResponse = JsonConvert.DeserializeObject<RegistrationResponseModel>(result.Content.ReadAsStringAsync().Result);
+                    ApiResponseModel registrationResponse = JsonConvert.DeserializeObject<ApiResponseModel>(result.Content.ReadAsStringAsync().Result);
+                    Users addedUser = registrationResponse.User;
 
                     //Send Confirmation Email using confirmation Token
-                    string confirmationLink = Url.Action("ConfirmEmail", "Home", new { userid = registrationResponse.UserId, token = HttpUtility.UrlEncode(registrationResponse.ConfirmationToken) }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
+                    string confirmationLink = Url.Action("ConfirmEmail", "Home", new { userid = addedUser.UserId , token = HttpUtility.UrlEncode(registrationResponse.Misc) }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
                     EmailService.Send(nu.Email, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
 
-                    //Create AWS Buckets For User Storage
-                    var awsresult = await client.PostAsync("AWS", requestBody);
+                    //Create AWS Dir For User Storage
+                    requestBody = new StringContent(JsonConvert.SerializeObject(addedUser), Encoding.UTF8, "application/json");
+                    var awsresult = await client.PostAsync("AWS/CreateUserDir", requestBody);
 
                     if(awsresult.StatusCode == HttpStatusCode.OK)
                     {
                         //Do something here
+                    } else
+                    {
+                        //Log in ELog and create task
                     }
 
                     return RedirectToAction("Login", "Home");
                 }
                 else if (result.StatusCode == HttpStatusCode.Conflict)
                 {
-                    var errors = JsonConvert.DeserializeObject<RegistrationResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseErrors;
+                    var errors = JsonConvert.DeserializeObject<ApiResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseErrors;
                     ViewBag.Errors = errors;
                     return View("Register");
                 }

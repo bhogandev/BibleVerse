@@ -7,6 +7,7 @@ namespace BibleVerse.DTO
     public class ELog
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ElogID { get; set; }
 
         public int Severity { get; set; }
