@@ -24,5 +24,7 @@ namespace BibleVerse.DTO
         public int Friends { get; set; }
 
         public string OrganizationId { get; set; }
+
+        public Profiles Profile { get; set; }
     }
 }

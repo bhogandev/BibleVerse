@@ -1,0 +1,17 @@
+﻿@using BibleVerse.DTO
+@using Newtonsoft.Json
+@using Microsoft.AspNetCore.Http;
+@{
+    Layout = "../Shared/_UserLayout.cshtml";
+    UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
+    Profiles userProfile = JsonConvert.DeserializeObject<Profiles>(Context.Session.GetString("profile"));
+    ViewData["Title"] = user.UserName + " | BibleVerse";
+}
+    <div>
+        <div id="user_pp"><img src="@userProfile.Picture" /></div>
+            <form class="form-group" asp-action="ChangeProfilePic" asp-controller="BBV">
+                <input type="file" name="fileToUpload" id="fileToUpload" />
+                <input type="submit" value="Save" />
+            </form>
+        <p>You have made it to your account page!</p>
+    </div>

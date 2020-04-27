@@ -4,14 +4,16 @@ using BibleVerse.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BibleVerseAPI.Migrations
 {
     [DbContext(typeof(BVIdentityContext))]
-    partial class BVIdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20200425014357_DropUserHistory")]
+    partial class DropUserHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -639,48 +641,6 @@ namespace BibleVerseAPI.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("UserCourses");
-                });
-
-            modelBuilder.Entity("BibleVerse.DTO.UserHistory", b =>
-                {
-                    b.Property<int>("ActionID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("ActionMessage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ActionType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ChangeDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Curr_Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Misc1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Misc2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Misc3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Prev_Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserID")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ActionID");
-
-                    b.ToTable("UserHistory");
                 });
 
             modelBuilder.Entity("BibleVerse.DTO.UserRelationships", b =>

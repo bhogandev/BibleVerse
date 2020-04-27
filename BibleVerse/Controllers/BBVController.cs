@@ -53,7 +53,6 @@ namespace BibleVerse.Controllers
             return View();
         }
 
-
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostModel newPost)
         {

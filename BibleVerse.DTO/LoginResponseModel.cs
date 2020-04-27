@@ -14,5 +14,7 @@ namespace BibleVerse.DTO
             public List<Error> ResponseErrors { get; set; }
 
             public List<Posts> InitialPosts { get; set; }
+
+            public Profiles UserProfile { get; set; }
     }
 }

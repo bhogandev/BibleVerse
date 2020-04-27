@@ -10,7 +10,8 @@ namespace BibleVerse.DTO
     public class UserHistory
     {
         [Key]
-        public string ActionID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ActionID { get; set; }
 
         public string UserID { get; set; }
 

@@ -296,6 +296,30 @@ namespace BibleVerse.DTO.Repository
                                 _context.Organization.Update(org.FirstOrDefault());
                                 _context.SaveChanges();
 
+                                //Retrieve default Profile to generate new user profile
+                                var defaultProfile = from c in _context.Profiles
+                                                     where c.ProfileId == "default"
+                                                     select c;
+
+                                Profiles dp = defaultProfile.First();
+
+                                //Create a profile for user
+                                Profiles newUserProfile = new Profiles()
+                                {
+                                    ProfileId = newUser.UserId,
+                                    Picture = dp.Picture,
+                                    Theme = dp.Theme,
+                                    Followers = dp.Followers,
+                                    Following = dp.Following,
+                                    Description = dp.Description,
+                                    IsDeleted = dp.IsDeleted,
+                                    ChangeDateTime = DateTime.Now,
+                                    CreateDateTime = DateTime.Now
+                                };
+
+                                _context.Profiles.Add(newUserProfile);
+                                _context.SaveChanges();
+
                                 idCreated = true;
                                 apiResponse.ResponseMessage = "Success";
                                 apiResponse.Misc = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
@@ -437,10 +461,42 @@ namespace BibleVerse.DTO.Repository
                     {
                         if (currUser.FirstOrDefault().EmailConfirmed == true)
                         {
-                            currUser.FirstOrDefault().OnlineStatus = "Online"; // Set user status to online
-                            currUser.FirstOrDefault().ChangeDateTime = DateTime.Now;
+                            Users cu = currUser.First();
+                            cu.OnlineStatus = "Online"; // Set user status to online
+                            cu.ChangeDateTime = DateTime.Now;
                             //Log action in user actions table
-                            var userUpdate = await userManager.UpdateAsync(currUser.FirstOrDefault());
+                            UserHistory loginLog = new UserHistory()
+                            {
+                                UserID = cu.UserId,
+                                ActionType = "UserLogin",
+                                ActionMessage = cu.UserName + " has just logged in.",
+                                Prev_Value = "Offline",
+                                Curr_Value = "Online",
+                                ChangeDateTime = DateTime.Now,
+                                CreateDateTime = DateTime.Now
+                            };
+
+                            _context.UserHistory.Add(loginLog);
+                            _context.SaveChanges();
+
+                            //retrieve user profile
+                            var userProfile = from c in _context.Profiles
+                                              where c.ProfileId == cu.UserId
+                                              select c;
+
+                            if(userProfile.FirstOrDefault() != null)
+                            {
+                                loginResponse.UserProfile = userProfile.First();
+                            } else
+                            {
+                                var defaultProfile = from c in _context.Profiles
+                                                     where c.ProfileId == "default"
+                                                     select c;
+                                loginResponse.UserProfile = defaultProfile.FirstOrDefault();
+                            }
+
+                            var userUpdate = await userManager.UpdateAsync(cu);
+
                             if (userUpdate.Succeeded)
                             {
                                 loginResponse.ResponseStatus = "Success";
@@ -509,6 +565,20 @@ namespace BibleVerse.DTO.Repository
 
                 if (result.Succeeded)
                 {
+                    UserHistory logoutLog = new UserHistory()
+                    {
+                        UserID = user.UserId,
+                        ActionType = "UserLogout",
+                        ActionMessage = user.UserName + " has just logged out.",
+                        Prev_Value = "Online",
+                        Curr_Value = "Offline",
+                        ChangeDateTime = DateTime.Now,
+                        CreateDateTime = DateTime.Now
+                    };
+
+                    _context.UserHistory.Add(logoutLog);
+                    _context.SaveChanges();
+
                     return "User Successfully Updated";
                 }
                 else

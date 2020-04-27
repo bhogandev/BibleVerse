@@ -235,6 +235,7 @@ namespace BibleVerse.Controllers
                     {
                         Users resultUser = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseUser;
                         List<Posts> initalPosts = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).InitialPosts;
+                        Profiles userProfile = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).UserProfile;
                         UserViewModel returnUser = new UserViewModel()
                         {
                             UserID = resultUser.UserId,
@@ -254,6 +255,7 @@ namespace BibleVerse.Controllers
                         //Here is where user will be directed to their account home page and basic user Information is passed to the next controller
                         HttpContext.Session.SetString("user", JsonConvert.SerializeObject(returnUser));
                         HttpContext.Session.SetString("posts", JsonConvert.SerializeObject(initalPosts));
+                        HttpContext.Session.SetString("profile", JsonConvert.SerializeObject(userProfile));
                         return RedirectToAction("Index", "BBV");
                     }
                     else if (result.ReasonPhrase == "Conflict") // If API call returns Conflict return Login Screen and display reason call failed
