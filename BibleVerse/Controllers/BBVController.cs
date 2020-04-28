@@ -11,6 +11,7 @@ using System.Net.Http;
 using BibleVerse.Helper;
 using System.Text;
 using System.Net;
+using System.IO;
 
 namespace BibleVerse.Controllers
 {
@@ -36,7 +37,7 @@ namespace BibleVerse.Controllers
             //Get Users Posts
             HttpClient client = _api.Initial();
             var userName = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
-            var result = await client.GetAsync("Post?userName=" + userName.UserName);
+            var result = await client.GetAsync("Post/Get?userName=" + userName.UserName);
 
             //Verify user was created
             var r = result.Content.ReadAsStringAsync();
@@ -53,6 +54,69 @@ namespace BibleVerse.Controllers
             return View();
         }
 
+        public async Task<IActionResult> Account(UserViewModel user)
+        {
+            if (HttpContext.Session.GetString("user") == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeProfilePic(IFormFile profilePic)
+        {
+            if (HttpContext.Session.GetString("user") != null)
+            {
+                UserUpload userUpload = new UserUpload()
+                {
+                    userID = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user")).UserId,
+                    UploadFiles = new List<string>()
+                };
+
+                using (var ms = new MemoryStream())
+                {
+                    profilePic.CopyTo(ms);
+                    var fileBytes = ms.ToArray();
+                    string s = Convert.ToBase64String(fileBytes);
+                    userUpload.UploadFiles.Add(s);
+                }
+                    
+                HttpClient client = _api.Initial();
+                var requestBody = new StringContent(JsonConvert.SerializeObject(userUpload), Encoding.UTF8, "application/json");
+                var result = await client.PostAsync("Post/UploadProfilePic", requestBody);
+                var r = result.Content.ReadAsStringAsync();
+
+                if (r.IsCompletedSuccessfully)
+                {
+                    if (result.ReasonPhrase == "OK")
+                    {
+                        return View("Register"); // Return user to create their user account
+                    }
+                    else if (result.ReasonPhrase == "Conflict")
+                    {
+                        return View("RegisterOrg");
+                    }
+                    else
+                    {
+                        return View("RegisterOrg");
+                    }
+                }
+                else
+                {
+                    // Log Error in ELog
+                    Console.WriteLine("Error Occured");
+                    return View("ConfirmEmail"); // Return user to Login Screen displaying an Error has occurred
+                }
+
+            }
+            else
+            {
+                return RedirectToAction("Login", "Home");
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreatePost(PostModel newPost)
         {
@@ -60,7 +124,7 @@ namespace BibleVerse.Controllers
             {
                 HttpClient client = _api.Initial();
                 var requestBody = new StringContent(JsonConvert.SerializeObject(newPost), Encoding.UTF8, "application/json");
-                var result = await client.PostAsync("Post", requestBody);
+                var result = await client.PostAsync("Post/CreatePost", requestBody);
 
                 //Verify user was created
                 var r = result.Content.ReadAsStringAsync();

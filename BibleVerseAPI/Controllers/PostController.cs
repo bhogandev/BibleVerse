@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace BibleVerseAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class PostController : Controller
     {
         private readonly UserActionRepository _repository;
@@ -20,6 +20,7 @@ namespace BibleVerseAPI.Controllers
 
         //Get All Of User's Posts
         [HttpGet]
+        [ActionName("Get")]
         public IActionResult Get(string userName)
         {
             List<Posts> userPosts = _repository.GetUserPosts(userName).Result;
@@ -48,6 +49,7 @@ namespace BibleVerseAPI.Controllers
 
         // POST api/values
         [HttpPost]
+        [ActionName("CreatePost")]
         public IActionResult CreatePost([FromBody] object userPost)
         {
             PostModel post = new PostModel();
@@ -77,6 +79,38 @@ namespace BibleVerseAPI.Controllers
                 return BadRequest("An Error Occurred");
             }
 
+        }
+
+        [HttpPost]
+        [ActionName("UploadProfilePic")]
+        public IActionResult UploadProfilePic([FromBody] object userUpload)
+        {
+            UserUpload userUpload1 = new UserUpload();
+            userUpload1 = JsonConvert.DeserializeObject<UserUpload>(userUpload.ToString());
+            
+            var uploadResponse = _repository.ChangeUserProfilePic(userUpload1);
+            var ur = JsonConvert.SerializeObject(uploadResponse.ToString());
+
+            if (uploadResponse != null)
+            {
+                if (uploadResponse.Result.ToString() == "Success")
+                {
+                    return Ok();
+                }
+                else if (uploadResponse.Result.ToString() == "Failed")
+                {
+                    return Conflict(ur);
+                }
+                else
+                {
+                    return BadRequest(ur);
+                }
+            }
+            else
+            {
+                //Create an Elog error
+                return BadRequest("An Error Occurred");
+            }
         }
     }
 }
