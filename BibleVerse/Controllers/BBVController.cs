@@ -72,8 +72,13 @@ namespace BibleVerse.Controllers
                 UserUpload userUpload = new UserUpload()
                 {
                     userID = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user")).UserId,
-                    UploadFiles = new List<string>()
+                    UploadFiles = new List<string>(),
+                    FileNames = new List<string>(),
+                    FileTypes = new List<string>()
                 };
+
+                userUpload.FileNames.Add(profilePic.FileName);
+                userUpload.FileTypes.Add(profilePic.ContentType);
 
                 using (var ms = new MemoryStream())
                 {
@@ -92,15 +97,15 @@ namespace BibleVerse.Controllers
                 {
                     if (result.ReasonPhrase == "OK")
                     {
-                        return View("Register"); // Return user to create their user account
+                        return RedirectToAction("Account"); // Return user to create their user account
                     }
                     else if (result.ReasonPhrase == "Conflict")
                     {
-                        return View("RegisterOrg");
+                        return RedirectToAction("Account");
                     }
                     else
                     {
-                        return View("RegisterOrg");
+                        return RedirectToAction("Account");
                     }
                 }
                 else

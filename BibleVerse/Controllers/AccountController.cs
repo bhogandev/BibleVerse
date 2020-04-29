@@ -34,51 +34,5 @@ namespace BibleVerse.Controllers
             return View();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateProfilePic(IFormFile profilePic)
-        {
-            if (HttpContext.Session.GetString("user") != null)
-            {
-                UserUpload userUpload = new UserUpload()
-                {
-                    userID = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user")).UserId,
-                    UploadFiles = new List<IFormFile>()
-                };
-
-                userUpload.UploadFiles.Add(profilePic);
-
-                HttpClient client = _api.Initial();
-                var requestBody = new StringContent(JsonConvert.SerializeObject(userUpload), Encoding.UTF8, "application/json");
-                var result = await client.PostAsync("Post/UploadProfilePic", requestBody);
-                var r = result.Content.ReadAsStringAsync();
-
-                if (r.IsCompletedSuccessfully)
-                {
-                    if (result.ReasonPhrase == "OK")
-                    {
-                        return View("Account"); // Return user to create their user account
-                    }
-                    else if (result.ReasonPhrase == "Conflict")
-                    {
-                        return View("Account");
-                    }
-                    else
-                    {
-                        return View("Account");
-                    }
-                }
-                else
-                {
-                    // Log Error in ELog
-                    Console.WriteLine("Error Occured");
-                    return View("ConfirmEmail"); // Return user to Login Screen displaying an Error has occurred
-                }
-
-            }
-            else
-            {
-                return RedirectToAction("Login", "Home");
-            }
-        }
-    }
+    }  
 }

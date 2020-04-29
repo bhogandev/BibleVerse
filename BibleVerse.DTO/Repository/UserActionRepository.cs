@@ -14,6 +14,8 @@ using Amazon.S3.Model;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Microsoft.AspNetCore.Http.Internal;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BibleVerse.DTO.Repository
 {
@@ -141,18 +143,22 @@ namespace BibleVerse.DTO.Repository
 
                         try
                         {
-                            IFormFile file = userUp.UploadFiles.First();
-                            byte[] fileBytes = new Byte[file.Length];
-                            file.OpenReadStream().Read(fileBytes, 0, Int32.Parse(file.Length.ToString()));
+                            //File needs to be uploaded to user dir
 
-                            using (var stream = new MemoryStream(fileBytes))
+                            //convert base64 to file and upload to s3 dir
+                            byte[] fbyte = Convert.FromBase64String(userUp.UploadFiles[0]);
+
+                            //Object URL for updates based on AWS Naming Convention
+                            string objectUrl = "https://" + foundUser.OrganizationId.ToLower() + ".s3.amazonaws.com/" + foundUser.UserId.ToLower() + "/" + foundUser.UserId.ToLower() + "_pub" + "/" + "Images/Profile/" + userUp.FileNames[0];
+
+                            using (var stream = new MemoryStream(fbyte))
                             {
                                 var userProfilePic = new PutObjectRequest
                                 {
                                     BucketName = foundUser.OrganizationId.ToLower(),
-                                    Key = foundUser.UserId.ToLower() + "/" + foundUser.UserId.ToLower() + "_pub" + "/" + "Images/Profile/" + userUp.UploadFiles.First().FileName,
+                                    Key = foundUser.UserId.ToLower() + "/" + foundUser.UserId.ToLower() + "_pub" + "/" + "Images/Profile/" + userUp.FileNames[0],
                                     InputStream = stream,
-                                    ContentType = file.ContentType,
+                                    ContentType = userUp.FileTypes[0],
                                     CannedACL = S3CannedACL.PublicRead
                                 };
 
@@ -161,6 +167,48 @@ namespace BibleVerse.DTO.Repository
 
                             if (userUploadResponse.HttpStatusCode == HttpStatusCode.OK)
                             {
+
+                                //Update Tables in DB
+                                Photos newPhoto = new Photos()
+                                {
+                                    PhotoId = genPhotoID,
+                                    URL = objectUrl,
+                                    Caption = "",
+                                    IsDeleted = false,
+                                    Title = "",
+                                    ChangeDateTime = DateTime.Now,
+                                    CreateDateTime = DateTime.Now
+                                };
+
+                                _context.Photos.Add(newPhoto);
+                                _context.SaveChanges();
+
+                                var userProfile = from c in _context.Profiles
+                                                  where c.ProfileId == foundUser.UserId
+                                                  select c;
+
+                                Profiles uprofile = userProfile.First();
+
+                                UserHistory actionLog = new UserHistory()
+                                {
+                                    UserID = foundUser.UserId,
+                                    ActionType = "UserUpload",
+                                    ActionMessage = foundUser.UserName + "just changed their profile picture",
+                                    Prev_Value = uprofile.Picture,
+                                    Curr_Value = objectUrl,
+                                    ChangeDateTime = DateTime.Now,
+                                    CreateDateTime = DateTime.Now
+                                };
+
+                                _context.UserHistory.Add(actionLog);
+                                _context.SaveChanges();
+
+                                uprofile.Picture = objectUrl;
+                                uprofile.ChangeDateTime = DateTime.Now;
+
+                                _context.Profiles.Update(uprofile);
+                                _context.SaveChanges();
+
                                 idexists = true;
                                 return "Success";
                             }

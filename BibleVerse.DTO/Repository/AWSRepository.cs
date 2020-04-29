@@ -60,13 +60,13 @@ namespace BibleVerse.DTO.Repository
                         var userPubBucketRequest = new PutObjectRequest()
                         {
                             BucketName = user.OrganizationId.ToLower(),
-                            Key = user.UserId.ToLower() + "/" + user.Id.ToLower() + "_pub/"
+                            Key = user.UserId.ToLower() + "/" + user.UserId.ToLower() + "_pub/"
                         };
 
                         var userPrivBucketRequest = new PutObjectRequest()
                         {
                             BucketName = user.OrganizationId.ToLower(),
-                            Key = user.UserId.ToLower() + "/" + user.Id.ToLower() + "_priv/"
+                            Key = user.UserId.ToLower() + "/" + user.UserId.ToLower() + "_priv/"
                         };
 
                         var pubResponse = await _client.PutObjectAsync(userPubBucketRequest);

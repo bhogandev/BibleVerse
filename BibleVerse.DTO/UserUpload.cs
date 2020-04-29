@@ -11,5 +11,9 @@ namespace BibleVerse.DTO
 
         public List<string> UploadFiles { get; set; }
 
+        public List<string> FileNames { get; set; }
+
+        public List<string> FileTypes { get; set; }
+
     }
 }

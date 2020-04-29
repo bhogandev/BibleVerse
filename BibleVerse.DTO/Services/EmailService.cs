@@ -20,7 +20,7 @@ namespace BibleVerseDTO.Services
                                            where (c.Service == "Email" && c.Name == "AccountPass")
                                            select c.Value;
             */
-
+            
             client.UseDefaultCredentials = false;
             client.Credentials = new NetworkCredential("BibleVerseLLC@gmail.com", "");
             client.EnableSsl = true
