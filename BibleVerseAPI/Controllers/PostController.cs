@@ -46,6 +46,34 @@ namespace BibleVerseAPI.Controllers
         }
 
         //Get Timeline Posts
+        [HttpGet]
+        [ActionName("Profile")]
+        public IActionResult Profile(string userID)
+        {
+            ApiResponseModel userProfile = _repository.GetUserProfile(userID).Result;
+
+            if (userProfile != null)
+            {
+                if (userProfile.ResponseBody.Count > 0)
+                {
+                    return Ok(JsonConvert.DeserializeObject<Profiles>(userProfile.ResponseBody[0]));
+                }
+                else if (userProfile.ResponseBody.Count == 0)
+                {
+                    return Conflict("No Profile Found");
+                }
+                else
+                {
+                    return Conflict("Unable to Retrieve Profile");
+                }
+            }
+            else
+            {
+                //create Elog Error
+                return BadRequest("An Error Occurred");
+            }
+        }
+
 
         // POST api/values
         [HttpPost]

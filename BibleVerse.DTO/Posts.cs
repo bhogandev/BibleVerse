@@ -26,6 +26,8 @@ namespace BibleVerse.DTO
 
         public string Tags { get; set; }
 
+        public string Attachments { get; set; }
+
         [Required]
         public string URL { get; set; }
 

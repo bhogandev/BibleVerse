@@ -35,7 +35,31 @@ namespace BibleVerseAPI.Controllers
             }
         }
 
-        
+        [HttpGet]
+        [ActionName("Search")]
+        public async Task<ObjectResult> Search(string username)
+        {
+            ApiResponseModel response = await _repository.FindUsers(username);
+
+            if(response.ResponseMessage == "Success")
+            {
+                return Ok(response);
+
+            } else if (response.ResponseMessage == "Failure")
+            {
+                return Conflict(response);
+            }
+            else if (response.ResponseMessage == "Email already exists")
+            {
+                return Conflict(response);
+            }
+            else
+            {
+                // Create an ELog and Log error
+                return BadRequest("An Unexpected Error Occured");
+            }
+        }
+
         [HttpPost]
         [ActionName("CreateUser")]
         public async Task<ObjectResult> CreateUser([FromBody] object userRequest)

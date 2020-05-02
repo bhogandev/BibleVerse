@@ -17,6 +17,10 @@
     <div>
         <div id="ubar" class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
             <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Index">BibleVerse</a>
+            <form class="form-group" method="post", asp-action="Search" asp-controller="BBV">
+                <input class="form-control" type="text" name="SearchBox" />
+                <input type="submit" value="Search" />
+            </form>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>

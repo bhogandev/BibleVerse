@@ -48,6 +48,26 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
+        //Get Users From Search
+        public async Task<ApiResponseModel> FindUser(string username)
+        {
+            IQueryable<Users> foundUsers;
+            ApiResponseModel apiResponse = new ApiResponseModel();
+            apiResponse.ResponseBody = new List<string>();
+            apiResponse.ResponseErrors = new List<string>();
+
+            foundUsers = from c in userManager.Users
+                         where c.UserName.Contains(username)
+                         orderby c.UserName descending
+                         select c;
+
+            if(foundUsers.FirstOrDefault() != null)
+            {
+
+            }
+            
+        }
+
         //Create an organization
         public async Task<ApiResponseModel> CreateOrganization(Organization newOrg)
         {

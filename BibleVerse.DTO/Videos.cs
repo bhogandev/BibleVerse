@@ -25,6 +25,8 @@ namespace BibleVerse.DTO
 
         public string Tags { get; set; }
 
+        public string PostID { get; set; }
+
         public bool IsDeleted { get; set; }
 
         [Required]

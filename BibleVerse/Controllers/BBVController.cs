@@ -60,8 +60,49 @@ namespace BibleVerse.Controllers
             {
                 return RedirectToAction("Login", "Home");
             }
+            //Get call to retrieve users profile
+
+            HttpClient client = _api.Initial();
+            var userName = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
+            var result = await client.GetAsync("Post/Profile?userID=" + userName.UserId);
+            var r = result.Content.ReadAsStringAsync();
+
+            if(r.IsCompletedSuccessfully)
+            {
+                if (result.ReasonPhrase == "OK")
+                {
+                    HttpContext.Session.SetString("profile", r.Result);
+                } else
+                {
+                    //Send user to Error page
+                    RedirectToAction("Login", "Home");
+                }
+            } else
+            {
+                RedirectToAction("Login", "Home");
+            }  
 
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Search(string SearchBox)
+        {
+            HttpClient client = _api.Initial();
+            var result = await client.GetAsync("Registration/Search?username=" + SearchBox);
+
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                //Return confirmation screen
+                return View();
+            }
+            else
+            {
+                //Return confirmation screen with failed message passed via ViewBag
+                ViewBag.Errors = JsonConvert.DeserializeObject<List<IdentityError>>(result.Content.ReadAsStringAsync().Result.ToString());
+                return View();
+            }
+
         }
 
         [HttpPost]
@@ -123,10 +164,77 @@ namespace BibleVerse.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePost(PostModel newPost)
+        public async Task<IActionResult> CreatePost(List<IFormFile> IFiles, PostModel newPost)
         {
             if (HttpContext.Session.GetString("user") != null)
             {
+                if(IFiles != null)
+                {
+                    newPost.Images = new List<UserUpload>();
+
+                    //convert each file to base 64 and create userUpload object
+                    foreach(IFormFile file in IFiles)
+                    {
+
+                        UserUpload userUpload = new UserUpload()
+                        {
+                            userID = newPost.UserId,
+                            UploadFiles = new List<string>(),
+                            FileNames = new List<string>(),
+                            FileTypes = new List<string>()
+                        };
+
+                        userUpload.FileNames.Add(file.FileName);
+                        userUpload.FileTypes.Add(file.ContentType);
+
+                        using (var ms = new MemoryStream())
+                        {
+                            file.CopyTo(ms);
+                            var fileBytes = ms.ToArray();
+                            string s = Convert.ToBase64String(fileBytes);
+                            userUpload.UploadFiles.Add(s);
+                        }
+
+                        newPost.Images.Add(userUpload);
+                    }
+
+                }
+
+                /*
+                if (IVideos != null)
+                {
+                    newPost.Videos = new List<UserUpload>();
+
+                    //convert each file to base 64 and create userUpload object
+                    foreach (IFormFile video in IVideos)
+                    {
+                        UserUpload userUpload = new UserUpload()
+                        {
+                            userID = newPost.UserID,
+                            UploadFiles = new List<string>(),
+                            FileNames = new List<string>(),
+                            FileTypes = new List<string>()
+                        };
+
+                        userUpload.FileNames.Add(video.FileName);
+                        userUpload.FileTypes.Add(video.ContentType);
+
+                        using (var ms = new MemoryStream())
+                        {
+                            video.CopyTo(ms);
+                            var fileBytes = ms.ToArray();
+                            string s = Convert.ToBase64String(fileBytes);
+                            userUpload.UploadFiles.Add(s);
+                        }
+
+                        newPost.Videos.Add(userUpload);
+                    }
+                    
+
+                }
+                */
+
+
                 HttpClient client = _api.Initial();
                 var requestBody = new StringContent(JsonConvert.SerializeObject(newPost), Encoding.UTF8, "application/json");
                 var result = await client.PostAsync("Post/CreatePost", requestBody);
@@ -136,7 +244,6 @@ namespace BibleVerse.Controllers
 
                 if (r.IsCompletedSuccessfully)
                 {
-
                     return RedirectToAction("Index");
                 }
                 else

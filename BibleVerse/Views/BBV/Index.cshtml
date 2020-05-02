@@ -7,7 +7,7 @@
     ViewData["Title"] = "Home";
     UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
     List<Posts> tlPosts = new List<Posts>();
-
+    
     if(Context.Session.GetString("posts") != "No Posts Found")
     {
         tlPosts = JsonConvert.DeserializeObject<List<Posts>>(Context.Session.GetString("posts"));
@@ -16,10 +16,16 @@
 }
 <div class="container">
     <div id="upstat">
-        <form class="form-group" asp-action="CreatePost" asp-controller="BBV">
-            @Html.TextAreaFor(x => x.Body)
-            <input type="text" name="UserName" value="@user.UserName" hidden />
-            <input type="submit" value="Create Post" />
+        <form class="form-group" asp-action="CreatePost" asp-controller="BBV" enctype="multipart/form-data">
+            @using (Html.BeginForm("CreatePost", "BBV", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.TextAreaFor(x => x.Body);
+                <input type="file" name="IFiles" multiple />
+                <input type="text" name="UserName" value="@user.UserName" hidden />
+                <input type="text" name="UserId" value="@user.UserID" hidden />
+                <input type="text" name="OrganizationId" value="@user.OrganizationId" hidden />
+                <input type="submit" value="Create Post" />
+            }
         </form>
     </div>
     <div id="tl">
@@ -29,8 +35,29 @@
                 <div id="@post.PostId" class="post">
                     <span><b>@post.Username</b></span> <span>@post.CreateDateTime.TimeOfDay</span>
                     <br/>
+
+                    @{
+                        if (post.Attachments != null)
+                        {
+                            List<PostsRelations> attachments = JsonConvert.DeserializeObject<List<PostsRelations>>(post.Attachments);
+
+                            foreach (PostsRelations pr in attachments)
+                            {
+                                if (pr.ContentType == "Photo")
+                                {
+                                <img src="@pr.Link" height="300" width="300"/>
+                                }
+                                else
+                                {
+                                <video width="300" height="300" controls>
+                                    <source src="@pr.Link" type="video/mp4">
+                                </video>
+                                    }
+                                }
+                            }
+                        }
                     <p>@post.Body</p>
-                </div>
+</div>
             }
         }
     </div>
