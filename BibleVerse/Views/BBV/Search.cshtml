@@ -1,8 +1,38 @@
-﻿@{
+﻿@using BibleVerse.DTO;
+@{
     Layout = "../Shared/_UserLayout.cshtml";
     ViewData["Title"] = "Search | BibleVerse";
+    List<string> errors = new List<string>();
+    List<SearchViewModel> searchResults = new List<SearchViewModel>();
+    if(ViewBag.SearchResults != null)
+    {
+        searchResults = ViewBag.SearchResults;
+    }
+
+    if(ViewBag.Errors != null)
+    {
+        errors = ViewBag.Errors;
+    }
 }
 
 <div class="container">
-
+    @{
+        if (ViewBag.SearchResults != null)
+        {
+            foreach(SearchViewModel s in searchResults)
+            {
+                <div class="searchResult/@searchResults.IndexOf(s)">
+                    <img src="@s.PictureURL" />
+                    <p><b>@s.UserName</b></p>
+                    <p class="lead">@s.OrgName</p>
+                </div>
+            }
+        }else if(ViewBag.Errors != null)
+        {
+            foreach (string s in errors)
+            {
+                <p style="color: red;">@s</p>
+            }
+        }
+    }
 </div>

@@ -86,20 +86,33 @@ namespace BibleVerse.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Search(string SearchBox)
+        public async Task<IActionResult> Search(string SearchBox, string user)
         {
+            if (HttpContext.Session.GetString("user") == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
             HttpClient client = _api.Initial();
-            var result = await client.GetAsync("Registration/Search?username=" + SearchBox);
+            var result = await client.GetAsync("Registration/Search?user=" + user + "&username=" + SearchBox);
+            ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(result.Content.ReadAsStringAsync().Result);
 
             if (result.StatusCode == HttpStatusCode.OK)
             {
-                //Return confirmation screen
+                List<SearchViewModel> searchResults = JsonConvert.DeserializeObject<List<SearchViewModel>>(response.ResponseBody[0]);
+                ViewBag.SearchResults = searchResults;
                 return View();
             }
-            else
+            else if(result.StatusCode == HttpStatusCode.Conflict)
             {
-                //Return confirmation screen with failed message passed via ViewBag
-                ViewBag.Errors = JsonConvert.DeserializeObject<List<IdentityError>>(result.Content.ReadAsStringAsync().Result.ToString());
+                //Return search screen with failed message passed via ViewBag
+                ViewBag.Errors = response.ResponseErrors;
+                return View();
+            } else
+            {
+                List<string> e = new List<string>();
+                e.Add("An unexpected error occurred. Please try again");
+                ViewBag.Errors = e;
                 return View();
             }
 

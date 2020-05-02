@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Text;
 using System.Security.Policy;
 using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace BibleVerse.DTO.Repository
 {
@@ -49,22 +50,65 @@ namespace BibleVerse.DTO.Repository
         }
 
         //Get Users From Search
-        public async Task<ApiResponseModel> FindUser(string username)
+        public async Task<ApiResponseModel> FindUser(string username, string user)
         {
             IQueryable<Users> foundUsers;
             ApiResponseModel apiResponse = new ApiResponseModel();
             apiResponse.ResponseBody = new List<string>();
             apiResponse.ResponseErrors = new List<string>();
+            List<SearchViewModel> searchResults = new List<SearchViewModel>();
+            List<Profiles> searchProfiles = new List<Profiles>();
 
+           
             foundUsers = from c in userManager.Users
-                         where c.UserName.Contains(username)
+                         where (c.UserName.Contains(username) && c.UserId != user)
                          orderby c.UserName descending
                          select c;
+
 
             if(foundUsers.FirstOrDefault() != null)
             {
 
+                foreach(Users u in foundUsers)
+                {
+                    var uProfile = from c in _context.Profiles
+                                   where c.ProfileId == u.UserId
+                                   select c;
+
+                    var uOrgName = from c in _context.Organization
+                                   where c.OrganizationId == u.OrganizationId
+                                   select c;
+
+                    SearchViewModel uviewmodel = new SearchViewModel()
+                    {
+                        UserName = u.UserName,
+                        ProfileURL = "" //Create anchor link for user profile
+                    };
+
+                    if(uProfile.FirstOrDefault() != null)
+                    {
+                        uviewmodel.PictureURL = uProfile.FirstOrDefault().Picture;
+                    }
+
+                    if(uOrgName.FirstOrDefault() != null)
+                    {
+                        uviewmodel.OrgName = uOrgName.FirstOrDefault().Name;
+                    }
+
+                    searchResults.Add(uviewmodel);
+                }
+
+                apiResponse.ResponseMessage = "Success";
+                apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(searchResults));
             }
+            else
+            {
+                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseErrors.Add("No users found");
+            }
+
+
+            return apiResponse;
             
         }
 

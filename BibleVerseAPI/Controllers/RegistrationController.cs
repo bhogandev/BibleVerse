@@ -37,19 +37,15 @@ namespace BibleVerseAPI.Controllers
 
         [HttpGet]
         [ActionName("Search")]
-        public async Task<ObjectResult> Search(string username)
+        public async Task<ObjectResult> Search(string username, string user)
         {
-            ApiResponseModel response = await _repository.FindUsers(username);
+            ApiResponseModel response = await _repository.FindUser(username, user);
 
             if(response.ResponseMessage == "Success")
             {
                 return Ok(response);
 
             } else if (response.ResponseMessage == "Failure")
-            {
-                return Conflict(response);
-            }
-            else if (response.ResponseMessage == "Email already exists")
             {
                 return Conflict(response);
             }
