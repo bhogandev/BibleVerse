@@ -3,16 +3,43 @@
 @using Microsoft.AspNetCore.Http;
 @{
     Layout = "../Shared/_UserLayout.cshtml";
-    UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
-    Profiles userProfile = JsonConvert.DeserializeObject<Profiles>(Context.Session.GetString("profile"));
+    bool notUser;
+    Profiles userProfile = new Profiles();
+    UserViewModel user = new UserViewModel();
+
+
+    if (ViewBag.UserProfile != null && ViewBag.NotUser != null && ViewBag.UserViewModel != null)
+    {
+        notUser = true;
+        userProfile = JsonConvert.DeserializeObject<Profiles>(ViewBag.UserProfile);
+        user = JsonConvert.DeserializeObject<UserViewModel>(ViewBag.UserViewModel);
+    } else
+    {
+        notUser = false;
+        user = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
+        userProfile = JsonConvert.DeserializeObject<Profiles>(Context.Session.GetString("profile"));
+    }
+
+    
     ViewData["Title"] = user.UserName + " | BibleVerse";
 }
     <div>
-        <div id="user_pp"><img src="@userProfile.Picture" /></div>
-            @using (Html.BeginForm("ChangeProfilePic", "BBV", FormMethod.Post, new { enctype = "multipart/form-data" }))
-        {
-            <input name="profilePic" type="file"/>
-            <input type="Submit" value="Submit" />
+        @{
+            if (notUser)
+            {
+                <div id="user_pp"><img src="@userProfile.Picture" /></div>
+
+                <p>this is @user.UserName profile</p>
+            }
+            else
+            {
+                <div id="user_pp"><img src="@userProfile.Picture" /></div>
+                @using (Html.BeginForm("ChangeProfilePic", "BBV", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <input name="profilePic" type="file" />
+                    <input type="Submit" value="Submit" />
+                }
+                <p>You have made it to your account page!</p>
+            }
         }
-        <p>You have made it to your account page!</p>
     </div>

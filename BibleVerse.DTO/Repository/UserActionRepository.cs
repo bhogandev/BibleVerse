@@ -34,6 +34,15 @@ namespace BibleVerse.DTO.Repository
             userManager = _userManager;
         }
 
+        public Organization GetUserOrg(string orgID)
+        {
+            var userOrg = from x in _context.Organization
+                          where x.OrganizationId == orgID
+                          select x;
+
+            return userOrg.FirstOrDefault();
+        }
+
         //Get Posts for user
         public async Task<List<Posts>> GetUserPosts(string userName)
         {
@@ -360,18 +369,45 @@ namespace BibleVerse.DTO.Repository
             ApiResponseModel response = new ApiResponseModel();
             response.ResponseBody = new List<string>();
             response.ResponseErrors = new List<string>();
+            UserViewModel suvm = new UserViewModel();
 
             while(!profileFound && retryTimes < 3)
             {
-                userProfiles = from c in _context.Profiles
-                               where c.ProfileId == userID
-                               select c;
+                if (userID.Count() != 27)
+                {
+                    var username = from c in userManager.Users
+                                   where c.UserName == userID
+                                   select c;
 
+                  var foundUser = username.First();
+
+                    var userOrg = GetUserOrg(foundUser.OrganizationId);
+
+                    suvm.UserName = foundUser.UserName;
+                    suvm.Status = foundUser.Status;
+                    suvm.Age = foundUser.Age;
+                    suvm.Friends = foundUser.Friends;
+                    suvm.Level = foundUser.Level;
+                    suvm.OnlineStatus = foundUser.OnlineStatus;
+                    suvm.OrgName = userOrg.Name;
+                    
+
+                    userProfiles = from c in _context.Profiles
+                                   where c.ProfileId == username.First().UserId
+                                   select c;
+                }
+                else
+                {
+                    userProfiles = from c in _context.Profiles
+                                   where c.ProfileId == userID
+                                   select c;
+                }
                 if(userProfiles.First() != null)
                 {
                     profileFound = true;
                     response.ResponseMessage = "Success";
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userProfiles.First()));
+                    response.ResponseBody.Add(JsonConvert.SerializeObject(suvm));
                     return response;
                 } else
                 {

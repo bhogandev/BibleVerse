@@ -56,7 +56,7 @@ namespace BibleVerseAPI.Controllers
             {
                 if (userProfile.ResponseBody.Count > 0)
                 {
-                    return Ok(JsonConvert.DeserializeObject<Profiles>(userProfile.ResponseBody[0]));
+                    return Ok(userProfile);
                 }
                 else if (userProfile.ResponseBody.Count == 0)
                 {
@@ -74,6 +74,7 @@ namespace BibleVerseAPI.Controllers
             }
         }
 
+        
 
         // POST api/values
         [HttpPost]

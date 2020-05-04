@@ -25,6 +25,8 @@ namespace BibleVerse.DTO
 
         public string OrganizationId { get; set; }
 
+        public string OrgName { get; set; }
+
         public Profiles Profile { get; set; }
     }
 }

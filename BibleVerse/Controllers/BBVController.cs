@@ -71,7 +71,8 @@ namespace BibleVerse.Controllers
             {
                 if (result.ReasonPhrase == "OK")
                 {
-                    HttpContext.Session.SetString("profile", r.Result);
+                    ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
+                    HttpContext.Session.SetString("profile", response.ResponseBody[0]);
                 } else
                 {
                     //Send user to Error page
@@ -114,6 +115,36 @@ namespace BibleVerse.Controllers
                 e.Add("An unexpected error occurred. Please try again");
                 ViewBag.Errors = e;
                 return View();
+            }
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Profile(string username)
+        {
+            if (HttpContext.Session.GetString("user") != null)
+            {
+                Users u = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
+
+                if (u.UserName.ToLower() != username.ToLower())
+                {
+                    HttpClient client = _api.Initial();
+                    var result = await client.GetAsync("Post/Profile?userID=" + username);
+                    var r = result.Content.ReadAsStringAsync();
+
+                    ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
+
+                    ViewBag.UserProfile = response.ResponseBody[0];
+                    ViewBag.UserViewModel = response.ResponseBody[1];
+                    ViewBag.NotUser = true;
+                    return View("Account");
+                } else
+                {
+                   return RedirectToAction("Account");
+                }
+            } else
+            {
+                return RedirectToAction("Login", "Home");
             }
 
         }
