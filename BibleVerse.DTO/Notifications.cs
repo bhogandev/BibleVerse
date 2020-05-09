@@ -7,7 +7,8 @@ namespace BibleVerse.DTO
     public class Notifications
     {
         [Key]
-        public string NotificationID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int NotificationID { get; set; }
 
         public string RecipientUserID { get; set; }
 

@@ -4,14 +4,16 @@ using BibleVerse.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BibleVerseAPI.Migrations
 {
     [DbContext(typeof(BVIdentityContext))]
-    partial class BVIdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20200505030753_FixNotificationsID2")]
+    partial class FixNotificationsID2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

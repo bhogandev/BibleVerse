@@ -1,18 +1,27 @@
 ﻿@using BibleVerse.DTO
 @using Newtonsoft.Json
+@using System.Web
 @using Microsoft.AspNetCore.Http;
 @{
     Layout = "../Shared/_UserLayout.cshtml";
     bool notUser;
     Profiles userProfile = new Profiles();
     UserViewModel user = new UserViewModel();
-
+    UserViewModel currUser = new UserViewModel();
+    string userRelationship = "";
 
     if (ViewBag.UserProfile != null && ViewBag.NotUser != null && ViewBag.UserViewModel != null)
     {
         notUser = true;
         userProfile = JsonConvert.DeserializeObject<Profiles>(ViewBag.UserProfile);
         user = JsonConvert.DeserializeObject<UserViewModel>(ViewBag.UserViewModel);
+        currUser = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
+
+        if(ViewBag.RequestResult != null)
+        {
+            userRelationship = ViewBag.RequestResult;
+        }
+
     } else
     {
         notUser = false;
@@ -20,7 +29,7 @@
         userProfile = JsonConvert.DeserializeObject<Profiles>(Context.Session.GetString("profile"));
     }
 
-    
+
     ViewData["Title"] = user.UserName + " | BibleVerse";
 }
     <div>
@@ -29,7 +38,34 @@
             {
                 <div id="user_pp"><img src="@userProfile.Picture" /></div>
 
-                <p>this is @user.UserName profile</p>
+                <h1>@user.UserName</h1>
+                <h2>Organization: @user.OrgName</h2>
+                <h2 class="lead">Status: @user.Status</h2>
+                <h3>Friends: @user.Friends</h3>
+                <h3>Level: @user.Level</h3>
+
+                @using (Html.BeginForm("ProcessRelationshipRequest", "BBV", FormMethod.Post))
+                {
+                    <input type="text" name="SecondUser" value="@user.UserName" hidden />
+                    <input type="text" name="FirstUser" value="@currUser.UserName" hidden />
+
+                    if (userRelationship.Contains("Cancel"))
+                    {
+                        <input type="submit" name="RequestType"  value="@userRelationship" /> //Cancel Friend Request
+                    }
+                    else if (userRelationship.Contains("Accept"))
+                    {
+                        <input type="submit" name="RequestType" value="@userRelationship" /> //Accept Friend Request
+                    }
+                    else if (userRelationship != "")
+                    {
+                        <input type="submit" name="RequestType" value="@userRelationship" disabled /> // Display current relationship
+                    }
+                    else
+                    {
+                        <input type="submit" name="RequestType"value="Send friend request" />//Send Friend Request
+                    }
+                }
             }
             else
             {

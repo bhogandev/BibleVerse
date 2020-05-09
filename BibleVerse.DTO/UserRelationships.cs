@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace BibleVerse.DTO
@@ -8,7 +9,8 @@ namespace BibleVerse.DTO
     public class UserRelationships
     {
         [Key]
-        public string RelationshipID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int RelationshipID { get; set; }
 
         public string FirstUser { get; set; }
 

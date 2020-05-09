@@ -1,10 +1,14 @@
 ﻿@using BibleVerse.DTO;
+@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
 @{
     Layout = "../Shared/_UserLayout.cshtml";
     ViewData["Title"] = "Search | BibleVerse";
     List<string> errors = new List<string>();
     List<SearchViewModel> searchResults = new List<SearchViewModel>();
-    if(ViewBag.SearchResults != null)
+    UserViewModel currUser = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
+
+    if (ViewBag.SearchResults != null)
     {
         searchResults = ViewBag.SearchResults;
     }
@@ -23,7 +27,7 @@
             {
                 <div class="searchResult/@searchResults.IndexOf(s)">
                     <img src="@s.PictureURL" />
-                    <a asp-action="Profile" asp-controller="BBV" asp-route-username="@s.UserName"><p><b>@s.UserName</b></p></a>
+                    <a asp-action="Profile" asp-controller="BBV" asp-route-username="@s.UserName" asp-route-currUserName="@currUser.UserName"><p><b>@s.UserName</b></p></a>
                     <p class="lead">@s.OrgName</p>
                 </div>
             }

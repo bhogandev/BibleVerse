@@ -4,14 +4,16 @@ using BibleVerse.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BibleVerseAPI.Migrations
 {
     [DbContext(typeof(BVIdentityContext))]
-    partial class BVIdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20200504194633_NewURelations")]
+    partial class NewURelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -191,10 +193,8 @@ namespace BibleVerseAPI.Migrations
 
             modelBuilder.Entity("BibleVerse.DTO.Notifications", b =>
                 {
-                    b.Property<int>("NotificationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("NotificationID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("ChangeDateTime")
                         .HasColumnType("datetime2");

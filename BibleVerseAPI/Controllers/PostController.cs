@@ -48,9 +48,9 @@ namespace BibleVerseAPI.Controllers
         //Get Timeline Posts
         [HttpGet]
         [ActionName("Profile")]
-        public IActionResult Profile(string userID)
+        public IActionResult Profile(string userID, string currUserName)
         {
-            ApiResponseModel userProfile = _repository.GetUserProfile(userID).Result;
+            ApiResponseModel userProfile = _repository.GetUserProfile(userID, currUserName).Result;
 
             if (userProfile != null)
             {
@@ -74,6 +74,38 @@ namespace BibleVerseAPI.Controllers
             }
         }
 
+        
+        [HttpPost]
+        [ActionName("RelationshipReq")]
+        public IActionResult RelationshipRequest([FromBody] object rRequest)
+        {
+            RelationshipRequestModel relationshipRequest = JsonConvert.DeserializeObject<RelationshipRequestModel>(rRequest.ToString());
+
+            var response = _repository.ProcessRelationshipRequest(relationshipRequest);
+            var responseResult = response.Result;
+            
+
+            if (response != null)
+            {
+                if (response.Result.ResponseMessage == "Success")
+                {
+                    return Ok(responseResult);
+                }
+                else if (response.Result.ResponseMessage == "Failed")
+                {
+                    return Conflict(responseResult);
+                }
+                else
+                {
+                    return BadRequest(responseResult);
+                }
+            }
+            else
+            {
+                //Create an Elog error
+                return BadRequest("An Error Occurred");
+            }
+        }
         
 
         // POST api/values

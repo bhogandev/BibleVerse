@@ -34,6 +34,24 @@ namespace BibleVerse.DTO.Repository
             userManager = _userManager;
         }
 
+        public void CreateNotification(string RecipientUserID, string SenderID, string Message, string NotificationType, string DirectURL)
+        {
+            Notifications newNotification = new Notifications()
+            {
+                RecipientUserID = RecipientUserID,
+                SenderID = SenderID,
+                Message = Message,
+                Type = NotificationType,
+                DirectURL = DirectURL,
+                IsUnread = true,
+                ChangeDateTime = DateTime.Now,
+                CreateDateTime = DateTime.Now
+            };
+
+            _context.Notifications.Add(newNotification);
+            _context.SaveChanges();
+        }
+
         public Organization GetUserOrg(string orgID)
         {
             var userOrg = from x in _context.Organization
@@ -361,7 +379,7 @@ namespace BibleVerse.DTO.Repository
             }
 
         //Get User Profile
-        public async Task<ApiResponseModel> GetUserProfile(string userID)
+        public async Task<ApiResponseModel> GetUserProfile(string userID, string secondUserName)
         {
             IQueryable<Profiles> userProfiles;
             bool profileFound = false;
@@ -370,10 +388,11 @@ namespace BibleVerse.DTO.Repository
             response.ResponseBody = new List<string>();
             response.ResponseErrors = new List<string>();
             UserViewModel suvm = new UserViewModel();
+            string userRelationType = "";
 
             while(!profileFound && retryTimes < 3)
             {
-                if (userID.Count() != 27)
+                if (userID.Count() != 27) // Get User Profile For Account View
                 {
                     var username = from c in userManager.Users
                                    where c.UserName == userID
@@ -395,6 +414,27 @@ namespace BibleVerse.DTO.Repository
                     userProfiles = from c in _context.Profiles
                                    where c.ProfileId == username.First().UserId
                                    select c;
+
+                    var requestResult = from c in _context.UserRelationships
+                                        where (c.FirstUser == userID && c.SecondUser == secondUserName) || (c.FirstUser == secondUserName && c.SecondUser == userID)
+                                        select c;
+
+
+                    if(requestResult.FirstOrDefault() != null)
+                    {
+                        var userRelationship = requestResult.FirstOrDefault();
+
+                        if(userRelationship.FirstUserConfirmed && userRelationship.SecondUserConfirmed) //If both have confirmed relationship, send back relationship
+                        {
+                            userRelationType = userRelationship.RelationshipType;
+                        } else if(userRelationship.FirstUser == secondUserName && userRelationship.SecondUserConfirmed != true) //Else if request user is the relationship sender, provide chance to cancel request
+                        {
+                            userRelationType = "Cancel " + userRelationship.RelationshipType.ToLower() + " request";
+                        } else if(userRelationship.SecondUser == secondUserName && userRelationship.SecondUserConfirmed != true)// Else if request user is the relationship reciever, they can accept request
+                        {
+                            userRelationType = "Accept " + userRelationship.RelationshipType.ToLower() + " request";
+                        }
+                    }
                 }
                 else
                 {
@@ -408,6 +448,7 @@ namespace BibleVerse.DTO.Repository
                     response.ResponseMessage = "Success";
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userProfiles.First()));
                     response.ResponseBody.Add(JsonConvert.SerializeObject(suvm));
+                    response.ResponseBody.Add(userRelationType);
                     return response;
                 } else
                 {
@@ -419,6 +460,98 @@ namespace BibleVerse.DTO.Repository
             response.ResponseErrors.Add("User Profile Not Found");
             return response;
         }
+
+        
+        public async Task<ApiResponseModel> ProcessRelationshipRequest(RelationshipRequestModel request)
+        {
+            ApiResponseModel response = new ApiResponseModel();
+            response.ResponseBody = new List<string>();
+            response.ResponseErrors = new List<string>();
+
+            if (request.RequestType == "Send friend request")
+            {
+                //Verify Relationship doesn't already exist
+                bool relationshipFound = true;
+
+                var relationList = from c in _context.UserRelationships
+                                   where (c.FirstUser == request.FirstUser && c.SecondUser == request.SecondUser && c.RelationshipType == request.RelationshipType) || (c.FirstUser == request.SecondUser && c.SecondUser == request.FirstUser && c.RelationshipType == request.RelationshipType)
+                                   select c;
+
+                if (relationList.FirstOrDefault() == null)
+                {
+                    UserRelationships newRelationship = new UserRelationships()
+                    {
+                        RelationshipType = request.RelationshipType,
+                        FirstUser = request.FirstUser,
+                        SecondUser = request.SecondUser,
+                        FirstUserConfirmed = true,
+                        SecondUserConfirmed = false,
+                        ChangeDateTime = DateTime.Now,
+                        CreateDateTime = DateTime.Now
+                    };
+
+                    _context.UserRelationships.Add(newRelationship);
+                    _context.SaveChanges();
+
+                    //Create user notification for friend request
+                    CreateNotification(request.SecondUser, request.FirstUser, request.FirstUser + " has sent you a friend request.", "Friend Request", "");
+
+                    UserHistory actionLog = new UserHistory()
+                    {
+                        ActionType = "UserRequest",
+                        ActionMessage = request.FirstUser + " sent " + request.SecondUser + "  a friend request.",
+                        ChangeDateTime = DateTime.Now,
+                        CreateDateTime = DateTime.Now
+                    };
+
+                    _context.UserHistory.Add(actionLog);
+                    _context.SaveChanges();
+
+                    response.ResponseMessage = "Success";
+                    response.ResponseBody.Add("Friend Request Sent!");
+                }
+                else
+                {
+                    response.ResponseMessage = "Failure";
+                    response.ResponseErrors.Add("Relationship Already Exists");
+                }
+            } else if(request.RequestType == "Cancel friend request")
+            {
+                //Write logic to handle cancel request
+
+                //Find the relationship
+                var friendRequest = from x in _context.UserRelationships
+                                    where (x.FirstUser == request.FirstUser) && (x.SecondUser == request.SecondUser) && (x.RelationshipType == request.RelationshipType) && x.SecondUserConfirmed == false
+                                    select x;
+
+                if(friendRequest.FirstOrDefault() != null) // If relationship is found
+                {
+                    //Remove relationship from table
+                    _context.UserRelationships.Remove(friendRequest.FirstOrDefault());
+
+                    //Delete notification from db
+                    var requestNotifcation = from x in _context.Notifications
+                                             where (x.SenderID == request.FirstUser) && (x.RecipientUserID == request.SecondUser) && (x.Type == "Friend Request")
+                                             orderby x.CreateDateTime descending
+                                             select x;
+
+                    if(requestNotifcation != null)
+                    {
+                        // Remove notification from table
+                        _context.Notifications.Remove(requestNotifcation.FirstOrDefault());
+                    }
+
+                    _context.SaveChanges();
+                    response.ResponseMessage = "Success";
+                }
+
+            } else if(request.RequestType == "Accept friend request")
+            {
+                //Write logic to handle accept request
+            }
+            return response;
+        }
+
 
 
         //Upload user profile pic

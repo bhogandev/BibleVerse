@@ -4,14 +4,16 @@ using BibleVerse.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BibleVerseAPI.Migrations
 {
     [DbContext(typeof(BVIdentityContext))]
-    partial class BVIdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20200504194410_AlterUserRelationshipsTble2")]
+    partial class AlterUserRelationshipsTble2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -191,10 +193,8 @@ namespace BibleVerseAPI.Migrations
 
             modelBuilder.Entity("BibleVerse.DTO.Notifications", b =>
                 {
-                    b.Property<int>("NotificationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("NotificationID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("ChangeDateTime")
                         .HasColumnType("datetime2");
@@ -689,39 +689,6 @@ namespace BibleVerseAPI.Migrations
                     b.HasKey("ActionID");
 
                     b.ToTable("UserHistory");
-                });
-
-            modelBuilder.Entity("BibleVerse.DTO.UserRelationships", b =>
-                {
-                    b.Property<int>("RelationshipID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("ChangeDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreateDateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FirstUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("FirstUserConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RelationshipType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SecondUser")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("SecondUserConfirmed")
-                        .HasColumnType("bit");
-
-                    b.HasKey("RelationshipID");
-
-                    b.ToTable("UserRelationships");
                 });
 
             modelBuilder.Entity("BibleVerse.DTO.Users", b =>

@@ -95,6 +95,22 @@ namespace BVCommon
             }
         }
 
+        //Return Relationship Request Type
+        public static string RetrieveRelationshipType(string relType)
+        {
+            var returnType = "";
+
+            switch (relType)
+            {
+                case "Send friend request": returnType = "FRIEND"; break;
+                case "Cancel friend request": returnType = "FRIEND"; break;
+                case "Accept friend request": returnType = "FRIEND"; break;
+                default: returnType = "Error: Invalid Relationship Statement"; break;
+            }
+
+            return returnType;
+        }
+
         //Create init file for dirs in buckets
         public static string CreateInit(string masterName)
         {

@@ -12,6 +12,7 @@ using BibleVerse.Helper;
 using System.Text;
 using System.Net;
 using System.IO;
+using BVCommon;
 
 namespace BibleVerse.Controllers
 {
@@ -120,7 +121,7 @@ namespace BibleVerse.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Profile(string username)
+        public async Task<IActionResult> Profile(string username, string currUserName)
         {
             if (HttpContext.Session.GetString("user") != null)
             {
@@ -129,13 +130,14 @@ namespace BibleVerse.Controllers
                 if (u.UserName.ToLower() != username.ToLower())
                 {
                     HttpClient client = _api.Initial();
-                    var result = await client.GetAsync("Post/Profile?userID=" + username);
+                    var result = await client.GetAsync("Post/Profile?userID=" + username + "&currUserName=" + currUserName);
                     var r = result.Content.ReadAsStringAsync();
 
                     ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
 
                     ViewBag.UserProfile = response.ResponseBody[0];
                     ViewBag.UserViewModel = response.ResponseBody[1];
+                    ViewBag.RequestResult = response.ResponseBody[2];
                     ViewBag.NotUser = true;
                     return View("Account");
                 } else
@@ -147,6 +149,53 @@ namespace BibleVerse.Controllers
                 return RedirectToAction("Login", "Home");
             }
 
+        }
+
+        //Send friend request from one user to another
+        [HttpPost]
+        public async Task<IActionResult> ProcessRelationshipRequest(string FirstUser, string SecondUser, string RequestType, string RelationShipType)
+        {
+            if (HttpContext.Session.GetString("user") == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            RelationshipRequestModel relationshipRequest = new RelationshipRequestModel()
+            {
+                FirstUser = FirstUser,
+                SecondUser = SecondUser,
+                RequestType = RequestType,
+                RelationshipType = BVFunctions.RetrieveRelationshipType(RequestType)
+            };
+
+                HttpClient client = _api.Initial();
+                var requestBody = new StringContent(JsonConvert.SerializeObject(relationshipRequest), Encoding.UTF8, "application/json");
+                HttpResponseMessage result = await client.PostAsync("Post/RelationshipReq", requestBody);
+                var r = result.Content.ReadAsStringAsync();
+
+                if (r.IsCompletedSuccessfully)
+                {
+                    ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
+
+                    if (result.ReasonPhrase == "OK")
+                    {
+                        return RedirectToAction("Profile", new { username = SecondUser }); // Return user to create their user account
+                    }
+                    else if (result.ReasonPhrase == "Conflict")
+                    {
+                        return RedirectToAction("Profile", new { username = SecondUser });
+                    }
+                    else
+                    {
+                        return RedirectToAction("Profile", new { username = SecondUser });
+                    }
+                }
+                else
+                {
+                    // Log Error in ELog
+                    Console.WriteLine("Error Occured");
+                    return View("ConfirmEmail"); // Return user to Login Screen displaying an Error has occurred
+                }
         }
 
         [HttpPost]
