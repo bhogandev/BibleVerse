@@ -15,7 +15,6 @@
         notUser = true;
         userProfile = JsonConvert.DeserializeObject<Profiles>(ViewBag.UserProfile);
         user = JsonConvert.DeserializeObject<UserViewModel>(ViewBag.UserViewModel);
-        currUser = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
 
         if(ViewBag.RequestResult != null)
         {
@@ -47,7 +46,6 @@
                 @using (Html.BeginForm("ProcessRelationshipRequest", "BBV", FormMethod.Post))
                 {
                     <input type="text" name="SecondUser" value="@user.UserName" hidden />
-                    <input type="text" name="FirstUser" value="@currUser.UserName" hidden />
 
                     if (userRelationship.Contains("Cancel"))
                     {
@@ -59,7 +57,7 @@
                     }
                     else if (userRelationship != "")
                     {
-                        <input type="submit" name="RequestType" value="@userRelationship" disabled /> // Display current relationship
+                        <h3 style="color: blue;">@userRelationship</h3> // Display current relationship
                     }
                     else
                     {

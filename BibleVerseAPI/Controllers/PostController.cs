@@ -46,6 +46,35 @@ namespace BibleVerseAPI.Controllers
         }
 
         //Get Timeline Posts
+        //Get All Of User's Posts
+        [HttpGet]
+        [ActionName("GetTimeline")]
+        public IActionResult GetTimeline(string userName)
+        {
+            List<Posts> userPosts = _repository.GenerateTimelinePosts(userName).Result;
+
+            if (userPosts != null)
+            {
+                if (userPosts.Count > 0)
+                {
+                    return Ok(userPosts);
+                }
+                else if (userPosts.Count == 0)
+                {
+                    return Ok("No Posts Found");
+                }
+                else
+                {
+                    return Conflict("Unable to Retrieve Posts");
+                }
+            }
+            else
+            {
+                //create Elog Error
+                return BadRequest("An Error Occurred");
+            }
+        }
+
         [HttpGet]
         [ActionName("Profile")]
         public IActionResult Profile(string userID, string currUserName)

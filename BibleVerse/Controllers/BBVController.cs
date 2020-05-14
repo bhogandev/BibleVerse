@@ -38,7 +38,7 @@ namespace BibleVerse.Controllers
             //Get Users Posts
             HttpClient client = _api.Initial();
             var userName = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
-            var result = await client.GetAsync("Post/Get?userName=" + userName.UserName);
+            var result = await client.GetAsync("Post/GetTimeline?userName=" + userName.UserName);
 
             //Verify user was created
             var r = result.Content.ReadAsStringAsync();
@@ -121,16 +121,16 @@ namespace BibleVerse.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Profile(string username, string currUserName)
+        public async Task<IActionResult> Profile(string username)
         {
             if (HttpContext.Session.GetString("user") != null)
             {
-                Users u = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
+                UserViewModel u = JsonConvert.DeserializeObject<UserViewModel>(HttpContext.Session.GetString("user"));
 
                 if (u.UserName.ToLower() != username.ToLower())
                 {
                     HttpClient client = _api.Initial();
-                    var result = await client.GetAsync("Post/Profile?userID=" + username + "&currUserName=" + currUserName);
+                    var result = await client.GetAsync("Post/Profile?userID=" + username + "&currUserName=" + u.UserName);
                     var r = result.Content.ReadAsStringAsync();
 
                     ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
@@ -153,16 +153,18 @@ namespace BibleVerse.Controllers
 
         //Send friend request from one user to another
         [HttpPost]
-        public async Task<IActionResult> ProcessRelationshipRequest(string FirstUser, string SecondUser, string RequestType, string RelationShipType)
+        public async Task<IActionResult> ProcessRelationshipRequest(string SecondUser, string RequestType, string RelationShipType)
         {
             if (HttpContext.Session.GetString("user") == null)
             {
                 return RedirectToAction("Login", "Home");
             }
 
+            UserViewModel firstUser = JsonConvert.DeserializeObject<UserViewModel>(HttpContext.Session.GetString("user"));
+
             RelationshipRequestModel relationshipRequest = new RelationshipRequestModel()
             {
-                FirstUser = FirstUser,
+                FirstUser = firstUser.UserName,
                 SecondUser = SecondUser,
                 RequestType = RequestType,
                 RelationshipType = BVFunctions.RetrieveRelationshipType(RequestType)
@@ -198,6 +200,7 @@ namespace BibleVerse.Controllers
                 }
         }
 
+        //Change User Profile Picture
         [HttpPost]
         public async Task<IActionResult> ChangeProfilePic(IFormFile profilePic)
         {
@@ -256,6 +259,7 @@ namespace BibleVerse.Controllers
             }
         }
 
+        //Create Post On Timeline
         [HttpPost]
         public async Task<IActionResult> CreatePost(List<IFormFile> IFiles, PostModel newPost)
         {
@@ -352,6 +356,7 @@ namespace BibleVerse.Controllers
 
         }
 
+        //Log User Out
         public async Task<IActionResult> Logout()
         {
             Users currUser = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));

@@ -33,7 +33,7 @@
             foreach(Posts post in tlPosts)
             {
                 <div id="@post.PostId" class="post">
-                    <span><b>@post.Username</b></span> <span>@post.CreateDateTime.TimeOfDay</span>
+                    <span><a asp-action="Profile" asp-controller="BBV" asp-route-username="@post.Username"><b>@post.Username</b></a></span> <span>@post.CreateDateTime.TimeOfDay</span>
                     <br/>
 
                     @{

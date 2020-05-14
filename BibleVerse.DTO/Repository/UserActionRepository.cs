@@ -81,6 +81,46 @@ namespace BibleVerse.DTO.Repository
             return userPosts;
         }
 
+        public async Task<List<Posts>> GenerateTimelinePosts(string userName)
+        {
+            IQueryable<Posts> posts;
+            List<Posts> userPosts = new List<Posts>();
+            List<string> friends = new List<string>();
+
+            var friendList = from f in _context.UserRelationships
+                             where (((f.FirstUser == userName) || (f.SecondUser == userName)) && ((f.FirstUserConfirmed == true) && (f.SecondUserConfirmed == true)) && f.RelationshipType == "FRIEND")
+                             select f;
+
+            if(friendList.FirstOrDefault() != null)
+            {
+                foreach(UserRelationships relation  in friendList)
+                {
+                    if(relation.FirstUser != userName)
+                    {
+                        friends.Add(relation.FirstUser);
+                    }else if(relation.SecondUser != userName)
+                    {
+                        friends.Add(relation.SecondUser);
+                    }
+                }
+            }
+
+            posts = from p in _context.Posts
+                    where (((p.Username == userName) && (p.IsDeleted != true)) || (friends.Contains(p.Username)))
+                    orderby p.CreateDateTime descending
+                    select p;
+
+            if (posts.Count() > 0)
+            {
+                foreach (Posts p in posts)
+                {
+                    userPosts.Add(p);
+                }
+            }
+
+            return userPosts;
+        }
+
         //Create Post For User
         public async Task<string> CreateUserPost(PostModel newPost)
         {
@@ -461,7 +501,7 @@ namespace BibleVerse.DTO.Repository
             return response;
         }
 
-        
+        //Process User Relationship Request
         public async Task<ApiResponseModel> ProcessRelationshipRequest(RelationshipRequestModel request)
         {
             ApiResponseModel response = new ApiResponseModel();
@@ -542,17 +582,90 @@ namespace BibleVerse.DTO.Repository
                     }
 
                     _context.SaveChanges();
+
+                    UserHistory actionLog = new UserHistory()
+                    {
+                        ActionType = "UserRequest",
+                        ActionMessage = request.FirstUser + " canceled a friend request to " + request.SecondUser,
+                        ChangeDateTime = DateTime.Now,
+                        CreateDateTime = DateTime.Now
+                    };
+
+                    _context.UserHistory.Add(actionLog);
+                    _context.SaveChanges();
+
                     response.ResponseMessage = "Success";
                 }
 
             } else if(request.RequestType == "Accept friend request")
             {
                 //Write logic to handle accept request
+
+                //Find the relationship
+                var friendRequest = from x in _context.UserRelationships
+                                    where (x.FirstUser == request.SecondUser) && (x.SecondUser == request.FirstUser) && (x.RelationshipType == request.RelationshipType) && x.SecondUserConfirmed == false
+                                    select x;
+
+                if (friendRequest.FirstOrDefault() != null) // If relationship is found
+                {
+                    //Retrieve users
+                    var fU = from x in userManager.Users
+                             where x.UserName == request.FirstUser
+                             select x;
+
+                    var sU = from x in userManager.Users
+                             where x.UserName == request.SecondUser
+                             select x;
+
+                    if ((fU.FirstOrDefault() != null) && (sU.FirstOrDefault() != null))
+                    {
+                        Users firstUserFound = fU.FirstOrDefault();
+                        Users secondUserFound = sU.FirstOrDefault();
+
+                        //Increment users Friend counts
+                        firstUserFound.Friends++;
+                        secondUserFound.Friends++;
+
+                        friendRequest.FirstOrDefault().SecondUserConfirmed = true; // Confirm friend request for second user
+
+                        //Create Notification for Accepting
+                        CreateNotification(request.SecondUser, request.FirstUser, request.FirstUser + " has accepted your friend request.", "Friend Request", "");
+
+                        _context.UserRelationships.Update(friendRequest.FirstOrDefault());
+
+                        UserHistory actionLog = new UserHistory()
+                        {
+                            ActionType = "UserRequest",
+                            ActionMessage = request.SecondUser + " accepted a friend request from " + request.FirstUser,
+                            ChangeDateTime = DateTime.Now,
+                            CreateDateTime = DateTime.Now
+                        };
+
+                        UserHistory actionLogRelation = new UserHistory()
+                        {
+                            ActionType = "RelationshipUpdate",
+                            ActionMessage = request.FirstUser + " & " + request.SecondUser + " are now friends",
+                            ChangeDateTime = DateTime.Now,
+                            CreateDateTime = DateTime.Now
+                        };
+
+                        _context.UserHistory.Add(actionLog);
+                        _context.UserHistory.Add(actionLogRelation);
+                        _context.Users.Update(firstUserFound);
+                        _context.Users.Update(secondUserFound);
+                    }
+                    _context.SaveChanges();
+
+                    response.ResponseMessage = "Success";
+                }
+                else
+                {
+                    response.ResponseMessage = "Failure";
+                    response.ResponseErrors.Add("Request not found");
+                }
             }
             return response;
         }
-
-
 
         //Upload user profile pic
         public async Task<string> ChangeUserProfilePic(UserUpload userUp)

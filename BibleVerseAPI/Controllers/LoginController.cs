@@ -21,9 +21,16 @@ namespace BibleVerseAPI.Controllers
        [HttpPost]
        public IActionResult LoginUser([FromBody] object userRequest)
         {
+            string lr = "";
 
             var loginResponse = _repository.LoginUser(JsonConvert.DeserializeObject<LoginRequestModel>(userRequest.ToString()));
-            var lr = JsonConvert.SerializeObject(loginResponse.Result);
+            try
+            {
+                lr = JsonConvert.SerializeObject(loginResponse.Result);
+            }catch(Exception ex)
+            {
+                lr = JsonConvert.SerializeObject(loginResponse.Result);
+            }
 
             if (loginResponse.IsCompletedSuccessfully)
             {
