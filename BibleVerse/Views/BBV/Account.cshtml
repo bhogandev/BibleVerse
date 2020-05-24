@@ -8,6 +8,13 @@
     Profiles userProfile = new Profiles();
     UserViewModel user = new UserViewModel();
     UserViewModel currUser = new UserViewModel();
+    List<Posts> tlPosts = new List<Posts>();
+
+    if (Context.Session.GetString("posts") != "No Posts Found")
+    {
+        tlPosts = JsonConvert.DeserializeObject<List<Posts>>(Context.Session.GetString("posts"));
+    }
+
     string userRelationship = "";
 
     if (ViewBag.UserProfile != null && ViewBag.NotUser != null && ViewBag.UserViewModel != null)
@@ -16,12 +23,13 @@
         userProfile = JsonConvert.DeserializeObject<Profiles>(ViewBag.UserProfile);
         user = JsonConvert.DeserializeObject<UserViewModel>(ViewBag.UserViewModel);
 
-        if(ViewBag.RequestResult != null)
+        if (ViewBag.RequestResult != null)
         {
             userRelationship = ViewBag.RequestResult;
         }
 
-    } else
+    }
+    else
     {
         notUser = false;
         user = JsonConvert.DeserializeObject<UserViewModel>(Context.Session.GetString("user"));
@@ -49,7 +57,7 @@
 
                     if (userRelationship.Contains("Cancel"))
                     {
-                        <input type="submit" name="RequestType"  value="@userRelationship" /> //Cancel Friend Request
+                        <input type="submit" name="RequestType" value="@userRelationship" /> //Cancel Friend Request
                     }
                     else if (userRelationship.Contains("Accept"))
                     {
@@ -61,7 +69,7 @@
                     }
                     else
                     {
-                        <input type="submit" name="RequestType"value="Send friend request" />//Send Friend Request
+                        <input type="submit" name="RequestType" value="Send friend request" />//Send Friend Request
                     }
                 }
             }
@@ -73,7 +81,40 @@
                     <input name="profilePic" type="file" />
                     <input type="Submit" value="Submit" />
                 }
-                <p>You have made it to your account page!</p>
             }
-        }
+
+            if (tlPosts != null)
+            {
+                foreach (Posts post in tlPosts)
+                {
+                    <div id="@post.PostId" class="post">
+                        <span><a asp-action="Profile" asp-controller="BBV" asp-route-username="@post.Username"><b>@post.Username</b></a></span> <span>@post.CreateDateTime.TimeOfDay</span>
+                        <br />
+
+                        @{
+                            if (post.Attachments != null)
+                            {
+                                List<PostsRelations> attachments = JsonConvert.DeserializeObject<List<PostsRelations>>(post.Attachments);
+
+                                foreach (PostsRelations pr in attachments)
+                                {
+                                    if (pr.ContentType == "Photo")
+                                    {
+                                        <img src="@pr.Link" height="300" width="300" />
+                                    }
+                                    else
+                                    {
+                                        <video width="300" height="300" controls>
+                                            <source src="@pr.Link" type="video/mp4">
+                                        </video>
+                                    }
+                                }
+                            }
+                        }
+                        <p>@post.Body</p>
+                    </div>
+                                    }
+                                }
+                            }
     </div>
+                            

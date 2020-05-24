@@ -88,15 +88,17 @@ namespace BibleVerse.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Search(string SearchBox, string user)
+        public async Task<IActionResult> Search(string SearchBox)
         {
             if (HttpContext.Session.GetString("user") == null)
             {
                 return RedirectToAction("Login", "Home");
             }
 
+            UserViewModel u = JsonConvert.DeserializeObject<UserViewModel>(HttpContext.Session.GetString("user"));
+
             HttpClient client = _api.Initial();
-            var result = await client.GetAsync("Registration/Search?user=" + user + "&username=" + SearchBox);
+            var result = await client.GetAsync("Registration/Search?user=" + u.UserID + "&username=" + SearchBox);
             ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(result.Content.ReadAsStringAsync().Result);
 
             if (result.StatusCode == HttpStatusCode.OK)
@@ -138,6 +140,7 @@ namespace BibleVerse.Controllers
                     ViewBag.UserProfile = response.ResponseBody[0];
                     ViewBag.UserViewModel = response.ResponseBody[1];
                     ViewBag.RequestResult = response.ResponseBody[2];
+                    HttpContext.Session.SetString("posts", response.ResponseBody[3]);
                     ViewBag.NotUser = true;
                     return View("Account");
                 } else
@@ -265,6 +268,12 @@ namespace BibleVerse.Controllers
         {
             if (HttpContext.Session.GetString("user") != null)
             {
+                UserViewModel user = JsonConvert.DeserializeObject<UserViewModel>(HttpContext.Session.GetString("user"));
+
+                newPost.UserId = user.UserID;
+                newPost.UserName = user.UserName;
+                newPost.OrganizationId = user.OrganizationId;
+
                 if(IFiles != null)
                 {
                     newPost.Images = new List<UserUpload>();

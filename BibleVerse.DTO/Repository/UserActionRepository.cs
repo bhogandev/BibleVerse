@@ -429,6 +429,7 @@ namespace BibleVerse.DTO.Repository
             response.ResponseErrors = new List<string>();
             UserViewModel suvm = new UserViewModel();
             string userRelationType = "";
+            string profileUser = "";
 
             while(!profileFound && retryTimes < 3)
             {
@@ -439,6 +440,8 @@ namespace BibleVerse.DTO.Repository
                                    select c;
 
                   var foundUser = username.First();
+
+                    profileUser = foundUser.UserName;
 
                     var userOrg = GetUserOrg(foundUser.OrganizationId);
 
@@ -485,10 +488,18 @@ namespace BibleVerse.DTO.Repository
                 if(userProfiles.First() != null)
                 {
                     profileFound = true;
+
+
+                    //Get User Posts
+                    var userPosts = from c in _context.Posts
+                                    where c.Username == profileUser
+                                    select c;
+
                     response.ResponseMessage = "Success";
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userProfiles.First()));
                     response.ResponseBody.Add(JsonConvert.SerializeObject(suvm));
                     response.ResponseBody.Add(userRelationType);
+                    response.ResponseBody.Add(userPosts.ToString());
                     return response;
                 } else
                 {

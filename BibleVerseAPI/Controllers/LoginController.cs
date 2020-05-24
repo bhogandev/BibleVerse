@@ -15,6 +15,7 @@ namespace BibleVerseAPI.Controllers
     public class LoginController : Controller
     {
         private readonly RegistrationRepository _repository;
+        private readonly ELogRepository _elogRepository;
 
         public LoginController(RegistrationRepository repository) => _repository = repository;
 
@@ -30,6 +31,9 @@ namespace BibleVerseAPI.Controllers
             }catch(Exception ex)
             {
                 lr = JsonConvert.SerializeObject(loginResponse.Result);
+
+                //Create ELog Storing Exception
+                var error = _elogRepository.LogError("UserLogin", 3, ex.ToString());
             }
 
             if (loginResponse.IsCompletedSuccessfully)

@@ -21,9 +21,6 @@
             {
                 @Html.TextAreaFor(x => x.Body);
                 <input type="file" name="IFiles" multiple />
-                <input type="text" name="UserName" value="@user.UserName" hidden />
-                <input type="text" name="UserId" value="@user.UserID" hidden />
-                <input type="text" name="OrganizationId" value="@user.OrganizationId" hidden />
                 <input type="submit" value="Create Post" />
             }
         </form>

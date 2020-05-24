@@ -8,8 +8,7 @@ namespace BibleVerseDTO.Services
 {
     public class EmailService
     {
-        private readonly BVIdentityContext _context;
-
+        
         public static void Send(string ToAddress, string Subject, string Body)
         {
             var client = new SmtpClient("smtp.gmail.com", 587);
@@ -20,7 +19,7 @@ namespace BibleVerseDTO.Services
                                            where (c.Service == "Email" && c.Name == "AccountPass")
                                            select c.Value;
             */
-            
+
             client.UseDefaultCredentials = false;
             client.Credentials = new NetworkCredential("BibleVerseLLC@gmail.com", "");
             client.EnableSsl = true
