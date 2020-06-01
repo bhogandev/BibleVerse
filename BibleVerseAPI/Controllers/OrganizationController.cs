@@ -13,36 +13,36 @@ namespace BibleVerseAPI.Controllers
     [Route("api/[controller]/[action]")]
     public class OrganizationController : Controller
     {
-        // GET: api/values
+        private readonly UserActionRepository _repository;
+
+        public OrganizationController(UserActionRepository repository) => _repository = repository;
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        [ActionName("Org")]
+        public IActionResult Org(string userName, string orgID)
         {
-            return new string[] { "value1", "value2" };
-        }
+            
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            if (userPosts != null)
+            {
+                if (userPosts.Count > 0)
+                {
+                    return Ok(userPosts);
+                }
+                else if (userPosts.Count == 0)
+                {
+                    return Ok("No Posts Found");
+                }
+                else
+                {
+                    return Conflict("Unable to Retrieve Posts");
+                }
+            }
+            else
+            {
+                //create Elog Error
+                return BadRequest("An Error Occurred");
+            }
         }
     }
 }
