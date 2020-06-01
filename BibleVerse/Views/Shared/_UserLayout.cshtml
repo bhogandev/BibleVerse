@@ -29,10 +29,13 @@
                 <div id="ubar-nav">
                     <ul>
                         <li>
-                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Logout">Logout</a>
+                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="OrgHome">@user.OrgName</a>
                         </li>
                         <li>
                             <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Account">@user.UserName</a>
+                        </li>
+                        <li>
+                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Logout">Logout</a>
                         </li>
                     </ul>
                 </div>

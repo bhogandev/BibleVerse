@@ -499,7 +499,7 @@ namespace BibleVerse.DTO.Repository
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userProfiles.First()));
                     response.ResponseBody.Add(JsonConvert.SerializeObject(suvm));
                     response.ResponseBody.Add(userRelationType);
-                    response.ResponseBody.Add(userPosts.ToString());
+                    response.ResponseBody.Add(JsonConvert.SerializeObject(userPosts.ToList()));
                     return response;
                 } else
                 {

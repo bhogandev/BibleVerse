@@ -61,11 +61,12 @@ namespace BibleVerse.Controllers
             {
                 return RedirectToAction("Login", "Home");
             }
+
             //Get call to retrieve users profile
 
             HttpClient client = _api.Initial();
             var userName = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
-            var result = await client.GetAsync("Post/Profile?userID=" + userName.UserId);
+            var result = await client.GetAsync("Post/Profile?userID=" + userName.UserName);
             var r = result.Content.ReadAsStringAsync();
 
             if(r.IsCompletedSuccessfully)
@@ -74,6 +75,8 @@ namespace BibleVerse.Controllers
                 {
                     ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
                     HttpContext.Session.SetString("profile", response.ResponseBody[0]);
+                    HttpContext.Session.SetString("posts", response.ResponseBody[3]);
+
                 } else
                 {
                     //Send user to Error page
@@ -129,8 +132,7 @@ namespace BibleVerse.Controllers
             {
                 UserViewModel u = JsonConvert.DeserializeObject<UserViewModel>(HttpContext.Session.GetString("user"));
 
-                if (u.UserName.ToLower() != username.ToLower())
-                {
+    
                     HttpClient client = _api.Initial();
                     var result = await client.GetAsync("Post/Profile?userID=" + username + "&currUserName=" + u.UserName);
                     var r = result.Content.ReadAsStringAsync();
@@ -141,12 +143,14 @@ namespace BibleVerse.Controllers
                     ViewBag.UserViewModel = response.ResponseBody[1];
                     ViewBag.RequestResult = response.ResponseBody[2];
                     HttpContext.Session.SetString("posts", response.ResponseBody[3]);
-                    ViewBag.NotUser = true;
-                    return View("Account");
-                } else
+                    if(u.UserName.ToLower() != username.ToLower())
+                    {
+                        ViewBag.NotUser = true;
+                    }else
                 {
-                   return RedirectToAction("Account");
-                }
+                    HttpContext.Session.SetString("profile", response.ResponseBody[0]);
+                } 
+                    return View("Account");
             } else
             {
                 return RedirectToAction("Login", "Home");
@@ -362,6 +366,45 @@ namespace BibleVerse.Controllers
                 return RedirectToAction("Index");
             }
 
+
+        }
+
+        //Bring user to organiation base page
+        public async Task<IActionResult> OrgHome()
+        {
+            if (HttpContext.Session.GetString("user") == null)
+            {
+                return RedirectToAction("Login", "Home");
+            }
+
+            //Get call to retrieve organization profile
+
+            HttpClient client = _api.Initial();
+            var user = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
+            var result = await client.GetAsync("Post/Profile?userID=" + user.UserName + "&orgID=" + user.OrganizationId);
+            var r = result.Content.ReadAsStringAsync();
+
+            if (r.IsCompletedSuccessfully)
+            {
+                if (result.ReasonPhrase == "OK")
+                {
+                    ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
+                    HttpContext.Session.SetString("profile", response.ResponseBody[0]);
+                    HttpContext.Session.SetString("posts", response.ResponseBody[3]);
+
+                }
+                else
+                {
+                    //Send user to Error page
+                    RedirectToAction("Login", "Home");
+                }
+            }
+            else
+            {
+                RedirectToAction("Login", "Home");
+            }
+
+            return View();
 
         }
 
