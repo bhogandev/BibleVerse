@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>@ViewData["Title"]</title>
+    <title>BibleVerse - @ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -29,7 +29,7 @@
                 <div id="ubar-nav">
                     <ul>
                         <li>
-                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="OrgHome">@user.OrgName</a>
+                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="OrgHome" asp-route-orgID="@user.OrganizationId">@user.OrgName</a>
                         </li>
                         <li>
                             <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Account">@user.UserName</a>

@@ -16,5 +16,7 @@ namespace BibleVerse.DTO
             public List<Posts> InitialPosts { get; set; }
 
             public Profiles UserProfile { get; set; }
+
+            public string Misc { get; set; }
     }
 }

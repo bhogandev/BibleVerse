@@ -19,7 +19,7 @@
         <form class="form-group" asp-action="CreatePost" asp-controller="BBV" enctype="multipart/form-data">
             @using (Html.BeginForm("CreatePost", "BBV", FormMethod.Post, new { enctype = "multipart/form-data" }))
             {
-                @Html.TextAreaFor(x => x.Body);
+               @Html.TextAreaFor(x => x.Body);
                 <input type="file" name="IFiles" multiple />
                 <input type="submit" value="Create Post" />
             }

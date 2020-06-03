@@ -1,0 +1,23 @@
+﻿@using BibleVerse.DTO
+@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json
+@{
+    OrgProfile orgProfile = JsonConvert.DeserializeObject<OrgProfile>(Context.Session.GetString("orgProfile"));
+    bool userIsMember = JsonConvert.DeserializeObject<bool>(ViewBag.UserIsMember);
+
+    Layout = "../Shared/_UserLayout.cshtml";
+    ViewData["Title"] = orgProfile.Name;
+
+}
+
+    <div>
+        Organization Name: @orgProfile.Name
+
+        Followers: @orgProfile.Followers
+
+        Following: @orgProfile.Following
+
+        Members: @orgProfile.Members
+
+        Is Member or Not? @userIsMember.ToString()
+    </div>

@@ -36,41 +36,125 @@ namespace BibleVerse.DTO.Repository
             ApiResponseModel apiResponse = new ApiResponseModel();
             apiResponse.ResponseErrors = new List<string>();
             apiResponse.ResponseBody = new List<string>();
-
-            var user = from x in userManager.Users
-                       where x.UserName == userName
-                       select x;
-
+            bool userIsMember = false;
+            
             /*
              * Steps to complete:
-             * [] find user
-             * [] find organization being requested
-             * [] find user organization
-             * [] see if user is a member of that organization
-             * [] return org profile view with true or false of userIsMember
+             * [x] find user
+             * [x] find organization being requested
+             * [x] see if user is a member of that organization
+             * [x] return org profile view with true or false of userIsMember
              */
 
-
-
-
+            //Find user
+             var user = from x in userManager.Users
+                       where x.UserName == userName
+                       select x;
 
             if (user.FirstOrDefault() != null)
             {
                 Users u = user.First();
 
-                var org = from x in _context.Organization
-                          where x.OrganizationId == u.OrganizationId
-                          select x;
+                //Find organization being requested
+                var reqOrg = from x in _context.Organization
+                             where x.OrganizationId == orgID
+                             select x;
 
-                
+                if (reqOrg.FirstOrDefault() != null)
+                {
+                    Organization rOrg = reqOrg.First();
 
-                //Create Organization Profile View
+                    //See if user is a member of requested organization
+                    if(rOrg.OrganizationId == u.OrganizationId)
+                    {
+                        userIsMember = true;
+                    }
+
+                    //Retrieve Org Posts
+
+                    List<Posts> rOrgPosts = new List<Posts>();
+
+                    var orgPosts = from x in _context.Posts
+                                   where x.Username == rOrg.OrganizationId
+                                   select x;
+
+                    if(orgPosts.FirstOrDefault() != null)
+                    {
+                        rOrgPosts = orgPosts.ToList();
+                    }
+
+                    //Create Org Profile View
+                    OrgProfile orgProfile = new OrgProfile()
+                    {
+                        Name = rOrg.Name,
+                        Followers = 0, //Set to followers count
+                        Following = 0, //Set to following count
+                        Members = rOrg.Members,
+                        Posts = rOrgPosts
+                    };
+
+                    apiResponse.ResponseMessage = "Success";
+                    apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(orgProfile)); //apiResponse.ResponseBody[0] = orgProfile
+                    apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(userIsMember)); //apiResponse.ResponseBody[1] = userIsMember bool
+                }
+                else
+                {
+                    //return error api response of org not found
+                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseErrors.Add("Organizaiton Not Found!");
+                }
             }
             else
             {
                 //return error api response of user not found
+                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseErrors.Add("Request User Not Found!");
             }
 
+            return apiResponse;
+        }
+
+        public async Task<ApiResponseModel> GetOrgMembers(string orgID)
+        {
+            ApiResponseModel apiResponse = new ApiResponseModel();
+            apiResponse.ResponseErrors = new List<string>();
+            apiResponse.ResponseBody = new List<string>();
+
+            var rOrgMembers = from x in userManager.Users
+                              where x.OrganizationId == orgID
+                              select x;
+
+            if(rOrgMembers.FirstOrDefault() != null)
+            {
+                List<SearchViewModel> orgMembers = new List<SearchViewModel>();
+
+                foreach(Users member in rOrgMembers.ToList())
+                {
+                    var memProfile = from x in _context.Profiles
+                                     where x.ProfileId == member.UserId
+                                     select x;
+
+                    Profiles mProfile = memProfile.First();
+
+                    SearchViewModel searchView = new SearchViewModel()
+                    {
+                        UserName = member.UserName,
+                        PictureURL = mProfile.Picture,
+                    };
+
+                    orgMembers.Add(searchView);
+                }
+
+                apiResponse.ResponseMessage = "Success";
+                apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(orgMembers));
+            }
+            else
+            {
+                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseErrors.Add("An Error Occured While Retrieving Org Members");
+            }
+
+            return apiResponse;
         }
     }
 }

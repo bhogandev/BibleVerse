@@ -370,7 +370,7 @@ namespace BibleVerse.Controllers
         }
 
         //Bring user to organiation base page
-        public async Task<IActionResult> OrgHome()
+        public async Task<IActionResult> OrgHome(string orgID)
         {
             if (HttpContext.Session.GetString("user") == null)
             {
@@ -381,7 +381,7 @@ namespace BibleVerse.Controllers
 
             HttpClient client = _api.Initial();
             var user = JsonConvert.DeserializeObject<Users>(HttpContext.Session.GetString("user"));
-            var result = await client.GetAsync("Post/Profile?userID=" + user.UserName + "&orgID=" + user.OrganizationId);
+            var result = await client.GetAsync("Organization/Org?userName=" + user.UserName + "&orgID=" + orgID);
             var r = result.Content.ReadAsStringAsync();
 
             if (r.IsCompletedSuccessfully)
@@ -389,9 +389,8 @@ namespace BibleVerse.Controllers
                 if (result.ReasonPhrase == "OK")
                 {
                     ApiResponseModel response = JsonConvert.DeserializeObject<ApiResponseModel>(r.Result);
-                    HttpContext.Session.SetString("profile", response.ResponseBody[0]);
-                    HttpContext.Session.SetString("posts", response.ResponseBody[3]);
-
+                    HttpContext.Session.SetString("orgProfile", response.ResponseBody[0]);
+                    ViewBag.UserIsMember = response.ResponseBody[1];
                 }
                 else
                 {

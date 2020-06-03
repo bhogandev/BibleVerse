@@ -13,29 +13,51 @@ namespace BibleVerseAPI.Controllers
     [Route("api/[controller]/[action]")]
     public class OrganizationController : Controller
     {
-        private readonly UserActionRepository _repository;
+        private readonly OrganizationRepository _repository;
 
-        public OrganizationController(UserActionRepository repository) => _repository = repository;
+        public OrganizationController(OrganizationRepository repository) => _repository = repository;
 
+        //Get organization profile
         [HttpGet]
         [ActionName("Org")]
         public IActionResult Org(string userName, string orgID)
         {
-            
+            ApiResponseModel apiResponse = _repository.GetOrgProfile(userName, orgID).Result;
 
-            if (userPosts != null)
+            if (apiResponse != null)
             {
-                if (userPosts.Count > 0)
+                if (apiResponse.ResponseMessage == "Success")
                 {
-                    return Ok(userPosts);
-                }
-                else if (userPosts.Count == 0)
-                {
-                    return Ok("No Posts Found");
+                    return Ok(apiResponse);
                 }
                 else
                 {
-                    return Conflict("Unable to Retrieve Posts");
+                    return Conflict(apiResponse);
+                }
+            }
+            else
+            {
+                //create Elog Error
+                return BadRequest("An Error Occurred");
+            }
+        }
+
+        //Get organization members
+        [HttpGet]
+        [ActionName("OrgMembers")]
+        public IActionResult OrgMembers(string orgID)
+        {
+            ApiResponseModel apiResponse = _repository.GetOrgMembers(orgID).Result;
+
+            if (apiResponse != null)
+            {
+                if (apiResponse.ResponseMessage == "Success")
+                {
+                    return Ok(apiResponse);
+                }
+                else
+                {
+                    return Conflict(apiResponse);
                 }
             }
             else

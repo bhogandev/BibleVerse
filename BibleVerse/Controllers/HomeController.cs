@@ -233,6 +233,7 @@ namespace BibleVerse.Controllers
                     if (result.ReasonPhrase == "OK") // If API call returns OK, redirect to User Dashboard with user information
                     {
                         Users resultUser = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseUser;
+                        string rUserOrg = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).Misc;
                         List<Posts> initalPosts = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).InitialPosts;
                         UserViewModel returnUser = new UserViewModel()
                         {
@@ -246,7 +247,8 @@ namespace BibleVerse.Controllers
                             OnlineStatus = resultUser.OnlineStatus,
                             Age = resultUser.Age,
                             Friends = resultUser.Friends,
-                            OrganizationId = resultUser.OrganizationId
+                            OrganizationId = resultUser.OrganizationId,
+                            OrgName = rUserOrg
                         };
 
 

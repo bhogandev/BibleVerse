@@ -559,6 +559,15 @@ namespace BibleVerse.DTO.Repository
                                 loginResponse.UserProfile = defaultProfile.FirstOrDefault();
                             }
 
+                            var userOrg = from x in _context.Organization
+                                          where x.OrganizationId == cu.OrganizationId
+                                          select x;
+
+                            if(userOrg.FirstOrDefault() != null)
+                            {
+                                loginResponse.Misc = userOrg.First().Name;
+                            }
+
                             var userUpdate = await userManager.UpdateAsync(cu);
 
                             if (userUpdate.Succeeded)
