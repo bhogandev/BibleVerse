@@ -1,0 +1,33 @@
+﻿@using BibleVerse.DTO
+@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json
+@{
+    OrgProfile orgProfile = JsonConvert.DeserializeObject<OrgProfile>(Context.Session.GetString("orgProfile"));
+    bool userIsMember = JsonConvert.DeserializeObject<bool>(ViewBag.UserIsMember);
+
+    Layout = "../../Shared/_UserLayout.cshtml";
+    ViewData["Title"] = orgProfile.Name;
+
+}
+
+    <div>
+        <!--Add organization profile photo here-->
+        Organization Name: @orgProfile.Name
+        
+    <!-- Add anchor links to the membors, follwers, and following fields to bring up view and gen list-->
+        Followers: @orgProfile.Followers
+
+        Following: @orgProfile.Following
+
+        Members: @orgProfile.Members
+
+     <!-- Is Member or Not? @userIsMember.ToString() -->
+
+        <!--Org Tool bar will go here (Links to assignments, courses, membership & follower requests ,etc) Provide additional links if user has privileges (admin, owner, etc)-->
+
+        <!-- If user has post privileges, show them the textbox to create posts under the organization name (Log current user in user history so we'll know who posted under the organization page)-->
+
+        <!-- Place organization posts here-->
+
+
+    </div>

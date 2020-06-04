@@ -28,8 +28,9 @@
             <div id="uar-inner" class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                 <div id="ubar-nav">
                     <ul>
+                        <!--Add anchor element with notifications dropdown-->
                         <li>
-                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="OrgHome" asp-route-orgID="@user.OrganizationId">@user.OrgName</a>
+                            <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Home" asp-route-orgID="@user.OrganizationId">@user.OrgName</a>
                         </li>
                         <li>
                             <a class="navbar-brand" asp-area="" asp-controller="BBV" asp-action="Account">@user.UserName</a>

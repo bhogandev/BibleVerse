@@ -87,7 +87,7 @@ namespace BibleVerse.Controllers
                 RedirectToAction("Login", "Home");
             }  
 
-            return View();
+            return View("Account/Account");
         }
 
         [HttpGet]
@@ -150,7 +150,7 @@ namespace BibleVerse.Controllers
                 {
                     HttpContext.Session.SetString("profile", response.ResponseBody[0]);
                 } 
-                    return View("Account");
+                    return View("Account/Account");
             } else
             {
                 return RedirectToAction("Login", "Home");
@@ -370,7 +370,7 @@ namespace BibleVerse.Controllers
         }
 
         //Bring user to organiation base page
-        public async Task<IActionResult> OrgHome(string orgID)
+        public async Task<IActionResult> Home(string orgID)
         {
             if (HttpContext.Session.GetString("user") == null)
             {
@@ -403,7 +403,7 @@ namespace BibleVerse.Controllers
                 RedirectToAction("Login", "Home");
             }
 
-            return View();
+            return View("Org/Home");
 
         }
 

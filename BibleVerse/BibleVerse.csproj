@@ -29,7 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helper\" />
-    <Folder Include="Views\BBV\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="**/*" />
