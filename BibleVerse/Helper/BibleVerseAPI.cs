@@ -7,7 +7,7 @@ namespace BibleVerse.Helper
         public HttpClient Initial()
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:44307/api/");
+            client.BaseAddress = new Uri("https://localhost:5001/api/");
             return client;
         }
     }

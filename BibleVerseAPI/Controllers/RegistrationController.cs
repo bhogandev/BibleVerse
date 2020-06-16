@@ -21,6 +21,7 @@ namespace BibleVerseAPI.Controllers
         public RegistrationController(RegistrationRepository repository) => _repository = repository;
 
         [HttpGet]
+        [ActionName("GetUsers")]
         public IActionResult Get()
         {
             if (_repository.GetAllUsers().Count > 0)

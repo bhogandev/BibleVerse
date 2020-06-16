@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BibleVerse.DTO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace BibleVerse
+namespace BibleVerseUI
 {
     public class Startup
     {
@@ -25,15 +20,14 @@ namespace BibleVerse
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<BVIdentityContext>();
-            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>();
+
             services.AddControllersWithViews();
-            services.ConfigureApplicationCookie(option => option.LoginPath = "/BBV");
-            services.AddSession(options =>
+
+            // In production, the React files will be served from this directory
+            services.AddSpaStaticFiles(configuration =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                configuration.RootPath = "ClientApp/build";
             });
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,21 +39,32 @@ namespace BibleVerse
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseSpaStaticFiles();
+
             app.UseRouting();
-            app.UseAuthorization();
-            app.UseAuthentication();
-            app.UseSession();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller}/{action=Index}/{id?}");
+            });
+
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
             });
         }
     }
