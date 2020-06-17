@@ -10,12 +10,13 @@ class LoginForm extends React.Component {
         this.state = {
             email: '',
             password: '',
-            btnDisabled: false
+            btnDisabled: false,
+            user: ''
         };
     }
 
     setPropVal(prop, val) {
-        //val = val.trim();
+        val = val.trim();
 
         this.setState({
             [prop]: val
@@ -40,18 +41,11 @@ class LoginForm extends React.Component {
                     email: this.state.email,
                     password: this.state.password
                 })
-            });
-
-            let result = await res.json();
-
-            if (result && result.success) {
-            /*Do  something with response*/
-                alert(result);
-            } else if (result && result.success === false) {
-                console.log("Nope");
-                alert(result.msg);
-            }
-
+            }).then(
+                result => result.json()
+            ).then(
+                data => this.setState({ user: data })
+            );
         } catch (exception) {
             console.log(exception);
         }
@@ -60,6 +54,7 @@ class LoginForm extends React.Component {
 
     render() {
         return (
+            <div>
             <Form>
                 <FormGroup>
                         <Label for="email">Email</Label>
@@ -70,7 +65,10 @@ class LoginForm extends React.Component {
                     <Input type="password" name="password" id="password" placeholder="Password" value={this.state.password ? this.state.password : ''} onChange={(val) => this.setPropVal("password", val.target.value)}/>
                 </FormGroup>
                 <Button onClick={() => this.login()}>Log In</Button>
-            </Form>
+                </Form>
+
+                <p>{this.state.user}</p>
+                </div>
             )
     }
 }

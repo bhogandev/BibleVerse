@@ -7,24 +7,36 @@ using Microsoft.AspNetCore.Authentication;
 using BibleVerse.DTO.Repository;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BibleVerseAPI.Controllers
 {
+    //Authorization for JWT token. (Need to figure out proper flow)
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class LoginController : Controller
     {
+        private readonly JWTSettings _jwtSettings;
         private readonly RegistrationRepository _repository;
         private readonly ELogRepository _elogRepository;
 
-        public LoginController(RegistrationRepository repository) => _repository = repository;
+        public LoginController(RegistrationRepository repository)
+        {
+            _repository = repository;
+        }
+        
 
-       [HttpPost]
+        [HttpPost]
        public IActionResult LoginUser([FromBody] object userRequest)
         {
             string lr = "";
 
             var loginResponse = _repository.LoginUser(JsonConvert.DeserializeObject<LoginRequestModel>(userRequest.ToString()));
+
+            
             try
             {
                 lr = JsonConvert.SerializeObject(loginResponse.Result);
@@ -40,6 +52,8 @@ namespace BibleVerseAPI.Controllers
             {
                 if (loginResponse.Result.ResponseStatus == "Success")
                 {
+
+
                     return Ok(lr);
                 }
                 else if (loginResponse.Result.ResponseStatus == "Failed")

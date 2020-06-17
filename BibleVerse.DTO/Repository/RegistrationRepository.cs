@@ -10,6 +10,10 @@ using System.Text;
 using System.Security.Policy;
 using System.Net.Http;
 using Newtonsoft.Json;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BibleVerse.DTO.Repository
 {
@@ -19,11 +23,13 @@ namespace BibleVerse.DTO.Repository
         
         UserManager<Users> userManager;
         SignInManager<Users> signInManager;
-        
-        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context)
+        private readonly JWTSettings _jwtSettings;
+
+        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context, IOptions<JWTSettings> jwtSettings)
         {
             userManager = _userManager;
             signInManager = _signInManager;
+            _jwtSettings = jwtSettings.Value;
             this._context = context;
         }
 
@@ -47,6 +53,25 @@ namespace BibleVerse.DTO.Repository
             {
                 return false;
             }
+        }
+
+        //Generate JWT Token
+        private string GenerateAccessToken(string userId)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, userId)
+                }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
         //Get Users From Search
@@ -573,7 +598,9 @@ namespace BibleVerse.DTO.Repository
                             if (userUpdate.Succeeded)
                             {
                                 loginResponse.ResponseStatus = "Success";
-                                loginResponse.ResponseUser = currUser.ToList<Users>().First();
+                                cu.PasswordHash = "";
+                                cu.AccessToken = GenerateAccessToken(cu.UserId);
+                                loginResponse.ResponseUser = cu;
                             }
                             else
                             {

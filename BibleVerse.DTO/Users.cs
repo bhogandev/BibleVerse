@@ -10,6 +10,11 @@ namespace BibleVerse.DTO
     [Table("Users")]
     public class Users : IdentityUser
     {
+        public Users()
+        {
+            RefreshTokens = new HashSet<RefreshToken>();
+        }
+
         [Key]
         public string UserId { get; set; }
 
@@ -54,5 +59,14 @@ namespace BibleVerse.DTO
 
         [Required]
         public DateTime CreateDateTime { get; set; }
+
+        [NotMapped]
+        public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
+
+        [NotMapped]
+        public string AccessToken { get; set; }
+
+        [NotMapped]
+        public string RefreshToken { get; set; }
     }
 }
