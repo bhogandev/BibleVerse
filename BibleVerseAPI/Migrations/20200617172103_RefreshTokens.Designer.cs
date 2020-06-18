@@ -4,14 +4,16 @@ using BibleVerse.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BibleVerseAPI.Migrations
 {
     [DbContext(typeof(BVIdentityContext))]
-    partial class BVIdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20200617172103_RefreshTokens")]
+    partial class RefreshTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -481,12 +483,7 @@ namespace BibleVerseAPI.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UsersId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("TokenId");
-
-                    b.HasIndex("UsersId");
 
                     b.ToTable("RefreshTokens");
                 });
@@ -1031,13 +1028,6 @@ namespace BibleVerseAPI.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("BibleVerse.DTO.RefreshToken", b =>
-                {
-                    b.HasOne("BibleVerse.DTO.Users", null)
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("UsersId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

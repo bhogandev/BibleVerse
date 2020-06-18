@@ -60,7 +60,6 @@ namespace BibleVerse.DTO
         [Required]
         public DateTime CreateDateTime { get; set; }
 
-        [NotMapped]
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
 
         [NotMapped]
