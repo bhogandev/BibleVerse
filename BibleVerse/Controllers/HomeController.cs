@@ -232,6 +232,7 @@ namespace BibleVerse.Controllers
                 {
                     if (result.ReasonPhrase == "OK") // If API call returns OK, redirect to User Dashboard with user information
                     {
+                        /*
                         Users resultUser = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).ResponseUser;
                         string rUserOrg = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).Misc;
                         List<Posts> initalPosts = JsonConvert.DeserializeObject<LoginResponseModel>(result.Content.ReadAsStringAsync().Result).InitialPosts;
@@ -255,6 +256,7 @@ namespace BibleVerse.Controllers
                         //Here is where user will be directed to their account home page and basic user Information is passed to the next controller
                         HttpContext.Session.SetString("user", JsonConvert.SerializeObject(returnUser));
                         HttpContext.Session.SetString("posts", JsonConvert.SerializeObject(initalPosts));
+                        */
                         return RedirectToAction("Index", "BBV");
                     }
                     else if (result.ReasonPhrase == "Conflict") // If API call returns Conflict return Login Screen and display reason call failed

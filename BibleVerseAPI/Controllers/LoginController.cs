@@ -54,15 +54,18 @@ namespace BibleVerseAPI.Controllers
             {
                 if (loginResponse.Result.ResponseStatus == "Success")
                 {
+                    /*
                     CookieOptions cookieOptions = new CookieOptions()
                     {
                         HttpOnly = true,
+                        Secure = false,
                         Expires = DateTime.Now.AddDays(1)
                     };
-
+                    
                     Response.Cookies.Append("token", loginResponse.Result.Misc, cookieOptions);
+                    */
 
-                    return Ok();
+                    return Ok(lr);
                 }
                 else if (loginResponse.Result.ResponseStatus == "Failed")
                 {

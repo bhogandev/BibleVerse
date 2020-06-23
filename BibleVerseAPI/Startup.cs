@@ -33,6 +33,21 @@ namespace BibleVerseAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            /*
+            services.AddCors(options =>
+            {
+                options.AddPolicy("DevPolicy",
+                    builder =>
+                    {
+                        builder.WithOrigins("https://localhost:2023/")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+
+                    });
+
+            });
+            */
             services.AddCors();
             services.AddControllers();
             services.AddScoped<RegistrationRepository>();
@@ -78,6 +93,7 @@ namespace BibleVerseAPI
                 app.UseDeveloperExceptionPage();
             }
 
+
             app.UseCors(
                     options => options.WithOrigins("https://localhost:2023").AllowAnyMethod()
                 );
@@ -87,7 +103,7 @@ namespace BibleVerseAPI
             app.UseRouting();
             
             app.UseAuthentication();
-
+             
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

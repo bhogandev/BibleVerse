@@ -49,15 +49,23 @@ namespace BibleVerseAPI.Controllers
         //Get All Of User's Posts
         [HttpGet]
         [ActionName("GetTimeline")]
-        public IActionResult GetTimeline(string userName)
+        public IActionResult GetTimeline()
         {
-            List<Posts> userPosts = _repository.GenerateTimelinePosts(userName).Result;
+            var token = Request.Headers["Token"];
+
+            List<Posts> userPosts = _repository.GenerateTimelinePosts(token).Result;
 
             if (userPosts != null)
             {
                 if (userPosts.Count > 0)
                 {
-                    return Ok(userPosts);
+                    ApiResponseModel response = new ApiResponseModel();
+                    response.ResponseBody = new List<string>();
+                    response.ResponseErrors = new List<string>();
+
+                    response.ResponseBody.Add(JsonConvert.SerializeObject(userPosts));
+
+                    return Ok(response);
                 }
                 else if (userPosts.Count == 0)
                 {

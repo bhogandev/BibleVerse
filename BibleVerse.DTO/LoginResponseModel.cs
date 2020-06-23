@@ -9,14 +9,14 @@ namespace BibleVerse.DTO
             [Required]
             public string ResponseStatus { get; set; }
 
-            public Users ResponseUser { get; set; }
+            //public Users ResponseUser { get; set; }
 
             public List<Error> ResponseErrors { get; set; }
 
-            public List<Posts> InitialPosts { get; set; }
+            //public List<Posts> InitialPosts { get; set; }
 
-            public Profiles UserProfile { get; set; }
+            //public Profiles UserProfile { get; set; }
 
-            public string Misc { get; set; }
+            public string Token { get; set; }
     }
 }

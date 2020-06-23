@@ -177,6 +177,57 @@ namespace BibleVerse.DTO.Repository
             return apiResponse;
         }
 
+        public async Task<ApiResponseModel> FUFAT(string token)
+        {
+            ApiResponseModel apiResponse = new ApiResponseModel();
+            apiResponse.ResponseBody = new List<string>();
+            apiResponse.ResponseErrors = new List<string>();
+
+            //Get user based on access token
+            var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+
+                var tokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                SecurityToken securityToken;
+
+                var principle = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+
+                JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
+
+                if (jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var userID = principle.FindFirst(ClaimTypes.Name)?.Value;
+
+                    var u = from x in userManager.Users
+                            where x.UserId == userID
+                            select x;
+
+                    if (u.FirstOrDefault() != null)
+                    {
+                        var user = u.FirstOrDefault();
+
+                    apiResponse.ResponseMessage = "Success";
+                    apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(user));
+                    }else
+                {
+                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseErrors.Add("Invalid Token");
+                }
+
+                }
+
+
+                return apiResponse;
+        }
+
         //Get Users From Search
         public async Task<ApiResponseModel> FindUser(string username, string user)
         {
@@ -684,13 +735,13 @@ namespace BibleVerse.DTO.Repository
 
                             if(userProfile.FirstOrDefault() != null)
                             {
-                                loginResponse.UserProfile = userProfile.First();
+                                //loginResponse.UserProfile = userProfile.First();
                             } else
                             {
                                 var defaultProfile = from c in _context.Profiles
                                                      where c.ProfileId == "default"
                                                      select c;
-                                loginResponse.UserProfile = defaultProfile.FirstOrDefault();
+                                //loginResponse.UserProfile = defaultProfile.FirstOrDefault();
                             }
 
                             var userOrg = from x in _context.Organization
@@ -699,7 +750,7 @@ namespace BibleVerse.DTO.Repository
 
                             if(userOrg.FirstOrDefault() != null)
                             {
-                                loginResponse.Misc = userOrg.First().Name;
+                                //loginResponse.Misc = userOrg.First().Name;
                             }
 
                             var userUpdate = await userManager.UpdateAsync(cu);
@@ -710,8 +761,8 @@ namespace BibleVerse.DTO.Repository
                                 cu.PasswordHash = "";
                                 cu.AccessToken = GenerateAccessToken(cu.UserId);
                                 cu.RefreshToken = rt.Token;
-                                loginResponse.ResponseUser = cu;
-                                loginResponse.Misc = cu.AccessToken;
+                                //loginResponse.ResponseUser = cu;
+                                loginResponse.Token = cu.AccessToken;
                             }
                             else
                             {

@@ -17,6 +17,10 @@ using System.IO;
 using Microsoft.AspNetCore.Http.Internal;
 using static System.Net.Mime.MediaTypeNames;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
 
 namespace BibleVerse.DTO.Repository
 {
@@ -24,14 +28,58 @@ namespace BibleVerse.DTO.Repository
     {
         private readonly BVIdentityContext _context;
         private readonly IAmazonS3 _client;
+        private readonly JWTSettings _jwtSettings;
 
         UserManager<Users> userManager;
 
-        public UserActionRepository(UserManager<Users> _userManager, IAmazonS3 client, BVIdentityContext context)
+        public UserActionRepository(UserManager<Users> _userManager, IAmazonS3 client, BVIdentityContext context, IOptions<JWTSettings> jwtSettings)
         {
             this._context = context;
             this._client = client;
             userManager = _userManager;
+            _jwtSettings = jwtSettings.Value;
+        }
+
+        //Find User From Access Token
+        private Users FindUserFromAccessToken(RefreshRequest request)
+        {
+            //Get user based on access token
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
+
+            var tokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            SecurityToken securityToken;
+
+            var principle = tokenHandler.ValidateToken(request.AccessToken, tokenValidationParameters, out securityToken);
+
+            JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
+
+            if (jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var userID = principle.FindFirst(ClaimTypes.Name)?.Value;
+
+                var u = from x in userManager.Users
+                        where x.UserId == userID
+                        select x;
+
+                if (u.FirstOrDefault() != null)
+                {
+                    var user = u.FirstOrDefault();
+
+                    return user;
+                }
+
+            }
+
+            return null;
         }
 
         public void CreateNotification(string RecipientUserID, string SenderID, string Message, string NotificationType, string DirectURL)
@@ -81,11 +129,17 @@ namespace BibleVerse.DTO.Repository
             return userPosts;
         }
 
-        public async Task<List<Posts>> GenerateTimelinePosts(string userName)
+        public async Task<List<Posts>> GenerateTimelinePosts(string token)
         {
             IQueryable<Posts> posts;
             List<Posts> userPosts = new List<Posts>();
             List<string> friends = new List<string>();
+            
+
+            RefreshRequest r = new RefreshRequest() { AccessToken = token };
+
+            //Get User From Token
+            var userName = FindUserFromAccessToken(r).UserName;
 
             var friendList = from f in _context.UserRelationships
                              where (((f.FirstUser == userName) || (f.SecondUser == userName)) && ((f.FirstUserConfirmed == true) && (f.SecondUserConfirmed == true)) && f.RelationshipType == "FRIEND")
@@ -118,6 +172,7 @@ namespace BibleVerse.DTO.Repository
                 }
             }
 
+            
             return userPosts;
         }
 

@@ -37,6 +37,31 @@ namespace BibleVerseAPI.Controllers
         }
 
         [HttpGet]
+        [ActionName("UserProfile")]
+        public async Task<ObjectResult> GetUserProfile()
+        {
+            var token = Request.Headers["Token"];
+
+            ApiResponseModel response = await _repository.FUFAT(token);
+
+            if (response.ResponseMessage == "Success")
+            {
+                return Ok(response);
+
+            }
+            else if (response.ResponseMessage == "Failure")
+            {
+                return Conflict(response);
+            }
+            else
+            {
+                // Create an ELog and Log error
+                return BadRequest("An Unexpected Error Occured");
+            }
+        }
+
+
+        [HttpGet]
         [ActionName("Search")]
         public async Task<ObjectResult> Search(string username, string user)
         {
