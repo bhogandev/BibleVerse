@@ -54,6 +54,8 @@ class LoginForm extends React.Component {
 
                 //Set JWT cookie in browser cookie storage
                 cookies.set('token', (result["Token"]));
+                //Set Refresh cookie in browser cookie storage
+                cookies.set('refreshToken', result['RefreshToken']);
 
                 //refresh page
                 window.location.reload(false);

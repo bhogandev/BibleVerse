@@ -29,15 +29,17 @@ namespace BibleVerse.DTO.Repository
         private readonly BVIdentityContext _context;
         private readonly IAmazonS3 _client;
         private readonly JWTSettings _jwtSettings;
+        private readonly JWTRepository _jwtrepository;
 
         UserManager<Users> userManager;
 
-        public UserActionRepository(UserManager<Users> _userManager, IAmazonS3 client, BVIdentityContext context, IOptions<JWTSettings> jwtSettings)
+        public UserActionRepository(UserManager<Users> _userManager, IAmazonS3 client, BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository)
         {
             this._context = context;
             this._client = client;
             userManager = _userManager;
             _jwtSettings = jwtSettings.Value;
+            _jwtrepository = jwtrepository;
         }
 
         //Find User From Access Token
@@ -184,6 +186,15 @@ namespace BibleVerse.DTO.Repository
             bool hasAttachments = false;
             int retryTimes = 0;
             Posts userPost = new Posts();
+
+            RefreshRequest r = new RefreshRequest();
+            r.AccessToken = newPost.UserId;
+
+            //Find User
+            var user = _jwtrepository.FindUserFromAccessToken(r);
+            newPost.UserName = user.UserName;
+            newPost.UserId = user.UserId;
+            newPost.OrganizationId = user.OrganizationId;
 
             while (idexists == false && retryTimes < 3)
             {

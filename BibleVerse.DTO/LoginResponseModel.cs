@@ -18,5 +18,7 @@ namespace BibleVerse.DTO
             //public Profiles UserProfile { get; set; }
 
             public string Token { get; set; }
+
+            public string RefreshToken { get; set; }
     }
 }

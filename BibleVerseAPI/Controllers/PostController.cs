@@ -18,6 +18,7 @@ namespace BibleVerseAPI.Controllers
 
         public PostController(UserActionRepository repository) => _repository = repository;
 
+
         //Get All Of User's Posts
         [HttpGet]
         [ActionName("Get")]
@@ -52,6 +53,9 @@ namespace BibleVerseAPI.Controllers
         public IActionResult GetTimeline()
         {
             var token = Request.Headers["Token"];
+
+            //Validate Token
+
 
             List<Posts> userPosts = _repository.GenerateTimelinePosts(token).Result;
 
@@ -152,7 +156,7 @@ namespace BibleVerseAPI.Controllers
         {
             PostModel post = new PostModel();
             post = JsonConvert.DeserializeObject<PostModel>(userPost.ToString());
-            
+            post.UserId = Request.Headers["Token"];
             var postResponse = _repository.CreateUserPost(post);
             var pr = JsonConvert.SerializeObject(postResponse.ToString());
 

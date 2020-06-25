@@ -54,6 +54,7 @@ namespace BibleVerseAPI
             services.AddScoped<UserActionRepository>();
             services.AddScoped<AWSRepository>();
             services.AddScoped<OrganizationRepository>();
+            services.AddScoped<JWTRepository>();
             services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             services.AddAWSService<IAmazonS3>();
             services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>().AddDefaultTokenProviders();

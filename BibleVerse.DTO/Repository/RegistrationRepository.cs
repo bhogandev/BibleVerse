@@ -27,12 +27,14 @@ namespace BibleVerse.DTO.Repository
         UserManager<Users> userManager;
         SignInManager<Users> signInManager;
         private readonly JWTSettings _jwtSettings;
+        private readonly JWTRepository _jwtrepository;
 
-        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context, IOptions<JWTSettings> jwtSettings)
+        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository)
         {
             userManager = _userManager;
             signInManager = _signInManager;
             _jwtSettings = jwtSettings.Value;
+            _jwtrepository = jwtrepository;
             this._context = context;
         }
 
@@ -59,124 +61,7 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
-        //Generate JWT Token
-        private string GenerateAccessToken(string userId)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, userId)
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
-        }
-
-        //Generate Refresh Token
-        private RefreshToken GenerateRefreshToken()
-        {
-            RefreshToken refreshToken = new RefreshToken();
-
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                refreshToken.Token = Convert.ToBase64String(randomNumber);
-            }
-            refreshToken.ExpiryDate = DateTime.UtcNow.AddMonths(6);
-
-            return refreshToken;
-        }
-
-        //Find User From Access Token
-        private Users FindUserFromAccessToken(RefreshRequest request)
-        {
-            //Get user based on access token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
-
-            var tokenValidationParameters = new TokenValidationParameters()
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.Zero
-            };
-
-            SecurityToken securityToken;
-
-            var principle = tokenHandler.ValidateToken(request.AccessToken, tokenValidationParameters, out securityToken);
-
-            JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
-
-            if (jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            {
-                var userID = principle.FindFirst(ClaimTypes.Name)?.Value;
-
-                var u = from x in userManager.Users
-                        where x.UserId == userID
-                        select x;
-
-                if (u.FirstOrDefault() != null)
-                {
-                    var user = u.FirstOrDefault();
-
-                    return user;
-                }
-
-            }
-
-            return null;
-        }
-
-        private bool ValidateRefreshToken(Users user, string refreshToken)
-        {
-            //Get list of logs matching refresh token
-            var rTokenList = from x in _context.RefreshTokens
-                             where x.Token == refreshToken
-                             orderby x.ExpiryDate descending
-                             select x;
-
-            RefreshToken rt = rTokenList.FirstOrDefault();
-
-            if(rt != null && (rt.UserId == user.UserId) && (rt.ExpiryDate > DateTime.UtcNow))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        //Authorize Refresh Token
-        public async Task<ApiResponseModel> AuthorizeRefreshRequest(RefreshRequest request)
-        {
-            ApiResponseModel apiResponse = new ApiResponseModel();
-            apiResponse.ResponseErrors = new List<string>();
-
-            //Find user from access token
-            Users user = FindUserFromAccessToken(request);
-
-            //validate refresh token
-            if(user != null && ValidateRefreshToken(user,  request.RefreshToken))
-            {
-                user.AccessToken = GenerateAccessToken(user.UserId);
-                apiResponse.ResponseMessage = "Success";
-                apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(user));
-                return apiResponse;
-            }
-
-            apiResponse.ResponseMessage = "Failure";
-            return apiResponse;
-        }
-
+        
         public async Task<ApiResponseModel> FUFAT(string token)
         {
             ApiResponseModel apiResponse = new ApiResponseModel();
@@ -683,6 +568,22 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
+        //Generate Refresh Token
+        public RefreshToken GenerateRefreshToken()
+        {
+            RefreshToken refreshToken = new RefreshToken();
+
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                refreshToken.Token = Convert.ToBase64String(randomNumber);
+            }
+            refreshToken.ExpiryDate = DateTime.UtcNow.AddMonths(6);
+
+            return refreshToken;
+        }
+
         //Log User In
         public async Task<LoginResponseModel> LoginUser(LoginRequestModel loginRequest)
         {
@@ -708,7 +609,7 @@ namespace BibleVerse.DTO.Repository
                         if (currUser.FirstOrDefault().EmailConfirmed == true)
                         {
                             Users cu = currUser.First();
-                            RefreshToken rt = GenerateRefreshToken();
+                            var rt = _jwtrepository.GenerateRefreshToken();
                             rt.UserId = cu.UserId;
                             cu.OnlineStatus = "Online"; // Set user status to online
                             cu.ChangeDateTime = DateTime.Now;
@@ -759,10 +660,11 @@ namespace BibleVerse.DTO.Repository
                             {
                                 loginResponse.ResponseStatus = "Success";
                                 cu.PasswordHash = "";
-                                cu.AccessToken = GenerateAccessToken(cu.UserId);
+                                cu.AccessToken = _jwtrepository.GenerateAccessToken(cu.UserId);
                                 cu.RefreshToken = rt.Token;
                                 //loginResponse.ResponseUser = cu;
                                 loginResponse.Token = cu.AccessToken;
+                                loginResponse.RefreshToken = rt.Token;
                             }
                             else
                             {

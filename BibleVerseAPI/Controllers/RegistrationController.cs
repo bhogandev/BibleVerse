@@ -40,8 +40,13 @@ namespace BibleVerseAPI.Controllers
         [ActionName("UserProfile")]
         public async Task<ObjectResult> GetUserProfile()
         {
+            //Get JWT from Request Header
             var token = Request.Headers["Token"];
 
+            //Validate Token, If not valid, send conflict with ExpiredTokenMessage
+
+
+            //Pass valid token here
             ApiResponseModel response = await _repository.FUFAT(token);
 
             if (response.ResponseMessage == "Success")

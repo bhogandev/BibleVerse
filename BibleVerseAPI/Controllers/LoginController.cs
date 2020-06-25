@@ -21,6 +21,7 @@ namespace BibleVerseAPI.Controllers
     public class LoginController : Controller
     {
         private readonly JWTSettings _jwtSettings;
+        private readonly JWTRepository _jWTRepository;
         private readonly RegistrationRepository _repository;
         private readonly ELogRepository _elogRepository;
 
@@ -44,8 +45,6 @@ namespace BibleVerseAPI.Controllers
                 lr = JsonConvert.SerializeObject(loginResponse.Result);
             }catch(Exception ex)
             {
-                lr = JsonConvert.SerializeObject(loginResponse.Result);
-
                 //Create ELog Storing Exception
                 var error = _elogRepository.LogError("UserLogin", 3, ex.ToString());
             }
@@ -90,7 +89,7 @@ namespace BibleVerseAPI.Controllers
         [ActionName("RefreshToken")]
         public IActionResult RefreshToken([FromBody] object refreshRequest)
         {
-            var response = _repository.AuthorizeRefreshRequest(JsonConvert.DeserializeObject<RefreshRequest>(refreshRequest.ToString()));
+            var response = _jWTRepository.AuthorizeRefreshRequest(JsonConvert.DeserializeObject<RefreshRequest>(refreshRequest.ToString()));
 
 
             if (response.IsCompletedSuccessfully)
