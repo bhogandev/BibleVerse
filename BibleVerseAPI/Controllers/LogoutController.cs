@@ -9,13 +9,19 @@ using Newtonsoft.Json;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
+
+
 namespace BibleVerseAPI.Controllers
 {
-    
+
+
+
     [ApiController]
     [Route("api/[controller]")]
     public class LogoutController : Controller
     {
+        private readonly JWTSettings _jwtSettings;
+        private readonly JWTRepository _jWTRepository;
         private readonly RegistrationRepository _repository;
 
         public LogoutController(RegistrationRepository repository) => _repository = repository;
@@ -25,12 +31,17 @@ namespace BibleVerseAPI.Controllers
         {
             return View();
         }
-        
+
         [HttpPost]
-        public IActionResult LogoutUser([FromBody] object logOutRequest)
+        public IActionResult LogoutUser()
         {
-            
-            var logoutResponse = _repository.LogoutUser(JsonConvert.DeserializeObject<UserViewModel>(logOutRequest.ToString()));
+            RefreshRequest r = new RefreshRequest()
+            {
+                AccessToken = Request.Headers["Token"]
+            };
+
+
+            var logoutResponse = _repository.LogoutUser(r);
             var lr = JsonConvert.SerializeObject(logoutResponse.Result);
 
             if (logoutResponse.IsCompletedSuccessfully)

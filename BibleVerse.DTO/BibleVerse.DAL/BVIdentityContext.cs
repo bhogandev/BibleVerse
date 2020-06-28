@@ -50,6 +50,8 @@ namespace BibleVerse.DTO
             mb.Entity<RefCodeLogs>();
             mb.Entity<SiteConfigs>();
             mb.Entity<RefreshToken>();
+            mb.Entity<Likes>();
+            mb.Entity<Comments>();
         }
 
         public virtual DbSet<Users> BVUsers { get; set; }
@@ -74,5 +76,7 @@ namespace BibleVerse.DTO
         public virtual DbSet<RefCodeLogs> RefCodeLogs { get; set; }
         public virtual DbSet<SiteConfigs> SiteConfigs { get; set; }
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+        public virtual DbSet<Likes> Likes { get; set; }
+        public virtual DbSet<Comments> Comments { get; set; }
     }
 }

@@ -45,7 +45,7 @@ class CreatePostForm extends React.Component {
 
             if (res && res.ok) {
                 this.setState({ post: '' });
-
+                this.props.tlUpdate();
             } else if (res && res.status == "409") {
                 var result = await JSON.parse(await res.json());
 

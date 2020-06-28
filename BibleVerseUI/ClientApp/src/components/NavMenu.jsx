@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import LogOutBtn from './LogOutBtn';
 
 class NavMenu extends React.Component {
     static displayName = NavMenu.name;
@@ -58,6 +59,9 @@ class NavMenu extends React.Component {
                                 <ul className="navbar-nav flex-grow">
                                     <NavItem>
                                         <NavLink tag={Link} className="text-dark" to="/">Something Else</NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <LogOutBtn />
                                     </NavItem>
                                 </ul>
                             </Collapse>

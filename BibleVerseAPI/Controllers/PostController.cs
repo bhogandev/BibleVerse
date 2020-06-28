@@ -15,6 +15,8 @@ namespace BibleVerseAPI.Controllers
     public class PostController : Controller
     {
         private readonly UserActionRepository _repository;
+        private readonly JWTSettings _jwtSettings;
+        private readonly JWTRepository _jWTRepository;
 
         public PostController(UserActionRepository repository) => _repository = repository;
 
@@ -46,6 +48,54 @@ namespace BibleVerseAPI.Controllers
             }
         }
 
+        [HttpGet]
+        [ActionName("GetPost")]
+        public IActionResult GetPost()
+        {
+            //var token = Request.Headers["Token"];
+            var postID = Request.Headers["PostId"];
+
+            var response = _repository.GetPost(postID);
+
+            if(response != null)
+            {
+                return Ok(response);
+            }
+
+            return BadRequest("An Error Occxured");
+        }
+
+
+
+        [HttpGet]
+        [ActionName("GetLike")]
+        public IActionResult GetLike()
+        {
+            var token = Request.Headers["Token"];
+            var postID = Request.Headers["PostId"];
+
+            if (!String.IsNullOrEmpty(postID) && !String.IsNullOrEmpty(token))
+            {
+                RefreshRequest r = new RefreshRequest() { AccessToken = token };
+
+                var response = _repository.GetLikeStatus(r, postID);
+
+                if(response != null)
+                {
+                        return Ok(response);
+                }
+                else
+                {
+                    //Create an Elog error
+                    return BadRequest("An Error Occurred");
+                }
+            } else
+            {
+                return BadRequest("Please Check Headers For Null Or Empty Value");
+            }
+        }
+
+
         //Get Timeline Posts
         //Get All Of User's Posts
         [HttpGet]
@@ -53,9 +103,6 @@ namespace BibleVerseAPI.Controllers
         public IActionResult GetTimeline()
         {
             var token = Request.Headers["Token"];
-
-            //Validate Token
-
 
             List<Posts> userPosts = _repository.GenerateTimelinePosts(token).Result;
 
@@ -181,6 +228,44 @@ namespace BibleVerseAPI.Controllers
                 return BadRequest("An Error Occurred");
             }
 
+        }
+
+        [HttpPost]
+        [ActionName("Interact")]
+        public IActionResult PostInteract([FromBody] object request)
+        {
+            var IntType = Request.Headers["IntType"];
+            var token = Request.Headers["Token"];
+            if (!String.IsNullOrEmpty(IntType) && !String.IsNullOrEmpty(token))
+            {
+                RefreshRequest r = new RefreshRequest(){AccessToken = token};
+            
+                Likes like = JsonConvert.DeserializeObject<Likes>(request.ToString());
+                var response = _repository.InteractWithPostLikes(like, r);
+
+                if (response != null)
+                {
+                    if (response.Result.ToString() == "Success")
+                    {
+                        return Ok();
+                    }
+                    else if (response.Result.ToString() == "Failure")
+                    {
+                        return Conflict();
+                    }else {
+                        return BadRequest();
+                    }
+                }
+                else
+                {
+                    //Create an Elog error
+                    return BadRequest("An Error Occurred");
+                }
+            }
+            else
+            {
+                return BadRequest("Please Check Headers For Null Or Empty Value");
+            }
         }
 
         [HttpPost]

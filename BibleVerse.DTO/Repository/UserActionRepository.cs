@@ -111,6 +111,22 @@ namespace BibleVerse.DTO.Repository
             return userOrg.FirstOrDefault();
         }
 
+        //Get Post
+        public async Task<Posts> GetPost(string postID)
+        {
+            var pList = from p in _context.Posts
+                        where p.PostId == postID
+                        select p;
+
+            if(pList.FirstOrDefault() != null)
+            {
+                return pList.First();
+            }
+
+
+            return null;
+        }
+
         //Get Posts for user
         public async Task<List<Posts>> GetUserPosts(string userName)
         {
@@ -870,6 +886,111 @@ namespace BibleVerse.DTO.Repository
             return "Failure";
 
 
+        }
+
+        //Interact w/ Post Likes
+        public async Task<string> InteractWithPostLikes(Likes like, RefreshRequest r)
+        {
+            Users u = _jwtrepository.FindUserFromAccessToken(r);
+            like.LikeUserId = u.UserId;
+
+            if (like.LikeType == "Like")
+            {
+                //Add Like To Likes Table
+                like.CreateDateTime = DateTime.Now;
+                _context.Likes.Add(like);
+                _context.SaveChanges();
+
+                //Increment Post Likes
+                var post = from p in _context.Posts
+                           where p.PostId == like.ParentId
+                           select p;
+
+                if (post.FirstOrDefault() != null)
+                {
+                    var p = post.First();
+                    p.Likes++;
+                    _context.Posts.Update(p);
+                    _context.SaveChanges();
+
+
+                    //Add User History Log
+                    UserHistory uhLog = new UserHistory()
+                    {
+                        UserID = like.LikeUserId,
+                        ActionMessage = u.UserName + " just liked a post",
+                        ActionType = "Like",
+                        Prev_Value = "",
+                        Curr_Value = "Like",
+                        CreateDateTime = DateTime.Now
+                    };
+
+                    //Create Notification For User
+                    Notifications notification = new Notifications()
+                    {
+                        RecipientUserID = p.Username
+                    };
+
+
+                return "Success";
+                }
+            }
+            else
+            {
+                //Remove Like From Likes Table
+                var pl = from l in _context.Likes
+                        where (l.LikeUserId == like.LikeUserId) && (l.ParentId == like.ParentId)
+                        select l;
+
+                if(pl.FirstOrDefault() != null)
+                {
+                    var prevLike = pl.First();
+                    _context.Likes.Remove(prevLike);
+
+                    var post = from p in _context.Posts
+                               where p.PostId == like.ParentId
+                               select p;
+
+                    if(post.FirstOrDefault() != null)
+                    {
+                        post.First().Likes--;
+                        _context.Posts.Update(post.First());
+                        _context.SaveChanges();
+                    }
+
+                    //Add User History Log
+                    UserHistory uhLog = new UserHistory()
+                    {
+                        UserID = like.LikeUserId,
+                        ActionMessage = u.UserName + " just unliked a post",
+                        ActionType = "Unlike",
+                        Prev_Value = "Like",
+                        Curr_Value = "",
+                        CreateDateTime = DateTime.Now
+                    };
+
+                    return "Success";
+                }
+            }
+
+            return "Failure";
+        }
+
+        public async Task<string> GetLikeStatus(RefreshRequest refresh, string postId)
+        {
+            Users user = _jwtrepository.FindUserFromAccessToken(refresh);
+
+            //See if user liked post
+            var likeRow = from x in _context.Likes
+                    where (x.ParentId == postId) && (x.LikeUserId == user.UserId)
+                    select x;
+
+            if(likeRow.FirstOrDefault() != null)
+            {
+                return "Unlike";
+            }
+
+            return "Like";
         }
     }
 }

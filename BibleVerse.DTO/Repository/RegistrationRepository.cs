@@ -711,19 +711,38 @@ namespace BibleVerse.DTO.Repository
         }
 
         //Log User Out
-        public async Task<string> LogoutUser(UserViewModel currUser)
+        public async Task<string> LogoutUser(RefreshRequest request)
         {
+
+            Users u = _jwtrepository.FindUserFromAccessToken(request);
+
+            UserViewModel uvm = new UserViewModel()
+            {
+                UserID = u.UserId,
+                UserName = u.UserName,
+                Email = u.Email,
+                Age = u.Age,
+                OrganizationId = u.OrganizationId,
+                OnlineStatus = u.OnlineStatus,
+                Status =  u.Status,
+                ExpPoints =   u.ExpPoints,
+                RwdPoints = u.RwdPoints,
+                Friends = u.Friends
+            };
+
+
+
             //Write Logic here to sign user out
-            var user = await userManager.FindByEmailAsync(currUser.Email);
+            var user = await userManager.FindByEmailAsync(uvm.Email);
 
             if (user != null)
             {
-                user.OnlineStatus = currUser.OnlineStatus;
-                user.Level = currUser.Level;
-                user.RwdPoints = currUser.RwdPoints;
-                user.ExpPoints = currUser.ExpPoints;
-                user.Friends = currUser.Friends;
-                user.Status = currUser.Status;
+                user.OnlineStatus = uvm.OnlineStatus;
+                user.Level = uvm.Level;
+                user.RwdPoints = uvm.RwdPoints;
+                user.ExpPoints = uvm.ExpPoints;
+                user.Friends = uvm.Friends;
+                user.Status = uvm.Status;
                 user.ChangeDateTime = DateTime.Now;
 
                 var result = await userManager.UpdateAsync(user); //Update user with final view model at time of signout

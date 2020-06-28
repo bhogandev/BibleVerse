@@ -12,11 +12,17 @@ class BBVHome extends React.Component {
 
         this.state = {
             posts: null,
+            updateTl: false
         };
+
+        this.tlupdate = this.tlupdate.bind(this);
     }
 
-    componentDidMount() {
+    tlupdate() {
+        this.setState({ updateTl: true });
+    }
 
+    async GetTL() {
         let cookie = new Cookie();
 
         try {
@@ -33,19 +39,18 @@ class BBVHome extends React.Component {
 
                 } else {
                     var result = JSON.parse(response.data['responseBody'][0]);
-                    console.log(result)
                     const postList = result.map(post => {
                         
                         return (
-                            <Post key={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} />
+                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} Comments={post.Comments}/>
                         )
                     })
                     this.setState({ posts: postList })
                 }
             }).catch(error => {
-                console.log(error);
-                cookie.remove('token');
-                window.location.reload();
+                //console.log(error);
+                //cookie.remove('token');
+                //window.location.reload();
             });
 
             console.log(res);
@@ -54,12 +59,23 @@ class BBVHome extends React.Component {
         }
     }
 
+    componentDidMount() {
+        this.GetTL();
+    }
+
+    componentDidUpdate() {
+        if (this.state.updateTl) {
+            this.GetTL();
+            this.setState({ updateTl: false });
+        }
+    }
+
 
     render() {
         if (this.state.posts != null) {
             return (
                 <div>
-                    <CreatePostForm />
+                    <CreatePostForm tlUpdate={this.tlupdate}/>
                     <h1>{this.state.posts}</h1>
                 </div>
             );
