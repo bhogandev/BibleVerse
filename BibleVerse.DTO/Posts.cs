@@ -28,6 +28,12 @@ namespace BibleVerse.DTO
 
         public string Attachments { get; set; }
 
+        [NotMapped]
+        public string CommentsExt { get; set; }
+
+        [NotMapped]
+        public string LikeStatus { get; set; }
+
         [Required]
         public string URL { get; set; }
 

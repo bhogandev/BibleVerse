@@ -39,16 +39,19 @@ class BBVHome extends React.Component {
 
                 } else {
                     var result = JSON.parse(response.data['responseBody'][0]);
+                    console.log(result);
                     const postList = result.map(post => {
-                        
+                        var parsedCExt = JSON.parse(post.CommentsExt);
+                        console.log(parsedCExt);
                         return (
-                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} Comments={post.Comments}/>
+                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} IsLiked={post.LikeStatus} Comments={post.Comments} CExt={post.CommentsExt}/>
                         )
                     })
                     this.setState({ posts: postList })
+                    //console.log(postList);
                 }
             }).catch(error => {
-                //console.log(error);
+                console.log(error);
                 //cookie.remove('token');
                 //window.location.reload();
             });

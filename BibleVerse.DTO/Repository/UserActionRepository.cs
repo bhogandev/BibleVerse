@@ -157,7 +157,9 @@ namespace BibleVerse.DTO.Repository
             RefreshRequest r = new RefreshRequest() { AccessToken = token };
 
             //Get User From Token
-            var userName = FindUserFromAccessToken(r).UserName;
+            var user = FindUserFromAccessToken(r);
+
+            var userName = user.UserName;
 
             var friendList = from f in _context.UserRelationships
                              where (((f.FirstUser == userName) || (f.SecondUser == userName)) && ((f.FirstUserConfirmed == true) && (f.SecondUserConfirmed == true)) && f.RelationshipType == "FRIEND")
@@ -186,6 +188,17 @@ namespace BibleVerse.DTO.Repository
             {
                 foreach (Posts p in posts)
                 {
+                    p.LikeStatus = GetLikeStatus(user, p.PostId);
+
+                    var commentsExt = from pc in _context.Comments
+                                      where pc.ParentId == p.PostId
+                                      select pc;
+                    if(commentsExt != null)
+                    {
+                        var postComments = commentsExt.ToList();
+                        p.CommentsExt = JsonConvert.SerializeObject(postComments);
+                    }
+
                     userPosts.Add(p);
                 }
             }
@@ -925,6 +938,9 @@ namespace BibleVerse.DTO.Repository
                         CreateDateTime = DateTime.Now
                     };
 
+                    _context.UserHistory.Add(uhLog);
+                    _context.SaveChanges();
+
                     //Create Notification For User
                     Notifications notification = new Notifications()
                     {
@@ -969,6 +985,9 @@ namespace BibleVerse.DTO.Repository
                         CreateDateTime = DateTime.Now
                     };
 
+                    _context.UserHistory.Add(uhLog);
+                    _context.SaveChanges();
+
                     return "Success";
                 }
             }
@@ -976,9 +995,50 @@ namespace BibleVerse.DTO.Repository
             return "Failure";
         }
 
-        public async Task<string> GetLikeStatus(RefreshRequest refresh, string postId)
+        public async Task<string> InteractWithPostComments(Comments comment, RefreshRequest r) 
         {
-            Users user = _jwtrepository.FindUserFromAccessToken(refresh);
+            Users u = _jwtrepository.FindUserFromAccessToken(r);
+            comment.CommentUserId = u.UserId;
+            comment.CreateDateTime = DateTime.Now;
+
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+
+            var pSearch = from x in _context.Posts
+                          where x.PostId == comment.ParentId
+                          select x;
+
+            if(pSearch != null)
+            {
+                var post = pSearch.First();
+                post.Comments++;
+                _context.Posts.Update(post);
+                _context.SaveChanges();
+
+                //Add User History Log
+                UserHistory uhLog = new UserHistory()
+                {
+                    UserID = comment.CommentUserId,
+                    ActionMessage = u.UserName + " just comment on a post",
+                    ActionType = "Comment",
+                    Prev_Value = "",
+                    Curr_Value = "",
+                    CreateDateTime = DateTime.Now
+                };
+
+                _context.UserHistory.Add(uhLog);
+                _context.SaveChanges();
+
+                return "Success";
+            }
+
+            return "Failure";
+
+        }
+
+        public string GetLikeStatus(Users u , string postId)
+        {
+            Users user = u;
 
             //See if user liked post
             var likeRow = from x in _context.Likes

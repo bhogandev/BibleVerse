@@ -28,7 +28,7 @@ class CreatePostForm extends React.Component {
 
         try {
 
-            let res = await (await fetch("https://localhost:5001/api/Post/CreatePost", {
+            let res = await (await fetch("https://localhost:5001/api/Post/Interact", {
                 method: 'post',
                 headers: {
                     'Accept': 'application/json',

@@ -2,6 +2,8 @@
 import { Button } from 'reactstrap';
 import Cookies from 'universal-cookie';
 import axios from 'axios';
+import CreateCommentForm from './CreateCommentForm.jsx';
+import Comment from './Comment.jsx';
 
 class Post extends React.Component {
     constructor(props) {
@@ -13,47 +15,30 @@ class Post extends React.Component {
             videos: null,
             v: null,
             attachments: JSON.parse(this.props.Attachments),
-            IsLiked: null,
+            IsLiked: this.props.IsLiked,
             postUpdate: false,
-            likes: this.props.Likes
+            likes: this.props.Likes,
+            comments: this.props.Comments,
+            CExt: JSON.parse(this.props.CExt),
+            coms: null
         }
-
-
+        
+        
 
     }
 
     componentDidMount() {
+        //console.log(this.state.CExt);
+        if (this.state.CExt != null) {
+            var comsState = this.state.CExt;
+            const coms = comsState.map(com => {
+                return <Comment key={com.Id} CommentUserId={com.CommentUserId} Body={com.Body} CreateDateTime={com.CreateDateTime} />
+            });
 
-            let cookie = new Cookies();
+            this.setState({ coms: coms });
+        }
 
-            try {
-                let res = axios.get('https://localhost:5001/api/Post/GetLike', {
-                    headers: {
-                        Token: cookie.get('token'),
-                        PostId: this.props.PostId
-                    },
-                    validateStatus: () => true
-                }).then(response => {
-                    if (response.status != '200') {
-                        console.log(response.status);
-                        cookie.remove('token');
-                        window.location.reload();
 
-                    } else {
-                        var result = response.data.result;
-                        
-                        this.setState({ IsLiked: result })
-                    }
-                }).catch(error => {
-                    console.log(error);
-                    cookie.remove('token');
-                    window.location.reload();
-                });
-            } catch (Ex) {
-                console.log(Ex);
-            }
-
-        
         if (this.props.Attachments != null) {
             var p = [];
             var v = [];
@@ -141,13 +126,23 @@ class Post extends React.Component {
                 var result = await JSON.parse(await res.json());
                 if (IsLiked == "Like") {
                     counter--;
+                    this.setState({ IsLiked: "Like" });
                 } else {
                     counter++;
+                    this.setState({ IsLiked: "Unlike" });
                 }
                 this.setState({ likes: counter });
             } else {
             }
         } catch (exception) {
+            if (IsLiked == "Like") {
+                counter--;
+                this.setState({ IsLiked: "Like" });
+            } else {
+                counter++;
+                this.setState({ IsLiked: "Unlike" });
+            }
+            this.setState({ likes: counter });
             console.log(exception);
         }
 
@@ -163,9 +158,10 @@ class Post extends React.Component {
                 {this.state.v}
                 <p>{this.props.Body}</p>
                 <span>{this.state.likes} Likes</span> <span>{this.props.Comments} Comments</span>
-                <br/>
+                <br />
+                {this.state.coms}
                 <Button onClick={() => this.Like(this.state.IsLiked)}>{this.state.IsLiked}</Button>
-                <Button>Comment</Button>
+                <CreateCommentForm PostId={this.props.PostId}/>
             </div>
             )
     }

@@ -66,7 +66,7 @@ namespace BibleVerseAPI.Controllers
         }
 
 
-
+        /*
         [HttpGet]
         [ActionName("GetLike")]
         public IActionResult GetLike()
@@ -94,7 +94,7 @@ namespace BibleVerseAPI.Controllers
                 return BadRequest("Please Check Headers For Null Or Empty Value");
             }
         }
-
+        */
 
         //Get Timeline Posts
         //Get All Of User's Posts
@@ -238,10 +238,18 @@ namespace BibleVerseAPI.Controllers
             var token = Request.Headers["Token"];
             if (!String.IsNullOrEmpty(IntType) && !String.IsNullOrEmpty(token))
             {
-                RefreshRequest r = new RefreshRequest(){AccessToken = token};
-            
-                Likes like = JsonConvert.DeserializeObject<Likes>(request.ToString());
-                var response = _repository.InteractWithPostLikes(like, r);
+                Task<string> response = null;
+                RefreshRequest r = new RefreshRequest() { AccessToken = token };
+
+                if (IntType == "Like" || IntType == "Unlike")
+                {
+                    Likes like = JsonConvert.DeserializeObject<Likes>(request.ToString());
+                     response = _repository.InteractWithPostLikes(like, r);
+                }else if(IntType == "Comment")
+                {
+                    Comments comment = JsonConvert.DeserializeObject<Comments>(request.ToString());
+                    response = _repository.InteractWithPostComments(comment, r);
+                }
 
                 if (response != null)
                 {
