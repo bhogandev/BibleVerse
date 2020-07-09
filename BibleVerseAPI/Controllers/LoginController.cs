@@ -46,7 +46,7 @@ namespace BibleVerseAPI.Controllers
             }catch(Exception ex)
             {
                 //Create ELog Storing Exception
-                var error = _elogRepository.LogError("UserLogin", 3, ex.ToString());
+                var e = _elogRepository.LogError("UserLogin", 3, ex.ToString());
             }
 
             if (loginResponse.IsCompletedSuccessfully)
