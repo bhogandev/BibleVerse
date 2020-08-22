@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Button } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
 import Cookies from 'universal-cookie';
 import axios from 'axios';
 import CreateCommentForm from './CreateCommentForm.jsx';
@@ -20,7 +20,9 @@ class Post extends React.Component {
             likes: this.props.Likes,
             comments: this.props.Comments,
             CExt: JSON.parse(this.props.CExt),
-            coms: null
+            coms: null,
+            isOwner: this.props.isOwner,
+            showModal: false
         }
         
         
@@ -83,6 +85,20 @@ class Post extends React.Component {
         }
 
         
+    }
+
+    openModal() {
+        //!this.state.showModal ? this.setState({ showModal: true }) : this.setState({ showModal: false });
+        this.setState({ showModal: !this.state.showModal });
+    }
+
+
+    renderDelete(isOwner) {
+        if (isOwner) {
+            return (<Button onClick={() => this.openDeleteModal()}>X</Button>);
+        } else {
+            return "";
+        }
     }
 
     async Like(IsLiked) {
@@ -149,10 +165,35 @@ class Post extends React.Component {
 
     }
 
+     openDeleteModal() {
+        this.openModal();
+     }
+
+    async DeletePost(postId) {
+        this.openModal();
+        /*
+         * Write logic here to make post delete call.
+         * Pass token and verify on API side user is correct user via token
+         */
+    }
+
     render() {
         return (
             <div>
                 <span><a href="#"><b>{this.props.Username}</b></a></span> <span>{this.props.CreateDateTime}</span>
+                <span>{this.renderDelete(this.state.isOwner)}</span>
+
+                {/*Abstract this into it's own component. Maybe confirmation modal? Then pass neccessary props*/}
+                <Modal isOpen={this.state.showModal} toggle={() => this.openModal()}>
+                    <ModalBody>
+                        Are you sure you would like to delete post {this.props.PostId}?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button onClick={() => this.DeletePost(this.props.PostId)}>Yes</Button>
+                        <Button onClick={() => this.openModal()}>No</Button>
+                    </ModalFooter>
+                </Modal>
+
                 <br />
                 {this.state.p}
                 {this.state.v}

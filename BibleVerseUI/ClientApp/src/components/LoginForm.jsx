@@ -56,6 +56,7 @@ class LoginForm extends React.Component {
                 cookies.set('token', (result["Token"]));
                 //Set Refresh cookie in browser cookie storage
                 cookies.set('refreshToken', result['RefreshToken']);
+                cookies.set('user', result['User']);
 
                 //refresh page
                 window.location.reload(false);

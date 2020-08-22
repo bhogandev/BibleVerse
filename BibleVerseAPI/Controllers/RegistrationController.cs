@@ -9,6 +9,9 @@ using BibleVerse.DTO.Repository;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
 using System.Net.Http;
+using System.Web;
+using BibleVerseDTO.Services;
+using System.Text;
 
 namespace BibleVerseAPI.Controllers
 {
@@ -17,24 +20,24 @@ namespace BibleVerseAPI.Controllers
     public class RegistrationController : ControllerBase
     {
         private readonly RegistrationRepository _repository;
+        private readonly AWSRepository _awsrepository;
 
-        public RegistrationController(RegistrationRepository repository) => _repository = repository;
-
-        [HttpGet]
-        [ActionName("GetUsers")]
-        public IActionResult Get()
+        public RegistrationController(RegistrationRepository repository, AWSRepository aWSRepository)
         {
-            if (_repository.GetAllUsers().Count > 0)
-            {
-                return Ok(_repository.GetAllUsers());
-            } else if(_repository.GetAllUsers().Count == 0) 
-            {
-                return NotFound("No Users Found");
-            } else
-            {
-                return BadRequest("Bad Request");
-            }
+            this._repository = repository;
+            this._awsrepository = aWSRepository;
         }
+
+        #region Methods
+
+        //Send Confirmation Email using confirmation Token
+        private void SendConfirmationEmail(string userID, string userEmail, string confirmationToken)
+        {
+            string confirmationLink = Url.Action("ConfirmEmail", "Home", new { userid = userID, token = HttpUtility.UrlEncode(confirmationToken) }, protocol: HttpContext.Request.Scheme); // Generate confirmation email link
+            EmailService.Send(userEmail, "Confirm Your Account", "Thank you for registering for BibleVerse. \n Please click the confirmation link to confirm your account and get started: " + confirmationLink);
+        }
+
+        #endregion
 
         [HttpGet]
         [ActionName("UserProfile")]
@@ -97,6 +100,23 @@ namespace BibleVerseAPI.Controllers
 
             if(apiResponse.ResponseMessage == "Success")
             {
+                //Send ConfirmationEmail Token
+                SendConfirmationEmail(apiResponse.User.UserId, apiResponse.User.Email, apiResponse.Misc);
+
+                var requestBody = new StringContent(JsonConvert.SerializeObject(apiResponse.User), Encoding.UTF8, "application/json");
+
+                var awsresult = await _awsrepository.CreateUserDir(apiResponse.User);
+
+                if (awsresult.ResponseMessage == "Success")
+                {
+                    //Do something here
+                }
+                else
+                {
+                    //Log in ELog and create task
+                }
+
+
                 return Ok(apiResponse);
 
             } else if(apiResponse.ResponseMessage == "Failure")

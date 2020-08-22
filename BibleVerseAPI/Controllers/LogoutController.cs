@@ -26,12 +26,6 @@ namespace BibleVerseAPI.Controllers
 
         public LogoutController(RegistrationRepository repository) => _repository = repository;
 
-        // GET: /<controller>/
-        public IActionResult Index()
-        {
-            return View();
-        }
-
         [HttpPost]
         public IActionResult LogoutUser()
         {

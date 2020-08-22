@@ -34,21 +34,20 @@ namespace BibleVerseAPI
         public void ConfigureServices(IServiceCollection services)
         {
 
-            /*
+            
             services.AddCors(options =>
             {
-                options.AddPolicy("DevPolicy",
+                options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.WithOrigins("https://localhost:2023/")
+                        builder.WithOrigins("https://localhost:2023")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
 
                     });
 
             });
-            */
-            services.AddCors();
+            
             services.AddControllers();
             services.AddScoped<RegistrationRepository>();
             services.AddScoped<UserActionRepository>();
@@ -84,6 +83,7 @@ namespace BibleVerseAPI
                 };
             });
 
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -93,11 +93,15 @@ namespace BibleVerseAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseCors();
+            app.UseSwagger();
 
-
-            app.UseCors(
-                    options => options.WithOrigins("https://localhost:2023").AllowAnyMethod()
-                );
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("v1/swagger.json", "BibleVerseAPI V1");
+            });
+            
+            
 
             app.UseHttpsRedirection();
 

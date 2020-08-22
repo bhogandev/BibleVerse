@@ -24,5 +24,6 @@
   <ItemGroup>
     <Folder Include="BibleVerse.DAL\" />
     <Folder Include="Services\" />
+    <Folder Include="Models\" />
   </ItemGroup>
 </Project>

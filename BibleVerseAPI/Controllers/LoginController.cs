@@ -30,7 +30,6 @@ namespace BibleVerseAPI.Controllers
             _repository = repository;
         }
         
-
         [HttpPost]
         [ActionName("LoginUser")]
         public IActionResult LoginUser([FromBody] object userRequest)
@@ -85,6 +84,7 @@ namespace BibleVerseAPI.Controllers
             }
         }
 
+        //[EnableCors("DevPolicy")]
         [HttpPost]
         [ActionName("RefreshToken")]
         public IActionResult RefreshToken([FromBody] object refreshRequest)

@@ -12,7 +12,8 @@ class BBVHome extends React.Component {
 
         this.state = {
             posts: null,
-            updateTl: false
+            updateTl: false,
+            user: this.props.user
         };
 
         this.tlupdate = this.tlupdate.bind(this);
@@ -39,12 +40,18 @@ class BBVHome extends React.Component {
 
                 } else {
                     var result = JSON.parse(response.data['responseBody'][0]);
-                    console.log(result);
+                    //console.log(result);
                     const postList = result.map(post => {
                         var parsedCExt = JSON.parse(post.CommentsExt);
-                        console.log(parsedCExt);
+                        //console.log(parsedCExt);
+                        var user = cookie.get('user');
+                        
+                        var isOwner = false;
+                        if (post.Username == user['UserName']) {
+                            isOwner = true;
+                        }
                         return (
-                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} IsLiked={post.LikeStatus} Comments={post.Comments} CExt={post.CommentsExt}/>
+                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} IsLiked={post.LikeStatus} Comments={post.Comments} CExt={post.CommentsExt} isOwner={isOwner}/>
                         )
                     })
                     this.setState({ posts: postList })

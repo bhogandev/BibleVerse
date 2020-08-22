@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
+using System.Web;
 
 namespace BibleVerse.DTO.Repository
 {
@@ -38,7 +39,10 @@ namespace BibleVerse.DTO.Repository
             this._context = context;
         }
 
-        public List<Users> GetAllUsers()
+        #region Methods
+
+        //Get a list of all users in system
+        private List<Users> GetAllUsers()
         {
             return _context.Users.ToList();
         }
@@ -61,7 +65,26 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
-        
+        //Generate Refresh Token
+        public RefreshToken GenerateRefreshToken()
+        {
+            RefreshToken refreshToken = new RefreshToken();
+
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                refreshToken.Token = Convert.ToBase64String(randomNumber);
+            }
+            refreshToken.ExpiryDate = DateTime.UtcNow.AddMonths(6);
+
+            return refreshToken;
+        }
+
+        #endregion
+
+        #region Tasks
+
         public async Task<ApiResponseModel> FUFAT(string token)
         {
             ApiResponseModel apiResponse = new ApiResponseModel();
@@ -568,22 +591,6 @@ namespace BibleVerse.DTO.Repository
             }
         }
 
-        //Generate Refresh Token
-        public RefreshToken GenerateRefreshToken()
-        {
-            RefreshToken refreshToken = new RefreshToken();
-
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                refreshToken.Token = Convert.ToBase64String(randomNumber);
-            }
-            refreshToken.ExpiryDate = DateTime.UtcNow.AddMonths(6);
-
-            return refreshToken;
-        }
-
         //Log User In
         public async Task<LoginResponseModel> LoginUser(LoginRequestModel loginRequest)
         {
@@ -665,6 +672,7 @@ namespace BibleVerse.DTO.Repository
                                 //loginResponse.ResponseUser = cu;
                                 loginResponse.Token = cu.AccessToken;
                                 loginResponse.RefreshToken = rt.Token;
+                                loginResponse.User = JsonConvert.SerializeObject(cu);
                             }
                             else
                             {
@@ -713,7 +721,6 @@ namespace BibleVerse.DTO.Repository
         //Log User Out
         public async Task<string> LogoutUser(RefreshRequest request)
         {
-
             Users u = _jwtrepository.FindUserFromAccessToken(request);
 
             UserViewModel uvm = new UserViewModel()
@@ -776,5 +783,7 @@ namespace BibleVerse.DTO.Repository
                 return "Error: User turned up NULL";
             }
         }
+
+        #endregion
     }
 }

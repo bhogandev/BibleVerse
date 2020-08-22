@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, Modal, Button } from 'reactstrap';
+import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, Modal, ModalHeader, ModalBody, Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import LogOutBtn from './LogOutBtn';
 
@@ -13,7 +13,8 @@ class NavMenu extends React.Component {
         this.state = {
             collapsed: true,
             layout: this.props.layout,
-            showModal: false
+            showModal: false,
+            user: this.props.user
         };
     }
 
@@ -25,7 +26,8 @@ class NavMenu extends React.Component {
 
 
     openModal() {
-        !this.state.showModal ? this.setState({ showModal: true }) : this.setState({ showModal: true });
+        //!this.state.showModal ? this.setState({ showModal: true }) : this.setState({ showModal: false });
+        this.setState({ showModal: !this.state.showModal });
     }
 
     render() {
@@ -45,22 +47,11 @@ class NavMenu extends React.Component {
                                         <NavLink tag={Link} className="text-dark" to="../../public/about.html">About</NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <Button onClick={() => this.openModal()}>Open Modal</Button>
-                                        <Modal show={this.state.showModal}>
-                                        <Modal.Dialog>
-                                            <Modal.Header closeButton>
-                                                <Modal.Title>This is a  string</Modal.Title>
-                                            </Modal.Header>
-
-                                            <Modal.Body>
-                                                <p>Let's try thist thing</p>
-                                            </Modal.Body>
-
-                                            <Modal.Footer>
-                                                {/*The footer would go herew*/}
-                                            </Modal.Footer>
-                                              
-                                            </Modal.Dialog>
+                                        <NavLink tag={Link} className="text-dark" onClick={() => this.openModal()}>Open Modal</NavLink>
+                                        <Modal isOpen={this.state.showModal} toggle={() => this.openModal()}>
+                                            <ModalBody>
+                                                Let's try thist thing
+                                            </ModalBody>
                                             </Modal>
                                     </NavItem>
                                 </ul>
@@ -81,6 +72,7 @@ class NavMenu extends React.Component {
                             <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
                             <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                                 <ul className="navbar-nav flex-grow">
+                           
                                     <NavItem>
                                         <LogOutBtn />
                                     </NavItem>
