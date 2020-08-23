@@ -180,7 +180,7 @@ namespace BibleVerse.DTO.Repository
             }
 
             posts = from p in _context.Posts
-                    where (((p.Username == userName) && (p.IsDeleted != true)) || (friends.Contains(p.Username)))
+                    where (((p.Username == userName) && (p.IsDeleted != true)) || (friends.Contains(p.Username) && (p.IsDeleted != true)))
                     orderby p.CreateDateTime descending
                     select p;
 
@@ -771,6 +771,43 @@ namespace BibleVerse.DTO.Repository
                 }
             }
             return response;
+        }
+
+        //Delete user post
+        public async Task<string> DeleteUserPost(RefreshRequest request, string postId)
+        {
+            //Verify user is post owner
+            //Find Post
+            //Set isDeleted on post = true
+            //send success
+
+            Users u = _jwtrepository.FindUserFromAccessToken(request);
+
+            IQueryable<Posts> QPost;
+
+            QPost = from x in _context.Posts
+                    where x.PostId == postId
+                    select x;
+
+            if(QPost.First() != null)
+            {
+                Posts p = QPost.First();
+
+                if(p.Username == u.UserName)
+                {
+                    p.IsDeleted = true;
+                    _context.Posts.Update(p);
+                    _context.SaveChanges();
+
+                    return "Success";
+                } else
+                {
+                    return "You do not have access to delete this post.";
+                }
+            } else
+            {
+                return "Post not found";
+            }
         }
 
         //Upload user profile pic

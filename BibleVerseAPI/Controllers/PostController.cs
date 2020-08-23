@@ -277,6 +277,45 @@ namespace BibleVerseAPI.Controllers
         }
 
         [HttpPost]
+        [ActionName("DeletePost")]
+        public IActionResult DeletePost([FromBody] object deleteRequest)
+        {
+            var token = Request.Headers["Token"];
+            var postID = JsonConvert.DeserializeObject<Posts>(deleteRequest.ToString()).PostId;
+
+            if(!String.IsNullOrEmpty(token) && !String.IsNullOrEmpty(postID))
+            {
+                RefreshRequest r = new RefreshRequest()
+                {
+                    AccessToken = token
+                };
+
+                var deleteResponse = _repository.DeleteUserPost( r , postID);
+
+                if (deleteResponse != null)
+                {
+                    if (deleteResponse.Result.ToString() == "Success")
+                    {
+                        //return success
+                        return Ok();
+
+                    }
+                    else
+                    {
+                        //return error msg
+                        return Conflict(deleteResponse.Result.ToString());
+                    }
+                } else
+                {
+                    return BadRequest(deleteResponse.Result.ToString());
+                }
+            } else
+            {
+                return BadRequest("An Error Occured");
+            }
+        }
+
+        [HttpPost]
         [ActionName("UploadProfilePic")]
         public IActionResult UploadProfilePic([FromBody] object userUpload)
         {

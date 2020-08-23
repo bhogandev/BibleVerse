@@ -4,6 +4,7 @@ import Cookies from 'universal-cookie';
 import axios from 'axios';
 import CreateCommentForm from './CreateCommentForm.jsx';
 import Comment from './Comment.jsx';
+import ConfirmationModal from './ConfirmationModal.jsx';
 
 class Post extends React.Component {
     constructor(props) {
@@ -166,7 +167,7 @@ class Post extends React.Component {
     }
 
      openDeleteModal() {
-        this.openModal();
+         this.openModal();
      }
 
     async DeletePost(postId) {
@@ -175,6 +176,38 @@ class Post extends React.Component {
          * Write logic here to make post delete call.
          * Pass token and verify on API side user is correct user via token
          */
+
+        var cookies = new Cookies();
+
+        try {
+
+            let res = await (await fetch("https://localhost:5001/api/Post/DeletePost", {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Token': cookies.get('token'),
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    PostId: postId,
+                })
+            }))
+
+            //Verify fetch completed successfully
+
+            if (res && res.ok) {
+                this.props.GetTL();
+            } else if (res && res.status == "409") {
+                //Handle Error
+            } else {
+                //General Error Message
+            }
+        } catch (exception) {
+            //Do something with exception
+            console.log(exception);
+        }
+
     }
 
     render() {
@@ -183,17 +216,8 @@ class Post extends React.Component {
                 <span><a href="#"><b>{this.props.Username}</b></a></span> <span>{this.props.CreateDateTime}</span>
                 <span>{this.renderDelete(this.state.isOwner)}</span>
 
-                {/*Abstract this into it's own component. Maybe confirmation modal? Then pass neccessary props*/}
-                <Modal isOpen={this.state.showModal} toggle={() => this.openModal()}>
-                    <ModalBody>
-                        Are you sure you would like to delete post {this.props.PostId}?
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button onClick={() => this.DeletePost(this.props.PostId)}>Yes</Button>
-                        <Button onClick={() => this.openModal()}>No</Button>
-                    </ModalFooter>
-                </Modal>
-
+                <ConfirmationModal Body={"Are you sure you would like to delete post" + this.props.PostId} OnClickFirst={() => this.DeletePost(this.props.PostId)} OnClickSecond={() => this.openModal()} isOpen={this.state.showModal}/>
+                
                 <br />
                 {this.state.p}
                 {this.state.v}
