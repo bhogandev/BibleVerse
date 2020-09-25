@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.DTO", "BibleVers
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerseUI", "BibleVerseUI\BibleVerseUI.csproj", "{D305D009-B293-49AA-8E2B-4CB928E89271}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerse.Exceptions", "BibleVerse.Exceptions\BibleVerse.Exceptions.csproj", "{6EB154EF-A1F2-42CA-8A9E-A19628085515}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{D305D009-B293-49AA-8E2B-4CB928E89271}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D305D009-B293-49AA-8E2B-4CB928E89271}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D305D009-B293-49AA-8E2B-4CB928E89271}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EB154EF-A1F2-42CA-8A9E-A19628085515}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EB154EF-A1F2-42CA-8A9E-A19628085515}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EB154EF-A1F2-42CA-8A9E-A19628085515}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EB154EF-A1F2-42CA-8A9E-A19628085515}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

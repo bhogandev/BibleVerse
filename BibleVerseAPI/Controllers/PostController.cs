@@ -65,37 +65,6 @@ namespace BibleVerseAPI.Controllers
             return BadRequest("An Error Occxured");
         }
 
-
-        /*
-        [HttpGet]
-        [ActionName("GetLike")]
-        public IActionResult GetLike()
-        {
-            var token = Request.Headers["Token"];
-            var postID = Request.Headers["PostId"];
-
-            if (!String.IsNullOrEmpty(postID) && !String.IsNullOrEmpty(token))
-            {
-                RefreshRequest r = new RefreshRequest() { AccessToken = token };
-
-                var response = _repository.GetLikeStatus(r, postID);
-
-                if(response != null)
-                {
-                        return Ok(response);
-                }
-                else
-                {
-                    //Create an Elog error
-                    return BadRequest("An Error Occurred");
-                }
-            } else
-            {
-                return BadRequest("Please Check Headers For Null Or Empty Value");
-            }
-        }
-        */
-
         //Get Timeline Posts
         //Get All Of User's Posts
         [HttpGet]

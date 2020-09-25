@@ -25,9 +25,10 @@ namespace BibleVerseAPI.Controllers
         private readonly RegistrationRepository _repository;
         private readonly ELogRepository _elogRepository;
 
-        public LoginController(RegistrationRepository repository)
+        public LoginController(RegistrationRepository repository, ELogRepository eLogRepository)
         {
             _repository = repository;
+            _elogRepository = eLogRepository;
         }
         
         [HttpPost]
@@ -45,24 +46,20 @@ namespace BibleVerseAPI.Controllers
             }catch(Exception ex)
             {
                 //Create ELog Storing Exception
-                var e = _elogRepository.LogError("UserLogin", 3, ex.ToString());
+                BibleVerse.Exceptions.UserLoginException loginException = new BibleVerse.Exceptions.UserLoginException(string.Format("Error At Application Login: {0}, StackTrace: {1}", ex.ToString(), ex.StackTrace.ToString()), 00001);
+
+                 var exceptionResponse = _elogRepository.StoreELog(loginException.LoggedException);
+
+                if(exceptionResponse.Result != "Success")
+                {
+                    loginResponse.Result.ResponseStatus = "Failed";
+                }
             }
 
             if (loginResponse.IsCompletedSuccessfully)
             {
                 if (loginResponse.Result.ResponseStatus == "Success")
                 {
-                    /*
-                    CookieOptions cookieOptions = new CookieOptions()
-                    {
-                        HttpOnly = true,
-                        Secure = false,
-                        Expires = DateTime.Now.AddDays(1)
-                    };
-                    
-                    Response.Cookies.Append("token", loginResponse.Result.Misc, cookieOptions);
-                    */
-
                     return Ok(lr);
                 }
                 else if (loginResponse.Result.ResponseStatus == "Failed")

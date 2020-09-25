@@ -50,6 +50,7 @@ namespace BibleVerseAPI
             
             services.AddControllers();
             services.AddScoped<RegistrationRepository>();
+            services.AddScoped<ELogRepository>();
             services.AddScoped<UserActionRepository>();
             services.AddScoped<AWSRepository>();
             services.AddScoped<OrganizationRepository>();

@@ -12,28 +12,21 @@ namespace BibleVerse.DTO.Repository
             this._context = context;
         }
 
-        public async Task<string> LogError(string service, int severity, string message)
+        public async Task<string> StoreELog(ELog log)
         {
-            string returnString = "";
+            string returnString = string.Empty;
 
             try
             {
-                ELog error = new ELog()
-                {
-                    Service = service,
-                    Severity = severity,
-                    Message = message,
-                    CreateDateTime = DateTime.Now
-                };
-
-                _context.ELogs.Add(error);
+                log.CreateDateTime = DateTime.UtcNow; //Update CreateDatetime In Log
+                _context.ELogs.Add(log);
                 _context.SaveChanges();
-                returnString = "Success";
             }catch(Exception ex)
             {
                 returnString = ex.ToString();
             }
 
+            returnString = "Success";
             return returnString;
         }
     }
