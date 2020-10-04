@@ -42,6 +42,7 @@ namespace BibleVerseAPI.Controllers
             
             try
             {
+
                 lr = JsonConvert.SerializeObject(loginResponse.Result);
             }catch(Exception ex)
             {

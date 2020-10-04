@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import Spinner  from '../components/Spinner';
 import { Button, Form, FormGroup, Label, Input, FormText } from 'reactstrap';
 import Cookies from 'universal-cookie';
 
@@ -13,6 +14,7 @@ class LoginForm extends React.Component {
             password: '',
             btnDisabled: false,
             errors: [],
+            loading: false
         };
     }
 
@@ -24,13 +26,22 @@ class LoginForm extends React.Component {
         });
     }
 
+    componentDidUpdate() {
+        if (document.getElementById("errors") != null) {
+            this.state.errors.forEach(
+                x => document.getElementById("errors").innerHTML = (x["Description"])
+            )
+        }
+    }
+
 
     async login() {
+        
         //window.console.log("clicked");
 
         const cookies = new Cookies();
 
-        this.setState({ btnDisabled: true });
+        this.setState({ btnDisabled: true, loading: true });
 
         try {
 
@@ -64,13 +75,13 @@ class LoginForm extends React.Component {
             } else if (res && res.status == "409") {
                 var result = await JSON.parse(await res.json());
 
-                this.setState({ errors: result["ResponseErrors"] });
+                this.setState({ errors: result["ResponseErrors"], loading: false });
             } else {
                 var defaultError = [{
                     "Description": "An Unexpected Error Has Occured, Please try again!"
                 }]
 
-                this.setState({ errors: defaultError });
+                this.setState({ errors: defaultError, loading: false });
 
             }
         } catch (exception) {
@@ -81,15 +92,19 @@ class LoginForm extends React.Component {
 
     }
 
-    render() {
-        return (
-            <div>
-            <Form>
+     renderForm()
+    {
+        if(this.state.loading)
+        {
+            return (
+                <Spinner />
+            )
+        } else {
+            return (
+                <div>
+                <Form>
                     <FormGroup>
                         <div id="errors" style={{ color: "red" }}>
-                            {this.state.errors.forEach(
-                                x => document.getElementById("errors").innerHTML = (x["Description"])
-                            )}
                         </div>
                         <Label for="email">Email</Label>
                     <Input type="email" name="email" id="email" placeholder="Email" value={this.state.email ? this.state.email : ''} onChange={(val) => this.setPropVal("email", val.target.value)}/>
@@ -98,10 +113,20 @@ class LoginForm extends React.Component {
                         <Label for="password">Password</Label>
                     <Input type="password" name="password" id="password" placeholder="Password" value={this.state.password ? this.state.password : ''} onChange={(val) => this.setPropVal("password", val.target.value)}/>
                 </FormGroup>
-                <Button onClick={() => this.login()}>Log In</Button>
-                </Form>
-                </div>
+                        <Button style={{textAlign:"center"}} onClick={() => this.login()}>Log In</Button>
+                    </Form>
+                    </div>
             )
+        }
+    }
+
+    render() {
+        return (
+            <div>
+                    {this.renderForm()}
+                
+            </div>
+         )
     }
 }
 
