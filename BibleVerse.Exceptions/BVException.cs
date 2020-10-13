@@ -1,16 +1,31 @@
 ﻿using System;
 
 namespace BibleVerse.Exceptions
-{
+{ 
+
     public class BVException : Exception
     {
+        //Remove reference from BibleVerse.DTO
+        public class TempELog
+        {
+            public int TempELogID { get; set; }
+
+            public int Severity { get; set; }
+
+            public string Service { get; set; }
+
+            public string Message { get; set; }
+
+            public DateTime CreateDateTime { get; set; }
+        }
+
         protected int _errCode;
         protected string _errType;
         protected string _errContext;
         protected string eLogServiceName = "BVExceptions";
         protected int _invalidErrCode = 777;
 
-        protected BibleVerse.DTO.ELog _log;
+        protected TempELog _log;
 
 
         public BVException()
@@ -53,7 +68,7 @@ namespace BibleVerse.Exceptions
         }
 
 
-        public BibleVerse.DTO.ELog LoggedException
+        public TempELog LoggedException
         {
             get { return _log; }
         }
@@ -72,7 +87,7 @@ namespace BibleVerse.Exceptions
         {
             try
             {
-                BibleVerse.DTO.ELog log = new DTO.ELog();
+                TempELog log = new TempELog();
 
                 if (!String.IsNullOrEmpty(_errType))
                 {

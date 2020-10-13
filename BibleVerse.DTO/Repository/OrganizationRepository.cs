@@ -23,6 +23,7 @@ namespace BibleVerse.DTO.Repository
     public class OrganizationRepository
     {
         private readonly BVIdentityContext _context;
+        protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> OrganizationRepository: ";
         UserManager<Users> userManager;
 
         public OrganizationRepository(UserManager<Users> _userManager, BVIdentityContext context)

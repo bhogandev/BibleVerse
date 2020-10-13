@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,6 +9,7 @@
     <Folder Include="Dlls\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Persistence\" />
+    <Folder Include="Transfers\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,4 +22,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BibleVerse.Exceptions\BibleVerse.Exceptions.csproj" />
+    <ProjectReference Include="..\BVCommon\BVCommon.csproj" />
+  </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 ﻿import React from 'react'
 import {Container, Row, Col} from 'react-bootstrap';
-import LoginForm from '../components/LoginForm';
+import { Button } from 'react-bootstrap';
 
 class Home extends React.Component {
     static displayName = Home.name;
@@ -12,7 +12,8 @@ class Home extends React.Component {
     render() {
         return (
                 <div>
-                    h
+                    home
+                    
                 </div>
             )
     }

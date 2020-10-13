@@ -3,9 +3,12 @@ import {useState} from 'react-dom';
 import {Container, Col, Row, Button, Nav, Navbar} from 'react-bootstrap';
 import {Route} from 'react-router-bootstrap'
 import LoginForm from '../components/LoginForm';
+import { useHistory } from 'react-router-dom';
 
 const Landing = (props) => {
- 
+
+    var h = useHistory();
+
     return (
         <div>
             {/* This is where the Nav will go */}
@@ -38,7 +41,7 @@ const Landing = (props) => {
                             this is where my logo or something like that will go 
                         </div>
                         <Container>
-                            <LoginForm/>
+                            <LoginForm history={h}/>
                         </Container>
                     </Col>
                 </Row>

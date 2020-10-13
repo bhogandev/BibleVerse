@@ -18,7 +18,7 @@ namespace BibleVerse.DTO.Repository
         UserManager<Users> userManager;
         private readonly BVIdentityContext _context;
         private readonly JWTSettings _jwtSettings;
-
+        protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> JWTRepository: ";
 
         public JWTRepository(BVIdentityContext context, IOptions<JWTSettings> jwtSettings, UserManager<Users> _userManager)
         {
@@ -134,6 +134,7 @@ namespace BibleVerse.DTO.Repository
         public async Task<ApiResponseModel> AuthorizeRefreshRequest(RefreshRequest request)
         {
             ApiResponseModel apiResponse = new ApiResponseModel();
+            apiResponse.ResponseBody = new List<string>();
             apiResponse.ResponseErrors = new List<string>();
 
             //Find user from access token

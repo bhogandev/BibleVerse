@@ -6,6 +6,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BibleVerse.DAL\BibleVerse.DAL.csproj" />
-    <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
   </ItemGroup>
 </Project>

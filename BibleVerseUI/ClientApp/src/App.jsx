@@ -5,14 +5,13 @@ import { Route } from 'react-router';
 import { Switch } from 'react-router-dom';
 import './css/App.css';
 import Landing from './pages/Landing';
+import ProtectedRoute from './components/ProtectedRoute';
 
 
 /*
 *   <Switch>   
 *       <Route to Homepage aka landing page />
 *       <Route to Profile Page />
-*
-*
 *   </Switch>
 */
 
@@ -21,7 +20,10 @@ import Landing from './pages/Landing';
 const App = (props) => {
     return (
         <Switch>
-            <Route path="/" component={Landing} />
+            <Route path="/" exact component={Landing} />
+            {/* Routes below should be authenticated routes only (involve some type of auth middleware)*/}
+            <ProtectedRoute path="/home" component={Home} />
+            {/* Routes above should be authenticated routes only (involve some type of auth middleware)*/}
         </Switch>
         )
 }

@@ -6,6 +6,7 @@ namespace BibleVerse.DTO.Repository
     public class ELogRepository
     {
         private readonly BVIdentityContext _context;
+        protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> ELogRepository: ";
 
         public ELogRepository(BVIdentityContext context)
         {

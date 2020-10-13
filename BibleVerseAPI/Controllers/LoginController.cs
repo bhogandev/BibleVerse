@@ -25,17 +25,18 @@ namespace BibleVerseAPI.Controllers
         private readonly RegistrationRepository _repository;
         private readonly ELogRepository _elogRepository;
 
-        public LoginController(RegistrationRepository repository, ELogRepository eLogRepository)
+        public LoginController(RegistrationRepository repository, ELogRepository eLogRepository, JWTRepository jWTRepository)
         {
             _repository = repository;
             _elogRepository = eLogRepository;
+            _jWTRepository = jWTRepository;
         }
         
         [HttpPost]
         [ActionName("LoginUser")]
         public IActionResult LoginUser([FromBody] object userRequest)
         {
-            string lr = "";
+            string lr = String.Empty;
 
             var loginResponse = _repository.LoginUser(JsonConvert.DeserializeObject<LoginRequestModel>(userRequest.ToString()));
 
@@ -49,7 +50,7 @@ namespace BibleVerseAPI.Controllers
                 //Create ELog Storing Exception
                 BibleVerse.Exceptions.UserLoginException loginException = new BibleVerse.Exceptions.UserLoginException(string.Format("Error At Application Login: {0}, StackTrace: {1}", ex.ToString(), ex.StackTrace.ToString()), 00001);
 
-                 var exceptionResponse = _elogRepository.StoreELog(loginException.LoggedException);
+                 var exceptionResponse = _elogRepository.StoreELog(BibleVerse.DTO.Transfers.TransferFunctions.TempELogToELog(loginException.LoggedException));
 
                 if(exceptionResponse.Result != "Success")
                 {
@@ -89,12 +90,11 @@ namespace BibleVerseAPI.Controllers
         {
             var response = _jWTRepository.AuthorizeRefreshRequest(JsonConvert.DeserializeObject<RefreshRequest>(refreshRequest.ToString()));
 
-
             if (response.IsCompletedSuccessfully)
             {
                 if (response.Result.ResponseMessage == "Success")
                 {
-                    return Ok(response.Result.ResponseBody[0]);
+                    return Ok(response.Result.ResponseBody);
                 }
                 else if (response.Result.ResponseMessage == "Failed")
                 {

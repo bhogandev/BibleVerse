@@ -29,14 +29,18 @@ namespace BibleVerse.DTO.Repository
         SignInManager<Users> signInManager;
         private readonly JWTSettings _jwtSettings;
         private readonly JWTRepository _jwtrepository;
+        private readonly ELogRepository _eLogRepository;
+        protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> RegistrationRepository: ";
 
-        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository)
+        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository, ELogRepository eLogRepository)
         {
             userManager = _userManager;
             signInManager = _signInManager;
             _jwtSettings = jwtSettings.Value;
             _jwtrepository = jwtrepository;
+            _eLogRepository = eLogRepository;
             this._context = context;
+
         }
 
         #region Methods
@@ -739,7 +743,7 @@ namespace BibleVerse.DTO.Repository
 
 
 
-            //Write Logic here to sign user out
+            //Sign user out
             var user = await userManager.FindByEmailAsync(uvm.Email);
 
             if (user != null)
@@ -775,11 +779,14 @@ namespace BibleVerse.DTO.Repository
                 else
                 {
                     //Log in ELog
+                    BibleVerse.Exceptions.UserLogOutException logOutException = new BibleVerse.Exceptions.UserLogOutException(String.Format("Error At Application LogOut: {0}, StackTrace: {1}", "User Final Update Not Completed Upon Logout", StackTraceRoot + "User LogOut Update", 00003));
+                    var exceptionLog = _eLogRepository.StoreELog(BibleVerse.DTO.Transfers.TransferFunctions.TempELogToELog(logOutException.LoggedException));
                     return "Error: User Final Update Not Completed Upon Logout";
                 }
             } else
             {
                 //Log in ELog
+                BibleVerse.Exceptions.UserLogOutException logOutException = new BibleVerse.Exceptions.UserLogOutException(String.Format("Error At Application LogOut: {0}, StackTrace: {1}", "User turned up NULL", StackTraceRoot + "User LogOut Update", 00001));
                 return "Error: User turned up NULL";
             }
         }

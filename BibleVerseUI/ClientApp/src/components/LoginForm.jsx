@@ -2,6 +2,8 @@
 import Spinner  from '../components/Spinner';
 import { Button, Form, FormGroup, Label, Input, FormText } from 'reactstrap';
 import Cookies from 'universal-cookie';
+import { Redirect } from "react-router-dom";
+import Auth from '../middleware/Auth';
 
 class LoginForm extends React.Component {
     static displayName = LoginForm.name;
@@ -26,70 +28,40 @@ class LoginForm extends React.Component {
         });
     }
 
+    componentDidMount() {
+        this.checkLogin();
+    }
+
     componentDidUpdate() {
-        if (document.getElementById("errors") != null) {
+         if (document.getElementById("errors") != null) {
             this.state.errors.forEach(
                 x => document.getElementById("errors").innerHTML = (x["Description"])
             )
         }
     }
 
+    async checkLogin() {
+        var result = await Auth.refreshAuth();
 
-    async login() {
-        
-        //window.console.log("clicked");
+        if(result)
+        {
+            //Send user to dashboard
+            await this.props.history.push('./home');
+        } 
+    }
 
-        const cookies = new Cookies();
+     async login() {
 
-        this.setState({ btnDisabled: true, loading: true });
+         this.setState({ btnDisabled: true, loading: true })
 
-        try {
+         var result = await Auth.login(this.state.email, this.state.password);
 
-            let res = await (await fetch("https://localhost:5001/api/Login/LoginUser", {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
-                    Email: this.state.email,
-                    Password: this.state.password
-                })
-            }))
-
-            //Verify fetch completed successfully
-
-            if (res && res.ok) {
-                var result = await JSON.parse(await res.json());
-
-                //Set JWT cookie in browser cookie storage
-                cookies.set('token', (result["Token"]));
-                //Set Refresh cookie in browser cookie storage
-                cookies.set('refreshToken', result['RefreshToken']);
-                cookies.set('user', result['User']);
-
-                //refresh page
-                window.location.reload(false);
-
-            } else if (res && res.status == "409") {
-                var result = await JSON.parse(await res.json());
-
-                this.setState({ errors: result["ResponseErrors"], loading: false });
-            } else {
-                var defaultError = [{
-                    "Description": "An Unexpected Error Has Occured, Please try again!"
-                }]
-
-                this.setState({ errors: defaultError, loading: false });
-
-            }
-        } catch (exception) {
-            console.log(exception);
-        }
-
-        
-
+         if (result && typeof(result) == "boolean") {
+             //Redirect to home
+             await this.props.history.push('./home');
+         } else {
+             await this.setState({ errors: result, loading: false });
+         }
     }
 
      renderForm()
@@ -113,7 +85,7 @@ class LoginForm extends React.Component {
                         <Label for="password">Password</Label>
                     <Input type="password" name="password" id="password" placeholder="Password" value={this.state.password ? this.state.password : ''} onChange={(val) => this.setPropVal("password", val.target.value)}/>
                 </FormGroup>
-                        <Button style={{textAlign:"center"}} onClick={() => this.login()}>Log In</Button>
+                        <Button style={{ textAlign: "center" }} onClick={() => this.login()}>Log In</Button>
                     </Form>
                     </div>
             )

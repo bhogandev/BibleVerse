@@ -17,6 +17,7 @@ namespace BibleVerse.DTO.Repository
     {
         private readonly BVIdentityContext _context;
         private readonly IAmazonS3 _client;
+        protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> AWSRepository: ";
 
         public AWSRepository(IAmazonS3 client, BVIdentityContext context)
         {

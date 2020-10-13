@@ -30,6 +30,7 @@ namespace BibleVerse.DTO.Repository
         private readonly IAmazonS3 _client;
         private readonly JWTSettings _jwtSettings;
         private readonly JWTRepository _jwtrepository;
+        protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> UserActionRepository: ";
 
         UserManager<Users> userManager;
 

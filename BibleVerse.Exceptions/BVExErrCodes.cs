@@ -9,8 +9,9 @@ namespace BibleVerse.Exceptions
         {
             {00001, "Generic Error"},
             {00002, "Asset Retrieval Failure"},
-            {99998, "Critical System Failure: System Component Non-Responsive" },
-            {99999, "Critical System Failure: System Non-Responsive" }
+            {00003, "User Final Update Not Completed Upon Logout"},
+            {99998, "Critical System Failure: System Component Non-Responsive"},
+            {99999, "Critical System Failure: System Non-Responsive"}
         };
 
         //Create Dict with Err Codes Here
