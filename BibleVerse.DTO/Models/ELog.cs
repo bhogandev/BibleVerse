@@ -18,5 +18,10 @@ namespace BibleVerse.DTO
 
         public DateTime CreateDateTime { get; set; }
 
+        public static string GenerateElogFromException(Exception x)
+        {
+
+            return String.Format("Message: {0}\n InnerException: {1}\n StackTrace: {2}\n Source: {3}", x.Message, x.InnerException, x.StackTrace, x.Source);
+        }
     }
 }

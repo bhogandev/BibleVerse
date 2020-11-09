@@ -14,6 +14,8 @@ namespace BibleVerseAPI.Controllers
     public class OrganizationController : Controller
     {
         private readonly OrganizationRepository _repository;
+        private string serviceBase = "Organization";
+        private string context = String.Empty;
 
         public OrganizationController(OrganizationRepository repository) => _repository = repository;
 

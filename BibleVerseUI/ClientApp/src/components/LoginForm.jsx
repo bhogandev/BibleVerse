@@ -28,8 +28,12 @@ class LoginForm extends React.Component {
         });
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.checkLogin();
+    }
+
+    componentDidMount() {
+        //this.checkLogin();
     }
 
     componentDidUpdate() {

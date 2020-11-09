@@ -17,6 +17,8 @@ namespace BibleVerseAPI.Controllers
         private readonly UserActionRepository _repository;
         private readonly JWTSettings _jwtSettings;
         private readonly JWTRepository _jWTRepository;
+        private string serviceBase = "Post";
+        private string context = String.Empty;
 
         public PostController(UserActionRepository repository) => _repository = repository;
 
@@ -35,7 +37,7 @@ namespace BibleVerseAPI.Controllers
                     return Ok(userPosts);
                 } else if(userPosts.Count == 0)
                 {
-                    return Ok("No Posts Found");
+                    return Conflict("No Posts Found");
                 }
                 else
                 {
@@ -72,8 +74,9 @@ namespace BibleVerseAPI.Controllers
         public IActionResult GetTimeline()
         {
             var token = Request.Headers["Token"];
+            var refreshToken = Request.Headers["RefreshToken"];
 
-            List<Posts> userPosts = _repository.GenerateTimelinePosts(token).Result;
+            List<Posts> userPosts = _repository.GenerateTimelinePosts(token, refreshToken).Result;
 
             if (userPosts != null)
             {
@@ -89,7 +92,7 @@ namespace BibleVerseAPI.Controllers
                 }
                 else if (userPosts.Count == 0)
                 {
-                    return Ok("No Posts Found");
+                    return Conflict("No Posts Found");
                 }
                 else
                 {

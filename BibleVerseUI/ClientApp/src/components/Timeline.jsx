@@ -3,9 +3,10 @@ import axios from 'axios';
 import Cookie from 'universal-cookie';
 import Post from './Post';
 import CreatePostForm from './CreatePostForm';
+import { Container } from 'react-bootstrap'
 
-class BBVHome extends React.Component {
-  static displayName = BBVHome.name;
+class Timeline extends React.Component {
+  static displayName = Timeline.name;
 
     constructor(props) {
         super(props);
@@ -24,12 +25,15 @@ class BBVHome extends React.Component {
     }
 
     async GetTL() {
+        //Abstract this function to api call in bbvapi
+
         let cookie = new Cookie();
 
         try {
             let res = axios.get('https://localhost:5001/api/Post/GetTimeline', {
                 headers: {
-                    Token: cookie.get('token')
+                    Token: cookie.get('token'),
+                    RefreshToken: cookie.get('refreshToken')
                 },
                 validateStatus: () => true
             }).then(response => {
@@ -84,10 +88,10 @@ class BBVHome extends React.Component {
     render() {
         if (this.state.posts != null) {
             return (
-                <div>
+                <Container style={{ textAlign: "left" }}>
                     <CreatePostForm tlUpdate={this.tlupdate}/>
                     <h1>{this.state.posts}</h1>
-                </div>
+                </Container>
             );
         }
         return (
@@ -96,4 +100,4 @@ class BBVHome extends React.Component {
   }
 }
 
-export default BBVHome;
+export default Timeline;

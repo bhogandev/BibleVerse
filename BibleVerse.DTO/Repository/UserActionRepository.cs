@@ -148,14 +148,15 @@ namespace BibleVerse.DTO.Repository
             return userPosts;
         }
 
-        public async Task<List<Posts>> GenerateTimelinePosts(string token)
+        
+        public async Task<List<Posts>> GenerateTimelinePosts(string token, string refreshToken)
         {
             IQueryable<Posts> posts;
             List<Posts> userPosts = new List<Posts>();
             List<string> friends = new List<string>();
             
 
-            RefreshRequest r = new RefreshRequest() { AccessToken = token };
+            RefreshRequest r = new RefreshRequest() { AccessToken = token, RefreshToken = refreshToken }; 
 
             //Get User From Token
             var user = FindUserFromAccessToken(r);
@@ -1089,6 +1090,132 @@ namespace BibleVerse.DTO.Repository
             }
 
             return "Like";
+        }
+
+        public async Task<ApiResponseModel> Query(string qFilter, string token, string qValue)
+        {
+            RefreshRequest r = new RefreshRequest()
+            {
+                AccessToken = token
+            };
+
+            //Find User
+            Users u = _jwtrepository.FindUserFromAccessToken(r);
+
+            ApiResponseModel response = new ApiResponseModel();
+            response.ResponseBody = new List<string>();
+            response.ResponseErrors = new List<string>();
+            List<SearchViewModel> searchViews = new List<SearchViewModel>();
+
+            if(qFilter == "ALL")
+            {
+                IQueryable<Users> userProfiles;
+                List<Users> users = new List<Users>();
+
+                userProfiles = from x in _context.Users
+                               where x.UserName.Contains(qValue)
+                               select x;
+
+                if(userProfiles.FirstOrDefault() != null)
+                {
+                    foreach(Users user in userProfiles)
+                    {
+                        SearchViewModel searchView = new SearchViewModel()
+                        {
+                            UserName = user.UserName,
+                            OrgName = "User"
+                        };
+
+                        searchViews.Add(searchView);
+                    }
+                }
+
+                IQueryable<Organization> organizations;
+                List<Organization> orgs = new List<Organization>();
+
+                organizations = from x in _context.Organization
+                                where x.Name.Contains(qValue)
+                                select x;
+
+                if (organizations.FirstOrDefault() != null)
+                {
+                    foreach (Organization org in organizations)
+                    {
+                        SearchViewModel searchView = new SearchViewModel()
+                        {
+                            UserName = org.Name,
+                            OrgName = "Group"
+                        };
+
+                        searchViews.Add(searchView);
+                    }
+                }
+            }else if(qFilter == "Users")
+            {
+                IQueryable<Users> userProfiles;
+                List<Users> users = new List<Users>();
+
+                userProfiles = from x in _context.Users
+                               where x.UserName.Contains(qValue)
+                               select x;
+
+                if (userProfiles.FirstOrDefault() != null)
+                {
+                    foreach (Users user in userProfiles)
+                    {
+                        SearchViewModel searchView = new SearchViewModel()
+                        {
+                            UserName = user.UserName,
+                            OrgName = "User"
+                        };
+
+                        searchViews.Add(searchView);
+                    }
+                }
+
+            }
+            else
+            {
+                IQueryable<Organization> organizations;
+                List<Organization> orgs = new List<Organization>();
+
+                organizations = from x in _context.Organization
+                                where x.Name.Contains(qValue)
+                                select x;
+
+                if (organizations.FirstOrDefault() != null)
+                {
+                    foreach (Organization org in organizations)
+                    {
+                        SearchViewModel searchView = new SearchViewModel()
+                        {
+                            UserName = org.Name,
+                            OrgName = "Group"
+                        };
+
+                        searchViews.Add(searchView);
+                    }
+                }
+            }
+
+            if(searchViews.Count > 0)
+            {
+                response.ResponseMessage = "Success";
+                response.ResponseBody.Add(JsonConvert.SerializeObject(searchViews));
+            }else
+            {
+                response.ResponseMessage = "Success";
+
+                SearchViewModel errsvm = new SearchViewModel()
+                {
+                    UserName = "Nothing Found.",
+                    OrgName = "System"
+                };
+                searchViews.Add(errsvm);
+                response.ResponseBody.Add(JsonConvert.SerializeObject(searchViews));
+            }
+
+            return response;
         }
     }
 }

@@ -89,7 +89,7 @@ class bbvapi {
             if (res && res.ok) {
                 var result = await JSON.parse(await res.json());
 
-                console.log(result);
+                //console.log(result);
 
                 //Set JWT cookie in browser cookie storage
                 cookies.set('token', (result["AccessToken"]));
@@ -131,6 +131,91 @@ class bbvapi {
         alert(t);
     }
 
+    async getUserTimeline(t) {
+        const cookies = new Cookies();
+
+        try {
+            let res = await (await fetch(this.apiBase + "Post/GetTimeline", {
+                method: 'get',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Token': t
+                },
+                credentials: 'same-origin'
+            }));
+
+            if (res && res.ok) {
+                
+                var result = await res.json();
+                
+                return result;
+
+            } else if (res && res.status == "409") {
+            var result = await JSON.parse(await res.json());
+
+            //find a way to return errrors and loading state
+            //this.setState({ errors: result["ResponseErrors"], loading: false });
+
+            return result["ResponseErrors"];
+            } else {
+            //find a way to return errrors and loading state
+            var defaultError = [{
+                "Description": "An Unexpected Error Has Occured, Please try again!"
+            }]
+
+            //this.setState({ errors: defaultError, loading: false });
+            return defaultError;
+        }
+
+        } catch (ex) {
+
+        }
+    }
+
+    async query(range, val) {
+        const cookies = new Cookies();
+
+        try {
+            let res = await (await fetch(this.apiBase + "User/Query", {
+                method: 'get',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Token': cookies.get('token'),
+                    'qFilter': range,
+                    'Query': val
+                },
+                credentials: 'same-origin'
+            }));
+
+            if (res && res.ok) {
+
+                var result = await res.json();
+                console.log(result)
+                return JSON.parse(result["result"]["responseBody"]);
+
+            } else if (res && res.status == "409") {
+                var result = await JSON.parse(await res.json());
+
+                //find a way to return errrors and loading state
+                //this.setState({ errors: result["ResponseErrors"], loading: false });
+
+                return result["ResponseErrors"];
+            } else {
+                //find a way to return errrors and loading state
+                var defaultError = [{
+                    "Description": "An Unexpected Error Has Occured, Please try again!"
+                }]
+
+                //this.setState({ errors: defaultError, loading: false });
+                return defaultError;
+            }
+
+        } catch (ex) {
+
+        }
+    }
 }
 
 export default new bbvapi();

@@ -24,6 +24,8 @@ namespace BibleVerseAPI.Controllers
         private readonly JWTRepository _jWTRepository;
         private readonly RegistrationRepository _repository;
         private readonly ELogRepository _elogRepository;
+        private string serviceBase = "Login";
+        private string context = String.Empty;
 
         public LoginController(RegistrationRepository repository, ELogRepository eLogRepository, JWTRepository jWTRepository)
         {

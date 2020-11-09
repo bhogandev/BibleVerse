@@ -7,15 +7,8 @@ using BibleVerse.DTO.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-
-
 namespace BibleVerseAPI.Controllers
 {
-
-
-
     [ApiController]
     [Route("api/[controller]")]
     public class LogoutController : Controller
@@ -23,6 +16,8 @@ namespace BibleVerseAPI.Controllers
         private readonly JWTSettings _jwtSettings;
         private readonly JWTRepository _jWTRepository;
         private readonly RegistrationRepository _repository;
+        private string serviceBase = "Logout";
+        private string context = String.Empty;
 
         public LogoutController(RegistrationRepository repository) => _repository = repository;
 

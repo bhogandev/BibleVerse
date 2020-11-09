@@ -5,6 +5,7 @@ import axios from 'axios';
 import CreateCommentForm from './CreateCommentForm.jsx';
 import Comment from './Comment.jsx';
 import ConfirmationModal from './ConfirmationModal.jsx';
+import { NavDropdown, Container, NavItem, Dropdown, NavLink } from 'react-bootstrap';
 
 class Post extends React.Component {
     constructor(props) {
@@ -96,7 +97,7 @@ class Post extends React.Component {
 
     renderDelete(isOwner) {
         if (isOwner) {
-            return (<Button onClick={() => this.openDeleteModal()}>X</Button>);
+            return (<NavDropdown.Item onClick={() => this.openDeleteModal()}>Delete post</NavDropdown.Item>);
         } else {
             return "";
         }
@@ -212,12 +213,16 @@ class Post extends React.Component {
 
     render() {
         return (
-            <div>
+            <Container>
                 <span><a href="#"><b>{this.props.Username}</b></a></span> <span>{this.props.CreateDateTime}</span>
-                <span>{this.renderDelete(this.state.isOwner)}</span>
-
-                <ConfirmationModal Body={"Are you sure you would like to delete post" + this.props.PostId} OnClickFirst={() => this.DeletePost(this.props.PostId)} OnClickSecond={() => this.openModal()} isOpen={this.state.showModal}/>
-                
+                {/*Get rid of dropdown arrow at some point (apply custom component)*/}
+                <NavDropdown title="..." id="basic-nav-dropdown">
+                    <NavDropdown.Item>Get notified about this post</NavDropdown.Item>
+                    <NavDropdown.Item>Hide post</NavDropdown.Item>
+                    <NavDropdown.Item>Report post</NavDropdown.Item>
+                    {this.renderDelete(this.state.isOwner)}
+                </NavDropdown>
+                <ConfirmationModal Body="Are you sure you would like to delete this post?" OnClickFirst={() => this.DeletePost(this.props.PostId)} OnClickSecond={() => this.openModal()} isOpen={this.state.showModal} />
                 <br />
                 {this.state.p}
                 {this.state.v}
@@ -227,7 +232,7 @@ class Post extends React.Component {
                 {this.state.coms}
                 <Button onClick={() => this.Like(this.state.IsLiked)}>{this.state.IsLiked}</Button>
                 <CreateCommentForm PostId={this.props.PostId}/>
-            </div>
+            </Container>
             )
     }
 }
