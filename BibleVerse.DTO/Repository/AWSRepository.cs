@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Amazon.S3.Model;
 using System.Collections.Generic;
 using System.Net;
-using BVCommon;
 
 namespace BibleVerse.DTO.Repository
 {

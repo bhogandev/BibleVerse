@@ -1,9 +1,12 @@
 import React from 'react';
 import axios from 'axios';
+import bbvapi from '../middleware/BBVAPI';
 import Cookie from 'universal-cookie';
 import Post from './Post';
 import CreatePostForm from './CreatePostForm';
 import { Container } from 'react-bootstrap'
+import BBVAPI from '../middleware/BBVAPI';
+import { type } from 'jquery';
 
 class Timeline extends React.Component {
   static displayName = Timeline.name;
@@ -26,48 +29,40 @@ class Timeline extends React.Component {
 
     async GetTL() {
         //Abstract this function to api call in bbvapi
-
         let cookie = new Cookie();
-
         try {
-            let res = axios.get('https://localhost:5001/api/Post/GetTimeline', {
-                headers: {
-                    Token: cookie.get('token'),
-                    RefreshToken: cookie.get('refreshToken')
-                },
-                validateStatus: () => true
-            }).then(response => {
+            var response = await BBVAPI.getUserTimeline(cookie.get('token'), cookie.get('refreshToken'))
+
+            console.log(response);
+
+            if (typeof (response) == typeof ('')) {
+                //return error to timeline
+            } else {
                 if (response.status != '200') {
                     console.log(response.status);
                     cookie.remove('token');
                     window.location.reload();
 
                 } else {
-                    var result = JSON.parse(response.data['responseBody'][0]);
-                    //console.log(result);
+                    var result = response;
+                    console.log(result); 
                     const postList = result.map(post => {
                         var parsedCExt = JSON.parse(post.CommentsExt);
                         //console.log(parsedCExt);
                         var user = cookie.get('user');
-                        
+
                         var isOwner = false;
                         if (post.Username == user['UserName']) {
                             isOwner = true;
                         }
                         return (
-                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} IsLiked={post.LikeStatus} Comments={post.Comments} CExt={post.CommentsExt} isOwner={isOwner} GetTL={() => this.GetTL()}/>
+                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} IsLiked={post.LikeStatus} Comments={post.Comments} CExt={post.CommentsExt} isOwner={isOwner} GetTL={() => this.GetTL()} />
                         )
                     })
                     this.setState({ posts: postList })
                     //console.log(postList);
                 }
-            }).catch(error => {
-                console.log(error);
-                //cookie.remove('token');
-                //window.location.reload();
-            });
-
-            console.log(res);
+            }
         } catch (Ex) {
             console.log(Ex);
         }

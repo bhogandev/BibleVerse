@@ -3,8 +3,4 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BibleVerse.DAL\BibleVerse.DAL.csproj" />
-  </ItemGroup>
 </Project>

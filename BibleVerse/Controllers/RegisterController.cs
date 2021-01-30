@@ -19,7 +19,9 @@ namespace BibleVerse.Controllers
     public class Register : Controller
     {
         BibleVerseAPI _api = new BibleVerseAPI();
+#pragma warning disable CS0169 // The field 'Register._emailService' is never used
         EmailService _emailService;
+#pragma warning restore CS0169 // The field 'Register._emailService' is never used
         public IActionResult Index()
         {
             return View();

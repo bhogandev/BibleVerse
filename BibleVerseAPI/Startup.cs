@@ -11,7 +11,7 @@ using BibleVerse.DTO;
 using Amazon.S3;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration; 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace BibleVerseAPI
+namespace  
 {
     public class Startup
     {
@@ -40,7 +40,7 @@ namespace BibleVerseAPI
                 options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.WithOrigins("https://localhost:2023")
+                        builder.WithOrigins("https://localhost:44388 ")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
 

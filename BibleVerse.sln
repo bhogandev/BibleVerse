@@ -11,13 +11,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse", "BibleVerse\Bi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BVCommon", "BVCommon\BVCommon.csproj", "{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.DAL", "BibleVerse.DAL\BibleVerse.DAL.csproj", "{888776A8-44AB-4D12-9D4F-936D46A0CEA7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.DTO", "BibleVerse.DTO\BibleVerse.DTO.csproj", "{BA06085C-0597-46A7-88C1-10CD7CD71CA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerseUI", "BibleVerseUI\BibleVerseUI.csproj", "{D305D009-B293-49AA-8E2B-4CB928E89271}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerseUI", "BibleVerseUI\BibleVerseUI.csproj", "{D305D009-B293-49AA-8E2B-4CB928E89271}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerse.Exceptions", "BibleVerse.Exceptions\BibleVerse.Exceptions.csproj", "{6EB154EF-A1F2-42CA-8A9E-A19628085515}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.Exceptions", "BibleVerse.Exceptions\BibleVerse.Exceptions.csproj", "{6EB154EF-A1F2-42CA-8A9E-A19628085515}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.DALV2", "BibleVerse.DALV2\BibleVerse.DALV2.csproj", "{1758E87A-545E-4564-9ED2-6C892E9AC66A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerse.Events", "BibleVerse.Events\BibleVerse.Events.csproj", "{F483222F-072C-4129-8C64-7E19DC7F6DB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +43,6 @@ Global
 		{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A963EEF-A01A-468B-B2FB-A9F7F2A4F53D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{888776A8-44AB-4D12-9D4F-936D46A0CEA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{888776A8-44AB-4D12-9D4F-936D46A0CEA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{888776A8-44AB-4D12-9D4F-936D46A0CEA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{888776A8-44AB-4D12-9D4F-936D46A0CEA7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BA06085C-0597-46A7-88C1-10CD7CD71CA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BA06085C-0597-46A7-88C1-10CD7CD71CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA06085C-0597-46A7-88C1-10CD7CD71CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +55,14 @@ Global
 		{6EB154EF-A1F2-42CA-8A9E-A19628085515}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EB154EF-A1F2-42CA-8A9E-A19628085515}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EB154EF-A1F2-42CA-8A9E-A19628085515}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1758E87A-545E-4564-9ED2-6C892E9AC66A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1758E87A-545E-4564-9ED2-6C892E9AC66A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1758E87A-545E-4564-9ED2-6C892E9AC66A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1758E87A-545E-4564-9ED2-6C892E9AC66A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F483222F-072C-4129-8C64-7E19DC7F6DB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F483222F-072C-4129-8C64-7E19DC7F6DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F483222F-072C-4129-8C64-7E19DC7F6DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F483222F-072C-4129-8C64-7E19DC7F6DB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,9 +1,10 @@
 ﻿import axios from 'axios';
+import { data } from 'jquery';
 import Cookies from 'universal-cookie';
 
 class bbvapi {
     constructor() {
-        this.apiBase =  "https://localhost:5001/api/";
+        this.apiBase =  "https://localhost:44307/api/";
     }
 
     async login(e, p) {
@@ -131,7 +132,8 @@ class bbvapi {
         alert(t);
     }
 
-    async getUserTimeline(t) {
+    async getUserTimeline(t, rt) {
+
         const cookies = new Cookies();
 
         try {
@@ -140,24 +142,30 @@ class bbvapi {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Token': t
+                    'Token': t,
+                    'RefreshToken': rt
                 },
+                validateStatus: () => true,
                 credentials: 'same-origin'
+            }).then(data => {
+                return data.json();
             }));
+
+            console.log(await res);
 
             if (res && res.ok) {
                 
-                var result = await res.json();
-                
+                var result = await JSON.parse(await res.json());
+               await console.log(result);
                 return result;
 
             } else if (res && res.status == "409") {
-            var result = await JSON.parse(await res.json());
+            var result = await res;
 
             //find a way to return errrors and loading state
             //this.setState({ errors: result["ResponseErrors"], loading: false });
 
-            return result["ResponseErrors"];
+            return res;
             } else {
             //find a way to return errrors and loading state
             var defaultError = [{

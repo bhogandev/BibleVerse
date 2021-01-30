@@ -4,7 +4,7 @@ namespace BibleVerse.Exceptions
 { 
 
     public class BVException : Exception
-    {
+    { 
         //Remove reference from BibleVerse.DTO
         public class TempELog
         {
@@ -122,6 +122,18 @@ namespace BibleVerse.Exceptions
                 }
 
                 _log = log;
+                bool result = BVExceptionHelper.LogException(log);
+
+                if (!result) 
+                {
+                    //Create log err exception
+                    Exception exceptionLogErr = new Exception()
+                    {
+                        Source = "Error during exception ELog creation. Manual save in event log"
+                    };
+
+                    throw exceptionLogErr;
+                 }
             }
             catch (Exception ex)
             {
@@ -130,6 +142,8 @@ namespace BibleVerse.Exceptions
                     _log.Message += "\n" + ex.Source;
                     _log.Severity = _invalidErrCode;
                 }
+
+                //Add step here to manual save on machine event viewer.
             }
         }
 

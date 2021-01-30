@@ -9,25 +9,29 @@ namespace BibleVerse.Exceptions
             {
                 case 00001:
                     return (int)ErrorSeverity.Very_Low;
-                    break;
+                    
 
                 case 00002:
                     return (int)ErrorSeverity.Very_Low;
-                    break;
+                    
 
                 //Continue to lay out error codes
 
+                case 40000:
+                    return (int)ErrorSeverity.Somewhat_Low;
+                       
+
                 case 99998:
                     return (int)ErrorSeverity.Very_High;
-                    break;
+                    
 
                 case 99999:
                     return (int)ErrorSeverity.Very_High;
-                    break;
+                    
 
                 default:
                     return -1;
-                    break;
+                    
             }
         }
 

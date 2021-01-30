@@ -19,13 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BVCommon\BVCommon.csproj" />
     <ProjectReference Include="..\BibleVerse.Exceptions\BibleVerse.Exceptions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BibleVerse.DAL\" />
     <Folder Include="Services\" />
-    <Folder Include="Models\" />
     <Folder Include="Transfers\" />
   </ItemGroup>
 </Project>
