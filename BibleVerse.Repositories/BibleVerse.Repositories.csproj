@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110.50" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BibleVerse.DALV2\BibleVerse.DALV2.csproj" />
+    <ProjectReference Include="..\BibleVerse.Events\BibleVerse.Events.csproj" />
+    <ProjectReference Include="..\BVCommon\BVCommon.csproj" />
+  </ItemGroup>
+
+</Project>

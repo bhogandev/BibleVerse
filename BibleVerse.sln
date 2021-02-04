@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.Exceptions", "Bi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.DALV2", "BibleVerse.DALV2\BibleVerse.DALV2.csproj", "{1758E87A-545E-4564-9ED2-6C892E9AC66A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerse.Events", "BibleVerse.Events\BibleVerse.Events.csproj", "{F483222F-072C-4129-8C64-7E19DC7F6DB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibleVerse.Events", "BibleVerse.Events\BibleVerse.Events.csproj", "{F483222F-072C-4129-8C64-7E19DC7F6DB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibleVerse.Repositories", "BibleVerse.Repositories\BibleVerse.Repositories.csproj", "{509BFF89-14FE-411C-87E8-94215A0382B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{F483222F-072C-4129-8C64-7E19DC7F6DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F483222F-072C-4129-8C64-7E19DC7F6DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F483222F-072C-4129-8C64-7E19DC7F6DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{509BFF89-14FE-411C-87E8-94215A0382B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{509BFF89-14FE-411C-87E8-94215A0382B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{509BFF89-14FE-411C-87E8-94215A0382B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{509BFF89-14FE-411C-87E8-94215A0382B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

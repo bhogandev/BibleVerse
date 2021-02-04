@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Diagnostics;
 
 namespace BibleVerse.Exceptions
 { 
@@ -144,9 +146,23 @@ namespace BibleVerse.Exceptions
                 }
 
                 //Add step here to manual save on machine event viewer.
+                CreateManualEventLog(_log);
             }
         }
 
+        private static bool CreateManualEventLog(TempELog eLog)
+        {
+            //Check if source already exists on machine
+            if(!EventLog.SourceExists("BibleVerse.BVExceptionData"))
+            {
+                //If false create source
+                EventLog.CreateEventSource("BibleVerse.BVExceptionData", "BibleVerse.BVExceptionData");
+            }
 
+            //Create Event Log Entry
+            EventLog.WriteEntry("BibleVerse.BVExceptionData", JsonConvert.SerializeObject(eLog));
+
+            return true;
+        }
     }
 }

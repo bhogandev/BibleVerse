@@ -1,5 +1,4 @@
-﻿using BibleVerse.Exceptions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -18,7 +17,8 @@ namespace BVCommon
             {
                 {"EVENT", typeof(BibleVerse.DTO.Event)},
                 {"NOTIFICATIONS", typeof(BibleVerse.DTO.Notifications)},
-                {"ELOG", typeof(BibleVerse.DTO.ELog)}
+                {"ELOG", typeof(BibleVerse.DTO.ELog)},
+                {"COURSES", typeof(BibleVerse.DTO.Courses)}
             };
 
             return dbTypes[s] != null ? dbTypes[s] : typeof(Exception);
@@ -45,6 +45,13 @@ namespace BVCommon
                     context.ELogs.Add(newELog);
                     context.SaveChanges();
                     return context.ELogs.Find(newELog) != null ? true : false;
+                
+                case "BibleVerse.DTO.Courses":
+                    BibleVerse.DTO.Courses newCourse = JsonConvert.DeserializeObject<BibleVerse.DTO.Courses>(entObject);
+                    context.Courses.Add(newCourse);
+                    context.SaveChanges();
+                    return context.Courses.Find(newCourse) != null ? true : false;
+
 
                 default:
                     return false;

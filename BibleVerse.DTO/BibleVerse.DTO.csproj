@@ -17,10 +17,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.6.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BibleVerse.Exceptions\BibleVerse.Exceptions.csproj" />
-  </ItemGroup>
   <ItemGroup>
     <Folder Include="BibleVerse.DAL\" />
     <Folder Include="Services\" />

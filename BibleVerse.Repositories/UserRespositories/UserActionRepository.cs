@@ -1,39 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication;
-using System.Text;
-using System.Security.Policy;
-using System.Net.Http;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
-using System.Net;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using Microsoft.AspNetCore.Http.Internal;
-using static System.Net.Mime.MediaTypeNames;
-using Newtonsoft.Json;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
+using BibleVerse.DTO;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
-namespace BibleVerse.DTO.Repository
+namespace BibleVerse.Repositories.UserRepositories
 {
     public class UserActionRepository
     {
-        private readonly BVIdentityContext _context;
+        private readonly BibleVerse.DALV2.BVIdentityContext _context;
         private readonly IAmazonS3 _client;
         private readonly JWTSettings _jwtSettings;
-        private readonly JWTRepository _jwtrepository;
+        private readonly BibleVerse.Repositories. JWTRepository _jwtrepository;
         protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> UserActionRepository: ";
 
         UserManager<Users> userManager;
 
-        public UserActionRepository(UserManager<Users> _userManager, IAmazonS3 client, BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository)
+        public UserActionRepository(UserManager<Users> _userManager, IAmazonS3 client, BibleVerse.DALV2.BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository)
         {
             this._context = context;
             this._client = client;
@@ -42,13 +33,41 @@ namespace BibleVerse.DTO.Repository
             _jwtrepository = jwtrepository;
         }
 
-        public Organization GetUserOrg(string orgID)
+        public ApiResponseModel GetUserOrg(string orgID)
         {
-            var userOrg = from x in _context.Organization
-                          where x.OrganizationId == orgID
-                          select x;
+            ApiResponseModel response = APIHelperV1.InitializeAPIResponse();
+            try
+            {
+                var userOrg = from x in _context.Organization
+                              where x.OrganizationId == orgID
+                              select x;
 
-            return userOrg.FirstOrDefault();
+                if (userOrg.FirstOrDefault() != null)
+                {
+                    response.ResponseMessage = "Success";
+                    response.ResponseBody.Add(JsonConvert.SerializeObject(userOrg.FirstOrDefault()));
+                }
+                else
+                {
+                    response.ResponseMessage = "Failure";
+                    response.ResponseErrors.Add("Organization Not Found!");
+                }
+
+                return response;
+            }catch(Exception ex)
+            {
+                try
+                {
+                    BibleVerse.Exceptions.BVException x = new Exceptions.BVException(String.Format("Error: \n Root: {0} \n Message: {1}", StackTraceRoot, ex.Message));
+                }catch(Exception e)
+                {
+                    EventLog.WriteEntry("BibleVerse.BVExceptionData", e.Message);
+                }
+
+                response.ResponseMessage = "Failure";
+                response.ResponseErrors.Add("An Error Occurred");
+                return response;
+            }
         }
 
         //Get Post
@@ -76,6 +95,7 @@ namespace BibleVerse.DTO.Repository
                     where (p.Username == userName) && (p.IsDeleted != true)
                     orderby p.CreateDateTime descending
                     select p;
+
             if (posts.Count() > 0)
             {
                 foreach (Posts p in posts)
@@ -168,7 +188,7 @@ namespace BibleVerse.DTO.Repository
             while (idexists == false && retryTimes < 3)
             {
                 //Create new PostID's
-                var genPostID = BVFunctions.CreateUserID();
+                var genPostID = BVCommon.BVFunctions.CreateUserID();
                 postID = from c in _context.Posts
                          where c.PostId == genPostID
                          select c;
@@ -200,7 +220,7 @@ namespace BibleVerse.DTO.Repository
                                 while (photoidexists == false && photoretryTimes < 3)
                                 {
                                     //Create new PhotoID's
-                                    var genPhotoID = BVFunctions.CreateUserID();
+                                    var genPhotoID = BVCommon.BVFunctions.CreateUserID();
                                     photoID = from c in _context.Photos
                                               where c.PhotoId == genPhotoID
                                               select c;
@@ -306,7 +326,7 @@ namespace BibleVerse.DTO.Repository
                                     while (videoidexists == false && videoretryTimes < 3)
                                     {
                                         //Create new VideoID's
-                                        var genVideoID = BVFunctions.CreateUserID();
+                                        var genVideoID = BVCommon.BVFunctions.CreateUserID();
                                         videoID = from c in _context.Videos
                                                   where c.VideoId == genVideoID
                                                   select c;
@@ -478,7 +498,17 @@ namespace BibleVerse.DTO.Repository
 
                     profileUser = foundUser.UserName;
 
-                    var userOrg = GetUserOrg(foundUser.OrganizationId);
+                    var orgRetrieval = GetUserOrg(foundUser.OrganizationId);
+                    BibleVerse.DTO.Organization userOrg = new Organization();
+
+                    if(orgRetrieval.ResponseMessage != "Success")
+                    {
+                        BibleVerse.Exceptions.BVException x = new Exceptions.BVException(String.Format("Error: \n Root: {0} \n Message: Error during org retrieval", StackTraceRoot));
+                        throw x;
+                    }else
+                    {
+                        userOrg = JsonConvert.DeserializeObject<Organization>(GetUserOrg(foundUser.OrganizationId).ResponseBody[0]);
+                    }
 
                     suvm.UserName = foundUser.UserName;
                     suvm.Status = foundUser.Status;
@@ -557,8 +587,6 @@ namespace BibleVerse.DTO.Repository
             if (request.RequestType == "Send friend request")
             {
                 //Verify Relationship doesn't already exist
-                bool relationshipFound = true;
-
                 var relationList = from c in _context.UserRelationships
                                    where (c.FirstUser == request.FirstUser && c.SecondUser == request.SecondUser && c.RelationshipType == request.RelationshipType) || (c.FirstUser == request.SecondUser && c.SecondUser == request.FirstUser && c.RelationshipType == request.RelationshipType)
                                    select c;
@@ -576,32 +604,22 @@ namespace BibleVerse.DTO.Repository
                         CreateDateTime = DateTime.Now
                     };
 
-                    _context.UserRelationships.Add(newRelationship);
-                    _context.SaveChanges();
+                    bool relationshipRequestSent = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipSend(newRelationship, request);
 
-                    //Create user notification for friend request
-                    CreateNotification(request.SecondUser, request.FirstUser, request.FirstUser + " has sent you a friend request.", "Friend Request", "");
+                    response.ResponseMessage = relationshipRequestSent ? "Success" : "Failure";
 
-                    UserHistory actionLog = new UserHistory()
+                    if (response.ResponseMessage == "Success")
                     {
-                        ActionType = "UserRequest",
-                        ActionMessage = request.FirstUser + " sent " + request.SecondUser + "  a friend request.",
-                        ChangeDateTime = DateTime.Now,
-                        CreateDateTime = DateTime.Now
-                    };
-
-                    _context.UserHistory.Add(actionLog);
-                    _context.SaveChanges();
-
-                    response.ResponseMessage = "Success";
-                    response.ResponseBody.Add("Friend Request Sent!");
+                        response.ResponseBody.Add("Friend Request Sent!");
+                    }
                 }
                 else
                 {
                     response.ResponseMessage = "Failure";
                     response.ResponseErrors.Add("Relationship Already Exists");
                 }
-            } else if(request.RequestType == "Cancel friend request")
+            }
+            else if (request.RequestType == "Cancel friend request")
             {
                 //Write logic to handle cancel request
 
@@ -610,10 +628,8 @@ namespace BibleVerse.DTO.Repository
                                     where (x.FirstUser == request.FirstUser) && (x.SecondUser == request.SecondUser) && (x.RelationshipType == request.RelationshipType) && x.SecondUserConfirmed == false
                                     select x;
 
-                if(friendRequest.FirstOrDefault() != null) // If relationship is found
+                if (friendRequest.FirstOrDefault() != null) // If relationship is found
                 {
-                    //Remove relationship from table
-                    _context.UserRelationships.Remove(friendRequest.FirstOrDefault());
 
                     //Delete notification from db
                     var requestNotifcation = from x in _context.Notifications
@@ -621,29 +637,16 @@ namespace BibleVerse.DTO.Repository
                                              orderby x.CreateDateTime descending
                                              select x;
 
-                    if(requestNotifcation != null)
+                    if (requestNotifcation != null)
                     {
-                        // Remove notification from table
-                        _context.Notifications.Remove(requestNotifcation.FirstOrDefault());
+                        bool requestWasCancelled = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipCancel(friendRequest.FirstOrDefault(), request, requestNotifcation.FirstOrDefault());
+
+                        response.ResponseMessage = requestWasCancelled ? "Success" : "Failure";
                     }
-
-                    _context.SaveChanges();
-
-                    UserHistory actionLog = new UserHistory()
-                    {
-                        ActionType = "UserRequest",
-                        ActionMessage = request.FirstUser + " canceled a friend request to " + request.SecondUser,
-                        ChangeDateTime = DateTime.Now,
-                        CreateDateTime = DateTime.Now
-                    };
-
-                    _context.UserHistory.Add(actionLog);
-                    _context.SaveChanges();
-
-                    response.ResponseMessage = "Success";
                 }
 
-            } else if(request.RequestType == "Accept friend request")
+            }
+            else if (request.RequestType == "Accept friend request")
             {
                 //Write logic to handle accept request
 
@@ -668,46 +671,16 @@ namespace BibleVerse.DTO.Repository
                         Users firstUserFound = fU.FirstOrDefault();
                         Users secondUserFound = sU.FirstOrDefault();
 
-                        //Increment users Friend counts
-                        firstUserFound.Friends++;
-                        secondUserFound.Friends++;
+                        bool processRelationship = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipAccept(friendRequest.FirstOrDefault(), request, firstUserFound, secondUserFound);
 
-                        friendRequest.FirstOrDefault().SecondUserConfirmed = true; // Confirm friend request for second user
 
-                        //Create Notification for Accepting
-                        CreateNotification(request.SecondUser, request.FirstUser, request.FirstUser + " has accepted your friend request.", "Friend Request", "");
-
-                        _context.UserRelationships.Update(friendRequest.FirstOrDefault());
-
-                        UserHistory actionLog = new UserHistory()
-                        {
-                            ActionType = "UserRequest",
-                            ActionMessage = request.SecondUser + " accepted a friend request from " + request.FirstUser,
-                            ChangeDateTime = DateTime.Now,
-                            CreateDateTime = DateTime.Now
-                        };
-
-                        UserHistory actionLogRelation = new UserHistory()
-                        {
-                            ActionType = "RelationshipUpdate",
-                            ActionMessage = request.FirstUser + " & " + request.SecondUser + " are now friends",
-                            ChangeDateTime = DateTime.Now,
-                            CreateDateTime = DateTime.Now
-                        };
-
-                        _context.UserHistory.Add(actionLog);
-                        _context.UserHistory.Add(actionLogRelation);
-                        _context.Users.Update(firstUserFound);
-                        _context.Users.Update(secondUserFound);
+                        response.ResponseMessage = processRelationship ? "Success" : "Failure";
                     }
-                    _context.SaveChanges();
-
-                    response.ResponseMessage = "Success";
-                }
-                else
-                {
-                    response.ResponseMessage = "Failure";
-                    response.ResponseErrors.Add("Request not found");
+                    else
+                    {
+                        response.ResponseMessage = "Failure";
+                        response.ResponseErrors.Add("Request not found");
+                    }
                 }
             }
             return response;
@@ -716,15 +689,10 @@ namespace BibleVerse.DTO.Repository
         //Delete user post
         public async Task<string> DeleteUserPost(RefreshRequest request, string postId)
         {
-            //Verify user is post owner
-            //Find Post
-            //Set isDeleted on post = true
-            //send success
-
-            Users u = _jwtrepository.FindUserFromAccessToken(request);
-
             IQueryable<Posts> QPost;
+            Users u = _jwtrepository.FindUserFromAccessToken(request); //Find User To Delete Post
 
+            //Find Post
             QPost = from x in _context.Posts
                     where x.PostId == postId
                     select x;
@@ -733,17 +701,7 @@ namespace BibleVerse.DTO.Repository
             {
                 Posts p = QPost.First();
 
-                if(p.Username == u.UserName)
-                {
-                    p.IsDeleted = true;
-                    _context.Posts.Update(p);
-                    _context.SaveChanges();
-
-                    return "Success";
-                } else
-                {
-                    return "You do not have access to delete this post.";
-                }
+                return BibleVerse.Repositories.PostRepositories.PostRepositoriesHelper.DeleteUserPost(p, u);
             } else
             {
                 return "Post not found";
@@ -769,7 +727,7 @@ namespace BibleVerse.DTO.Repository
                 while (idexists == false && retryTimes < 3)
                 {
                     //Create new PhotoID's
-                    var genPhotoID = BVFunctions.CreateUserID();
+                    var genPhotoID = BVCommon.BVFunctions.CreateUserID();
                     photoID = from c in _context.Photos
                               where c.PhotoId == genPhotoID
                               select c;
@@ -1040,9 +998,7 @@ namespace BibleVerse.DTO.Repository
             //Find User
             Users u = _jwtrepository.FindUserFromAccessToken(r);
 
-            ApiResponseModel response = new ApiResponseModel();
-            response.ResponseBody = new List<string>();
-            response.ResponseErrors = new List<string>();
+            ApiResponseModel response = BibleVerse.Repositories.APIHelperV1.InitializeAPIResponse();
             List<SearchViewModel> searchViews = new List<SearchViewModel>();
 
             if(qFilter == "ALL")
@@ -1157,3 +1113,4 @@ namespace BibleVerse.DTO.Repository
         }
     }
 }
+

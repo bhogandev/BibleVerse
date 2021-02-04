@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BibleVerse.DTO\BibleVerse.DTO.csproj" />
+    <ProjectReference Include="..\BibleVerse.Exceptions\BibleVerse.Exceptions.csproj" />
     <ProjectReference Include="..\BVCommon\BVCommon.csproj" />
   </ItemGroup>
 
