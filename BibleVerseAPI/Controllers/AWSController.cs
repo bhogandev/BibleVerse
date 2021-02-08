@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BibleVerse.DTO;
-using BibleVerse.DTO.Repository;
+using BibleVerse.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 

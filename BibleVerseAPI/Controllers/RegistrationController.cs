@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BVCommon;
-using BibleVerse.DTO.Repository;
+using BibleVerse.Repositories;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
 using System.Net.Http;

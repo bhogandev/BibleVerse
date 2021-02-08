@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BibleVerse.DTO.Repository;
+using BibleVerse.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace  
+namespace BibleVerseAPI  
 {
     public class Startup
     {
@@ -51,7 +51,7 @@ namespace
             services.AddControllers();
             services.AddScoped<RegistrationRepository>();
             services.AddScoped<ELogRepository>();
-            services.AddScoped<UserActionRepository>();
+            services.AddScoped<BibleVerse.Repositories.UserRepositories.UserActionRepository>();
             services.AddScoped<AWSRepository>();
             services.AddScoped<OrganizationRepository>();
             services.AddScoped<JWTRepository>();

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BVCommon;
-using BibleVerse.DTO.Repository;
+using BibleVerse.Repositories;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
 using System.Net.Http;
@@ -20,9 +20,9 @@ namespace BibleVerseAPI.Controllers
     [Route("api/[controller]/[action]")]
     public class UserController : ControllerBase
     {
-        private readonly UserActionRepository _repository;
+        private readonly BibleVerse.Repositories.UserRepositories.UserActionRepository _repository;
 
-        public UserController(UserActionRepository repository)
+        public UserController(BibleVerse.Repositories.UserRepositories.UserActionRepository repository)
         {
             this._repository = repository;
         }

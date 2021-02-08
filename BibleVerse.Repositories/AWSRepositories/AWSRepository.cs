@@ -10,7 +10,7 @@ using Amazon.S3.Model;
 using System.Collections.Generic;
 using System.Net;
 
-namespace BibleVerse.DTO.Repository
+namespace BibleVerse.Repositories
 {
     public class AWSRepository
     {
@@ -24,7 +24,11 @@ namespace BibleVerse.DTO.Repository
             this._client = client;
         }
 
-        
+        public static bool uploadObject(byte base64Object, string objectURL)
+        {
+
+        }
+
         public async Task<ApiResponseModel> CreateUserDir(Users user)
         {
             string userDir = user.UserId.ToLower();
@@ -124,7 +128,7 @@ namespace BibleVerse.DTO.Repository
 
                     if (response.HttpStatusCode == HttpStatusCode.OK)
                     {
-                        string orgInit = BVFunctions.CreateInit(org.Name);
+                        string orgInit = BVCommon.BVFunctions.CreateInit(org.Name);
 
                         //Create org Dir
                         var putdirRequest = new PutObjectRequest()

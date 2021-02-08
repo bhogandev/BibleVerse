@@ -44,7 +44,7 @@ namespace BibleVerse.Controllers
                 Friends = 0,
                 PhoneNumber = newUser.PhoneNumber,
                 DOB = newUser.DOB,
-                Age = BVFunctions.GetUserAge(newUser.DOB),
+                //Age = BVCommon.BVFunctions.GetUserAge(newUser.DOB),
                 OrganizationId = newUser.OrganizationID,
                 isSuspended = false,
                 isDeleted = false,

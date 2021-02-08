@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using BibleVerse.DTO.Repository;
+using BibleVerse.Repositories;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
 
@@ -14,13 +14,13 @@ namespace BibleVerseAPI.Controllers
     [Route("api/[controller]/[action]")]
     public class PostController : Controller
     {
-        private readonly UserActionRepository _repository;
+        private readonly BibleVerse.Repositories.UserRepositories.UserActionRepository _repository;
         private readonly JWTSettings _jwtSettings;
         private readonly JWTRepository _jWTRepository;
         private string serviceBase = "Post";
         private string context = String.Empty;
 
-        public PostController(UserActionRepository repository) => _repository = repository;
+        public PostController(BibleVerse.Repositories.UserRepositories.UserActionRepository repository) => _repository = repository;
 
 
         //Get All Of User's Posts

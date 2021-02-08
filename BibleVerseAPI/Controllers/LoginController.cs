@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
-using BibleVerse.DTO.Repository;
+using BibleVerse.Repositories;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Cors;
@@ -52,12 +52,9 @@ namespace BibleVerseAPI.Controllers
                 //Create ELog Storing Exception
                 BibleVerse.Exceptions.UserLoginException loginException = new BibleVerse.Exceptions.UserLoginException(string.Format("Error At Application Login: {0}, StackTrace: {1}", ex.ToString(), ex.StackTrace.ToString()), 00001);
 
-                 var exceptionResponse = _elogRepository.StoreELog(BibleVerse.DTO.Transfers.TransferFunctions.TempELogToELog(loginException.LoggedException));
+                 //var exceptionResponse = _elogRepository.StoreELog(BibleVerse.DTO.Transfers.TransferFunctions.TempELogToELog(loginException.LoggedException));
 
-                if(exceptionResponse.Result != "Success")
-                {
                     loginResponse.Result.ResponseStatus = "Failed";
-                }
             }
 
             if (loginResponse.IsCompletedSuccessfully)

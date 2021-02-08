@@ -17,8 +17,9 @@ using System.IO;
 using Microsoft.AspNetCore.Http.Internal;
 using static System.Net.Mime.MediaTypeNames;
 using Newtonsoft.Json;
+using BibleVerse.DTO;
 
-namespace BibleVerse.DTO.Repository
+namespace BibleVerse.Repositories
 {
     public class OrganizationRepository
     {

@@ -17,8 +17,9 @@ using System.Security.Cryptography;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using System.Web;
+using BibleVerse.DTO;
 
-namespace BibleVerse.DTO.Repository
+namespace BibleVerse.Repositories
 {
     public class RegistrationRepository
     {
@@ -228,7 +229,7 @@ namespace BibleVerse.DTO.Repository
                 // Create OrganizationID
                 while (idCreated == false && retryTimes < 3)
                 {
-                    var genOrgID = BVFunctions.CreateUserID();
+                    var genOrgID = BVCommon.BVFunctions.CreateUserID();
                     newOrgID = from c in _context.Organization
                                where c.OrganizationId == genOrgID
                                select c.OrganizationId;
@@ -242,7 +243,7 @@ namespace BibleVerse.DTO.Repository
                         //Create SubscriptionID
                         while (!subIdCreated && retryTimes < 3)
                         {
-                            var genSubID = BVFunctions.CreateUserID();
+                            var genSubID = BVCommon.BVFunctions.CreateUserID();
                             newGenID = from c in _context.Subscriptions
                                        where c.SubscriptionID == genSubID
                                        select c.SubscriptionID;
@@ -301,7 +302,7 @@ namespace BibleVerse.DTO.Repository
 
                                         while (!refCodeCreated && refRetryTimes < 3) // Create Ref Log +  Code
                                         {
-                                            string refCode = BVFunctions.CreateRefCode();
+                                            string refCode = BVCommon.BVFunctions.CreateRefCode();
 
                                             var createdRefCode = from c in _context.RefCodeLogs
                                                                  where c.RefCode == refCode
@@ -385,7 +386,7 @@ namespace BibleVerse.DTO.Repository
 
                     while (idCreated == false && retryTimes < 3)
                     {
-                        var genUID = BVFunctions.CreateUserID();
+                        var genUID = BVCommon.BVFunctions.CreateUserID();
                         newUID = from c in userManager.Users
                                  where c.UserId == genUID 
                                  select c.UserId;
@@ -403,7 +404,7 @@ namespace BibleVerse.DTO.Repository
 
                                 if(newUserStatus.FirstOrDefault() != null) //If ref code is found
                                 {
-                                    var userStatus = BVFunctions.RetreiveStatusFromRefCode(newUserStatus.FirstOrDefault().RefCodeType);
+                                    var userStatus = BVCommon.BVFunctions.RetreiveStatusFromRefCode(newUserStatus.FirstOrDefault().RefCodeType);
                                     RefCodeLogs genRefCode = newUserStatus.First();
 
                                     if(!userStatus.Contains("Error") && genRefCode.isUsed != true)
@@ -702,7 +703,7 @@ namespace BibleVerse.DTO.Repository
                         }
                     } else
                     {
-                        List<string> identityError = ELogFunctions.GetSignInError(res);
+                        List<string> identityError = BVCommon.ELogFunctions.GetSignInError(res);
                         Error error = new Error()
                         {
                             Code = identityError[0],
@@ -779,7 +780,7 @@ namespace BibleVerse.DTO.Repository
                 {
                     //Log in ELog
                     BibleVerse.Exceptions.UserLogOutException logOutException = new BibleVerse.Exceptions.UserLogOutException(String.Format("Error At Application LogOut: {0}, StackTrace: {1}", "User Final Update Not Completed Upon Logout", StackTraceRoot + "User LogOut Update", 00003));
-                    var exceptionLog = _eLogRepository.StoreELog(BibleVerse.DTO.Transfers.TransferFunctions.TempELogToELog(logOutException.LoggedException));
+                    //var exceptionLog = _eLogRepository.StoreELog(BibleVerse.DTO.Transfers.TransferFunctions.TempELogToELog(logOutException.LoggedException));
                     return "Error: User Final Update Not Completed Upon Logout";
                 }
             } else

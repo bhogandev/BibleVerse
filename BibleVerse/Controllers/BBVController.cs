@@ -174,7 +174,7 @@ namespace BibleVerse.Controllers
                 FirstUser = firstUser.UserName,
                 SecondUser = SecondUser,
                 RequestType = RequestType,
-                RelationshipType = BVFunctions.RetrieveRelationshipType(RequestType)
+                RelationshipType = BVCommon.BVFunctions.RetrieveRelationshipType(RequestType)
             };
 
                 HttpClient client = _api.Initial();

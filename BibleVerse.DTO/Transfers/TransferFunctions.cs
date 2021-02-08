@@ -3,6 +3,7 @@ namespace BibleVerse.DTO.Transfers
 {
     public class TransferFunctions
     {
+        /*
         //Transfer TempELog to Elog
         public static BibleVerse.DTO.ELog TempELogToELog(BibleVerse.Exceptions.BVException.TempELog tempELog)
         {
@@ -16,5 +17,6 @@ namespace BibleVerse.DTO.Transfers
 
             return eLog;
         }
+        */
     }
 }

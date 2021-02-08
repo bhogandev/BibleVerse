@@ -1,14 +1,16 @@
-﻿using System;
+﻿using BibleVerse.DALV2;
+using BibleVerse.DTO;
+using System;
 using System.Threading.Tasks;
 
-namespace BibleVerse.DTO.Repository
+namespace BibleVerse.Repositories
 {
     public class ELogRepository
     {
-        private readonly BVIdentityContext _context;
+        private readonly BibleVerse.DALV2.BVIdentityContext _context;
         protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> ELogRepository: ";
 
-        public ELogRepository(BVIdentityContext context)
+        public ELogRepository(BibleVerse.DALV2.BVIdentityContext context)
         {
             this._context = context;
         }
