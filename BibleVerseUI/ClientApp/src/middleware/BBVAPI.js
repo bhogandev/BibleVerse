@@ -135,6 +135,7 @@ class bbvapi {
     async getUserTimeline(t, rt) {
 
         const cookies = new Cookies();
+        var resOk = false;
 
         try {
             let res = await (await fetch(this.apiBase + "Post/GetTimeline", {
@@ -148,12 +149,13 @@ class bbvapi {
                 validateStatus: () => true,
                 credentials: 'same-origin'
             }).then(data => {
+                resOk = res.OK ? true : false;
                 return data.json();
             }));
 
             console.log(await res);
 
-            if (res && res.ok) {
+            if (res != null && resOk) {
                 
                 var result = await JSON.parse(await res.json());
                await console.log(result);

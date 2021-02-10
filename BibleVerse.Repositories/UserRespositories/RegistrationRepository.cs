@@ -23,7 +23,7 @@ namespace BibleVerse.Repositories
 {
     public class RegistrationRepository
     {
-        private readonly BVIdentityContext _context;
+        private readonly BibleVerse.DALV2.BVIdentityContext _context;
         
         UserManager<Users> userManager;
         SignInManager<Users> signInManager;
@@ -32,7 +32,7 @@ namespace BibleVerse.Repositories
         private readonly ELogRepository _eLogRepository;
         protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> RegistrationRepository: ";
 
-        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager ,BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository, ELogRepository eLogRepository)
+        public RegistrationRepository(UserManager<Users> _userManager , SignInManager<Users> _signInManager , BibleVerse.DALV2.BVIdentityContext context, IOptions<JWTSettings> jwtSettings, JWTRepository jwtrepository, ELogRepository eLogRepository)
         {
             userManager = _userManager;
             signInManager = _signInManager;

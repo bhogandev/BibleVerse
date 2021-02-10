@@ -9,25 +9,129 @@ using System.Threading.Tasks;
 using Amazon.S3.Model;
 using System.Collections.Generic;
 using System.Net;
+using System.IO;
+using BibleVerse.Repositories.AWSRepositories;
 
 namespace BibleVerse.Repositories
 {
     public class AWSRepository
     {
-        private readonly BVIdentityContext _context;
+        private readonly BibleVerse.DALV2.BVIdentityContext _context;
         private readonly IAmazonS3 _client;
         protected string StackTraceRoot = "BibleVerse.DTO -> Repository -> AWSRepository: ";
 
-        public AWSRepository(IAmazonS3 client, BVIdentityContext context)
+        public AWSRepository(IAmazonS3 client, BibleVerse.DALV2.BVIdentityContext context)
         {
             this._context = context;
             this._client = client;
         }
 
-        public static bool uploadObject(byte base64Object, string objectURL)
+        public async Task<BibleVerse.DTO.PostsRelations> uploadObject(string uploadType, byte[] base64Object, string objectUrl, string genObjectID ,BibleVerse.DTO.UserUpload uUp, BibleVerse.DTO.PostModel _newPost)
         {
+            PutObjectResponse userUploadResponse = new PutObjectResponse();
+            BibleVerse.DTO.PostsRelations uploadsSuccessful = new PostsRelations();
 
-        }
+            if (!String.IsNullOrEmpty(uploadType))
+            {
+                if (uploadType.ToUpper() == "PHOTO")
+                {
+                    using (var stream = new MemoryStream(base64Object))
+                    {
+                        var fileUploadRequest = new PutObjectRequest
+                        {
+                            BucketName = _newPost.OrganizationId.ToLower(),
+                            Key = _newPost.UserId.ToLower() + "/" + _newPost.UserId.ToLower() + "_pub" + "/" + "Images/Photos/" + uUp.FileNames[0],
+                            InputStream = stream,
+                            ContentType = uUp.FileTypes[0],
+                            CannedACL = S3CannedACL.PublicRead
+                        };
+
+                        userUploadResponse = await _client.PutObjectAsync(fileUploadRequest);
+                    };
+
+                    if (userUploadResponse.HttpStatusCode == HttpStatusCode.OK)
+                    {
+                        //Update Tables in DB
+                        Photos newPhoto = new Photos()
+                        {
+                            PhotoId = genObjectID,
+                            URL = objectUrl,
+                            Caption = "",//Add functionality in the future to allow user to pass caption
+                            IsDeleted = false,
+                            Title = "", //Add functionality in the future to allow user to pass title
+                            ChangeDateTime = DateTime.Now,
+                            CreateDateTime = DateTime.Now
+                        };
+
+                        // Invoke AWSHelper Here
+                        bool photoUploaded = AWSHelper.UploadPhotoToDb(newPhoto);
+
+                        PostsRelations newRelation = new PostsRelations()
+                        {
+                            AttachmentID = genObjectID,
+                            ContentType = "Photo",
+                            FileName = uUp.FileNames[0],
+                            Link = objectUrl
+                        };
+
+                        //AWSHelper here
+                        bool relationUploaded = AWSHelper.CreateNewPostRelationship(newRelation);
+
+                        uploadsSuccessful = photoUploaded && relationUploaded ? newRelation : null;
+
+                    }
+                }
+                else if (uploadType.ToUpper() == "VIDEO")
+                {
+                    using (var stream = new MemoryStream(base64Object))
+                    {
+                        var fileUploadRequest = new PutObjectRequest
+                        {
+                            BucketName = _newPost.OrganizationId.ToLower(),
+                            Key = _newPost.UserId.ToLower() + "/" + _newPost.UserId.ToLower() + "_pub" + "/" + "Videos/PostVideos/" + uUp.FileNames[0],
+                            InputStream = stream,
+                            ContentType = uUp.FileTypes[0],
+                            CannedACL = S3CannedACL.PublicRead
+                        };
+
+                        userUploadResponse = await _client.PutObjectAsync(fileUploadRequest);
+                    };
+
+                    if (userUploadResponse.HttpStatusCode == HttpStatusCode.OK)
+                    {
+
+                        //Update Tables in DB
+                        Videos newVideo = new Videos()
+                        {
+                            VideoId = genObjectID,
+                            URL = objectUrl,
+                            Caption = "",
+                            IsDeleted = false,
+                            Title = "",
+                            ChangeDateTime = DateTime.Now,
+                            CreateDateTime = DateTime.Now
+                        };
+
+                        // Invoke AWSHelper Here
+                        bool videoUploaded = AWSHelper.UploadVideoToDb(newVideo);
+
+                        PostsRelations newRelation = new PostsRelations()
+                        {
+                            AttachmentID = genObjectID,
+                            ContentType = "Video",
+                            FileName = uUp.FileNames[0],
+                            Link = objectUrl
+                        };
+
+                        //AWSHelper here
+                        bool relationUploaded = AWSHelper.CreateNewPostRelationship(newRelation);
+
+                        uploadsSuccessful = videoUploaded && relationUploaded ? newRelation : null;
+                    }
+                }
+                }
+            return uploadsSuccessful;
+            }
 
         public async Task<ApiResponseModel> CreateUserDir(Users user)
         {
@@ -107,7 +211,6 @@ namespace BibleVerse.Repositories
             return apiResponse;
         }
 
-    
         public async Task<ApiResponseModel> CreateOrgBucket(Organization org)
         {
             string orgBucket = org.OrganizationId.ToLower();

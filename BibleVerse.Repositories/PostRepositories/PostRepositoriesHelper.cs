@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Amazon.S3;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BibleVerse.Repositories.PostRepositories
 {
@@ -10,11 +12,12 @@ namespace BibleVerse.Repositories.PostRepositories
         private static string StackTrace = "BibleVerse.Repositories -> PostRepositories -> PostRepositoriesHelper";
 
         #region Public Methods
-        
-        public static string CreateUserPost(BibleVerse.DTO.PostModel _newPost, BibleVerse.DTO.Users _user, string PostUID)
+
+        public static string CreateUserPost(BibleVerse.DTO.PostModel _newPost, BibleVerse.DTO.Users _user, string PostUID, BibleVerse.DALV2.BVIdentityContext _context)
         {
             bool hasAttachments = false;
-            int i = 0;
+            string entType = String.Empty;
+            string entObj = String.Empty;
 
             //Determine if user included attachments with post
             if ((_newPost.Images != null && _newPost.Images.Count > 0) || (_newPost.Videos != null && _newPost.Videos.Count > 0))
@@ -33,239 +36,132 @@ namespace BibleVerse.Repositories.PostRepositories
                     //Loop through image attachments
                     foreach (BibleVerse.DTO.UserUpload uUp in _newPost.Images)
                     {
+                        try
+                        {
+                            //File needs to be uploaded to user dir
 
-                                PutObjectResponse userUploadResponse = new PutObjectResponse();
+                            //convert base64 to file and upload to s3 dir
+                            byte[] fbyte = Convert.FromBase64String(uUp.UploadFiles[0]);
 
-                                try
-                                {
-                                    //File needs to be uploaded to user dir
+                            //Object URL for updates based on AWS Naming Convention
+                            string objectUrl = "https://" + _newPost.OrganizationId.ToLower() + ".s3.amazonaws.com/" + _newPost.UserId.ToLower() + "/" + _newPost.UserId.ToLower() + "_pub" + "/" + "Images/Photos/" + uUp.FileNames[0];
 
-                                    //convert base64 to file and upload to s3 dir
-                                    byte[] fbyte = Convert.FromBase64String(uUp.UploadFiles[0]);
+                            AmazonS3Client amazonS3Client = new AmazonS3Client();
 
-                                    //Object URL for updates based on AWS Naming Convention
-                                    string objectUrl = "https://" + newPost.OrganizationId.ToLower() + ".s3.amazonaws.com/" + newPost.UserId.ToLower() + "/" + newPost.UserId.ToLower() + "_pub" + "/" + "Images/Photos/" + uUp.FileNames[0];
+                            //Call AWS REPO here
+                            AWSRepository awsRepository = new AWSRepository(amazonS3Client, _context);
 
-                                    using (var stream = new MemoryStream(fbyte))
-                                    {
-                                        var userProfilePic = new PutObjectRequest
-                                        {
-                                            BucketName = newPost.OrganizationId.ToLower(),
-                                            Key = newPost.UserId.ToLower() + "/" + newPost.UserId.ToLower() + "_pub" + "/" + "Images/Photos/" + uUp.FileNames[0],
-                                            InputStream = stream,
-                                            ContentType = uUp.FileTypes[0],
-                                            CannedACL = S3CannedACL.PublicRead
-                                        };
+                            Task<BibleVerse.DTO.PostsRelations> uploadResult = awsRepository.uploadObject("PHOTO", fbyte, objectUrl, PostUID + "i" + _newPost.Images.IndexOf(uUp).ToString(), uUp, _newPost);
 
-                                        userUploadResponse = await _client.PutObjectAsync(userProfilePic);
-                                    };
-
-                                    if (userUploadResponse.HttpStatusCode == HttpStatusCode.OK)
-                                    {
-
-                                        //Check if photo already exists in photo table
-                                        var photoCheck = from c in _context.Photos
-                                                         where c.URL == objectUrl
-                                                         select c;
-
-                                        if (photoCheck.FirstOrDefault() == null)
-                                        {
-                                            //Update Tables in DB
-                                            Photos newPhoto = new Photos()
-                                            {
-                                                PhotoId = genPhotoID,
-                                                URL = objectUrl,
-                                                Caption = "",
-                                                IsDeleted = false,
-                                                Title = "",
-                                                ChangeDateTime = DateTime.Now,
-                                                CreateDateTime = DateTime.Now
-                                            };
-
-                                            _context.Photos.Add(newPhoto);
-                                            _context.SaveChanges();
-
-                                            photoidexists = true;
-
-                                            PostsRelations newRelation = new PostsRelations()
-                                            {
-                                                AttachmentID = genPhotoID,
-                                                ContentType = "Photo",
-                                                FileName = uUp.FileNames[0],
-                                                Link = objectUrl
-                                            };
-
-                                            //Add the attachment to the list of relations
-                                            postAttachments.Add(newRelation);
-
-                                        }
-                                    }
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    return ex.ToString();
-                                }
+                            if(uploadResult.IsCompleted && uploadResult.Result == null)
+                            {
+                                BibleVerse.Exceptions.BVException exception = new Exceptions.BVException("Post Upload Resulted In Null Value", StackTrace, 03454);
+                                throw exception;
                             }
-                            
-                        
+
+                        }
+                        catch (Exception ex)
+                        {
+                            return ex.ToString();
+                        }
                     }
                 }
-
-                //if  attachments contains videos
-                if ((newPost.Videos != null && newPost.Videos.Count > 0))
-                {
-                    //Loop through video attachments
-                    foreach (UserUpload uUp in newPost.Videos)
+                    //if  attachments contains videos
+                    if ((_newPost.Videos != null && _newPost.Videos.Count > 0))
                     {
-                        IQueryable<Videos> videoID;
-                        bool videoidexists = false;
-                        int videoretryTimes = 0;
-
-                        //generate video id
-                        while (videoidexists == false && videoretryTimes < 3)
+                        //Loop through video attachments
+                        foreach (BibleVerse.DTO.UserUpload uUp in _newPost.Videos)
                         {
-                            //Create new VideoID's
-                            var genVideoID = BVCommon.BVFunctions.CreateUserID();
-                            videoID = from c in _context.Videos
-                                      where c.VideoId == genVideoID
-                                      select c;
 
-                            if (videoID.FirstOrDefault() == null)
+                            try
                             {
-                                PutObjectResponse userUploadResponse = new PutObjectResponse();
+                                //File needs to be uploaded to user dir
 
-                                try
+                                //convert base64 to file and upload to s3 dir
+                                byte[] fbyte = Convert.FromBase64String(uUp.UploadFiles[0]);
+
+                                //Object URL for updates based on AWS Naming Convention
+                                string objectUrl = "https://" + _newPost.OrganizationId.ToLower() + ".s3.amazonaws.com/" + _newPost.UserId.ToLower() + "/" + _newPost.UserId.ToLower() + "_pub" + "/" + "Videos/PostVideos/" + uUp.FileNames[0];
+
+                                AmazonS3Client amazonS3Client = new AmazonS3Client();
+
+                                //Call AWS REPO here
+                                AWSRepository awsRepository = new AWSRepository(amazonS3Client, _context);
+
+                                Task<BibleVerse.DTO.PostsRelations> uploadResult = awsRepository.uploadObject("VIDEO", fbyte, objectUrl, PostUID + "v" + _newPost.Images.IndexOf(uUp).ToString(), uUp, _newPost);
+
+                                if (uploadResult.IsCompleted && uploadResult.Result == null)
                                 {
-                                    //File needs to be uploaded to user dir
-
-                                    //convert base64 to file and upload to s3 dir
-                                    byte[] fbyte = Convert.FromBase64String(uUp.UploadFiles[0]);
-
-                                    //Object URL for updates based on AWS Naming Convention
-                                    string objectUrl = "https://" + newPost.OrganizationId.ToLower() + ".s3.amazonaws.com/" + newPost.UserId.ToLower() + "/" + newPost.UserId.ToLower() + "_pub" + "/" + "Videos/PostVideos/" + uUp.FileNames[0];
-
-                                    using (var stream = new MemoryStream(fbyte))
-                                    {
-                                        var userProfilePic = new PutObjectRequest
-                                        {
-                                            BucketName = newPost.OrganizationId.ToLower(),
-                                            Key = newPost.UserId.ToLower() + "/" + newPost.UserId.ToLower() + "_pub" + "/" + "Videos/PostVideos/" + uUp.FileNames[0],
-                                            InputStream = stream,
-                                            ContentType = uUp.FileTypes[0],
-                                            CannedACL = S3CannedACL.PublicRead
-                                        };
-
-                                        userUploadResponse = await _client.PutObjectAsync(userProfilePic);
-                                    };
-
-                                    if (userUploadResponse.HttpStatusCode == HttpStatusCode.OK)
-                                    {
-
-                                        //Check if photo already exists in photo table
-                                        var photoCheck = from c in _context.Photos
-                                                         where c.URL == objectUrl
-                                                         select c;
-
-                                        if (photoCheck.FirstOrDefault() == null)
-                                        {
-                                            //Update Tables in DB
-                                            Videos newVideo = new Videos()
-                                            {
-                                                VideoId = genVideoID,
-                                                URL = objectUrl,
-                                                Caption = "",
-                                                IsDeleted = false,
-                                                Title = "",
-                                                ChangeDateTime = DateTime.Now,
-                                                CreateDateTime = DateTime.Now
-                                            };
-
-                                            _context.Videos.Add(newVideo);
-                                            _context.SaveChanges();
-
-                                            videoidexists = true;
-
-                                            PostsRelations newRelation = new PostsRelations()
-                                            {
-                                                AttachmentID = genVideoID,
-                                                ContentType = "Video",
-                                                FileName = uUp.FileNames[0],
-                                                Link = objectUrl
-                                            };
-
-                                            //Add the attachment to the list of relations
-                                            postAttachments.Add(newRelation);
-
-                                        }
-                                    }
-                                    else
-                                    {
-                                        videoretryTimes++;
-                                    }
-
+                                    BibleVerse.Exceptions.BVException exception = new Exceptions.BVException("Post Upload Resulted In Null Value", StackTrace, 03454);
+                                    throw exception;
                                 }
-                                catch (Exception ex)
-                                {
-                                    return ex.ToString();
-                                }
-                            }
-                            else
+                        }
+                            catch (Exception ex)
                             {
-                                videoretryTimes++;
+                                return ex.ToString();
                             }
                         }
                     }
+                    
+                    // create the post
+                    BibleVerse.DTO.Posts userPost = new BibleVerse.DTO.Posts()
+                    {
+                        PostId = PostUID,
+                        Username = _newPost.UserName,
+                        Body = _newPost.Body,
+                        URL = "", //URL will get generated here at some point in future
+                        Attachments = JsonConvert.SerializeObject(postAttachments),
+                        CreateDateTime = DateTime.Now,
+                        ChangeDateTime = DateTime.Now
+                    };
+                    if (userPost.Body != null || userPost.Attachments != null)
+                    {
+                     entType = userPost.GetType().FullName;
 
-                    //this is where has attachments should end
+                     entObj = JsonConvert.SerializeObject(userPost);
+
+                    BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                    }
+                }
+                else
+                {
+                    // create the post  with no attachments
+                    BibleVerse.DTO.Posts userPost = new BibleVerse.DTO.Posts()
+                    {
+                        PostId = PostUID,
+                        Username = _newPost.UserName,
+                        Body = _newPost.Body,
+                        URL = "", //URL will get generated here at some point in future
+                        CreateDateTime = DateTime.Now,
+                        ChangeDateTime = DateTime.Now
+                    };
+
+                    if (userPost.Body != null || userPost.Attachments != null)
+                    {
+                     entType = userPost.GetType().FullName;
+
+                     entObj = JsonConvert.SerializeObject(userPost);
+
+                    BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                }
                 }
 
-                // create the post
-                userPost = new Posts()
-                {
-                    PostId = genPostID,
-                    Username = newPost.UserName,
-                    Body = newPost.Body,
-                    URL = "", //URL will get generated here at some point in future
-                    Attachments = JsonConvert.SerializeObject(postAttachments),
-                    CreateDateTime = DateTime.Now,
-                    ChangeDateTime = DateTime.Now
-                };
-                if (userPost.Body != null || userPost.Attachments != null)
-                {
-                    _context.Posts.Add(userPost);
-                    _context.SaveChanges();
-                }
-            }
-            else
+            BibleVerse.DTO.UserHistory userHistory = new DTO.UserHistory()
             {
-                // create the post  with no attachments
-                userPost = new Posts()
-                {
-                    PostId = genPostID,
-                    Username = newPost.UserName,
-                    Body = newPost.Body,
-                    URL = "", //URL will get generated here at some point in future
-                    CreateDateTime = DateTime.Now,
-                    ChangeDateTime = DateTime.Now
-                };
-                if (userPost.Body != null || userPost.Attachments != null)
-                {
-                    _context.Posts.Add(userPost);
-                    _context.SaveChanges();
-                }
-            }
-            //Verify Post was created
+                ActionMessage = String.Format("{0} just created a new post.", _user.UserName),
+                UserID = _user.UserId,
+                ChangeDateTime = DateTime.Now,
+                CreateDateTime = DateTime.Now
+            };
 
-            var postCheck = from c in _context.Posts
-                            where c.PostId == userPost.PostId
-                            select c;
+             entType = userHistory.GetType().FullName;
 
-            if (postCheck.FirstOrDefault() != null)
-            {
-                idexists = true;
-                return "Success";
-            }
+             entObj = JsonConvert.SerializeObject(userHistory);
+
+            BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+
+            return "Success";
+
         }
 
         public static string DeleteUserPost(BibleVerse.DTO.Posts _removablePost, BibleVerse.DTO.Users _user)

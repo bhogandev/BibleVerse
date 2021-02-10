@@ -40,7 +40,7 @@ namespace BibleVerseAPI
                 options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.WithOrigins("https://localhost:44388 ")
+                        builder.WithOrigins("https://localhost:44388")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
 
@@ -57,8 +57,8 @@ namespace BibleVerseAPI
             services.AddScoped<JWTRepository>();
             services.AddDefaultAWSOptions(Configuration.GetAWSOptions());
             services.AddAWSService<IAmazonS3>();
-            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>().AddDefaultTokenProviders();
-            services.AddDbContext<BVIdentityContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
+            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BibleVerse.DALV2.BVIdentityContext>().AddDefaultTokenProviders();
+            services.AddDbContext<BibleVerse.DALV2.BVIdentityContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DatabaseConnection")));
             var jwtSection = Configuration.GetSection("JWTSettings");
             services.Configure<JWTSettings>(jwtSection);
 

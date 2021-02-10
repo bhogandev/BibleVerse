@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +21,18 @@ namespace BibleVerseAPI
             catch(Exception ex)
             {
                 // Do something with exception here
+                try
+                {
+                    if (!EventLog.SourceExists("BV.Exceptions", "."))
+                    {
+                        EventLog.CreateEventSource("BV.Exceptions", "Application");
+                    }
+                }catch(Exception x)
+                {
+                    EventLog.CreateEventSource("BV.Exceptions", "Application");
+                }
+
+                EventLog.WriteEntry("BV.Exceptions", ex.Message, EventLogEntryType.Error);
             }
             finally
             {
