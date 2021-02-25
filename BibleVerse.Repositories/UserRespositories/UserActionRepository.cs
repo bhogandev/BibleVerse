@@ -2,6 +2,7 @@
 using Amazon.S3.Model;
 using BibleVerse.DTO;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -207,16 +208,8 @@ namespace BibleVerse.Repositories.UserRepositories
                             throw exception;
                         }
 
-                        //Verify Post was created
-                        var postCheck = from c in _context.Posts
-                                        where c.PostId == userPost.PostId
-                                        select c;
-
-                        if (postCheck.FirstOrDefault() != null)
-                        {
                             idexists = true;
                             return "Success";
-                        }
                     }
                     else
                     {
@@ -231,91 +224,47 @@ namespace BibleVerse.Repositories.UserRepositories
             }
 
         //Get User Profile
-        public async Task<ApiResponseModel> GetUserProfile(string userID, string secondUserName)
+        public async Task<ApiResponseModel> GetUserProfile(string token, string refreshToken, string userName)
         {
+            ApiResponseModel response = BibleVerse.Repositories.APIHelperV1.InitializeAPIResponse();
             IQueryable<Profiles> userProfiles;
             bool profileFound = false;
             int retryTimes = 0;
-            ApiResponseModel response = new ApiResponseModel();
-            response.ResponseBody = new List<string>();
-            response.ResponseErrors = new List<string>();
             UserViewModel suvm = new UserViewModel();
-            string userRelationType = "";
-            string profileUser = "";
+            string userRelationType = String.Empty;
+            string profileUser = String.Empty;
+
+            RefreshRequest r = new RefreshRequest()
+            {
+                AccessToken = token,
+                RefreshToken = refreshToken
+            };
+
+            Users user = _jwtrepository.FindUserFromAccessToken(r);
 
             while(!profileFound && retryTimes < 3)
             {
-                if (userID.Count() != 27) // Get User Profile For Account View
-                {
-                    var username = from c in userManager.Users
-                                   where c.UserName == userID
-                                   select c;
-
-                  var foundUser = username.First();
-
-                    profileUser = foundUser.UserName;
-
-                    var orgRetrieval = GetUserOrg(foundUser.OrganizationId);
-                    BibleVerse.DTO.Organization userOrg = new Organization();
-
-                    if(orgRetrieval.ResponseMessage != "Success")
-                    {
-                        BibleVerse.Exceptions.BVException x = new Exceptions.BVException(String.Format("Error: \n Root: {0} \n Message: Error during org retrieval", StackTraceRoot));
-                        throw x;
-                    }else
-                    {
-                        userOrg = JsonConvert.DeserializeObject<Organization>(GetUserOrg(foundUser.OrganizationId).ResponseBody[0]);
-                    }
-
-                    suvm.UserName = foundUser.UserName;
-                    suvm.Status = foundUser.Status;
-                    suvm.Age = foundUser.Age;
-                    suvm.Friends = foundUser.Friends;
-                    suvm.Level = foundUser.Level;
-                    suvm.OnlineStatus = foundUser.OnlineStatus;
-                    suvm.OrgName = userOrg.Name;
-                    
+                IQueryable<Users> userAccount = from x in _context.Users
+                                         where x.UserName == userName
+                                         select x;
 
                     userProfiles = from c in _context.Profiles
-                                   where c.ProfileId == username.First().UserId
+                                   where c.ProfileId == userAccount.First().UserId
                                    select c;
 
-                    var requestResult = from c in _context.UserRelationships
-                                        where (c.FirstUser == userID && c.SecondUser == secondUserName) || (c.FirstUser == secondUserName && c.SecondUser == userID)
-                                        select c;
-
-
-                    if(requestResult.FirstOrDefault() != null)
-                    {
-                        var userRelationship = requestResult.FirstOrDefault();
-
-                        if(userRelationship.FirstUserConfirmed && userRelationship.SecondUserConfirmed) //If both have confirmed relationship, send back relationship
-                        {
-                            userRelationType = userRelationship.RelationshipType;
-                        } else if(userRelationship.FirstUser == secondUserName && userRelationship.SecondUserConfirmed != true) //Else if request user is the relationship sender, provide chance to cancel request
-                        {
-                            userRelationType = "Cancel " + userRelationship.RelationshipType.ToLower() + " request";
-                        } else if(userRelationship.SecondUser == secondUserName && userRelationship.SecondUserConfirmed != true)// Else if request user is the relationship reciever, they can accept request
-                        {
-                            userRelationType = "Accept " + userRelationship.RelationshipType.ToLower() + " request";
-                        }
-                    }
-                }
-                else
-                {
-                    userProfiles = from c in _context.Profiles
-                                   where c.ProfileId == userID
-                                   select c;
-                }
                 if(userProfiles.First() != null)
                 {
                     profileFound = true;
 
+                    Profiles userProfile = userProfiles.First();
 
                     //Get User Posts
                     var userPosts = from c in _context.Posts
                                     where c.Username == profileUser
                                     select c;
+
+                    suvm.UserName = userName;
+                    suvm.Profile = userProfile;
 
                     response.ResponseMessage = "Success";
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userProfiles.First()));
@@ -361,7 +310,7 @@ namespace BibleVerse.Repositories.UserRepositories
                         CreateDateTime = DateTime.Now
                     };
 
-                    bool relationshipRequestSent = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipSend(newRelationship, request);
+                    bool relationshipRequestSent = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipSend(newRelationship, request, _context);
 
                     response.ResponseMessage = relationshipRequestSent ? "Success" : "Failure";
 
@@ -396,7 +345,7 @@ namespace BibleVerse.Repositories.UserRepositories
 
                     if (requestNotifcation != null)
                     {
-                        bool requestWasCancelled = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipCancel(friendRequest.FirstOrDefault(), request, requestNotifcation.FirstOrDefault());
+                        bool requestWasCancelled = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipCancel(friendRequest.FirstOrDefault(), request, requestNotifcation.FirstOrDefault(), _context);
 
                         response.ResponseMessage = requestWasCancelled ? "Success" : "Failure";
                     }
@@ -428,7 +377,7 @@ namespace BibleVerse.Repositories.UserRepositories
                         Users firstUserFound = fU.FirstOrDefault();
                         Users secondUserFound = sU.FirstOrDefault();
 
-                        bool processRelationship = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipAccept(friendRequest.FirstOrDefault(), request, firstUserFound, secondUserFound);
+                        bool processRelationship = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipAccept(friendRequest.FirstOrDefault(), request, firstUserFound, secondUserFound, _context);
 
 
                         response.ResponseMessage = processRelationship ? "Success" : "Failure";
@@ -450,15 +399,15 @@ namespace BibleVerse.Repositories.UserRepositories
             Users u = _jwtrepository.FindUserFromAccessToken(request); //Find User To Delete Post
 
             //Find Post
-            QPost = from x in _context.Posts
+            QPost = (from x in _context.Posts.AsNoTracking()
                     where x.PostId == postId
-                    select x;
+                    select x).AsNoTracking(); 
 
             if(QPost.First() != null)
             {
                 Posts p = QPost.First();
 
-                return BibleVerse.Repositories.PostRepositories.PostRepositoriesHelper.DeleteUserPost(p, u);
+                return BibleVerse.Repositories.PostRepositories.PostRepositoriesHelper.DeleteUserPost(p, u, _context);
             } else
             {
                 return "Post not found";

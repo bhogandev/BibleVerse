@@ -6,6 +6,7 @@ import { Switch } from 'react-router-dom';
 import './css/App.css';
 import Landing from './pages/Landing';
 import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './components/Profile';
 
 
 /*
@@ -23,6 +24,7 @@ const App = (props) => {
             <Route path="/" exact component={Landing} />
             {/* Routes below should be authenticated routes only (involve some type of auth middleware)*/}
             <ProtectedRoute path="/home" component={Home} />
+            <ProtectedRoute path="/profile" component={Profile} />
             {/* Routes above should be authenticated routes only (involve some type of auth middleware)*/}
         </Switch>
         )

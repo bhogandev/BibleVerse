@@ -31,23 +31,18 @@ class Timeline extends React.Component {
         //Abstract this function to api call in bbvapi
         let cookie = new Cookie();
         try {
-            var response = await BBVAPI.getUserTimeline(cookie.get('token'), cookie.get('refreshToken'))
+           var response = await bbvapi.getUserTimeline(cookie.get('token'), cookie.get('refreshToken'));
 
-            console.log(response);
-
-            if (typeof (response) == typeof ('')) {
+            if (typeof (await response) == typeof ('')) {
                 //return error to timeline
             } else {
-                if (response.status != '200') {
-                    console.log(response.status);
+                if (await response['responseMessage'] != 'Success') {
+                    console.log(await response['responseMessage']);
                     cookie.remove('token');
                     window.location.reload();
-
                 } else {
-                    var result = response;
-                    console.log(result); 
-                    const postList = result.map(post => {
-                        var parsedCExt = JSON.parse(post.CommentsExt);
+                    const postList = await JSON.parse(response["responseBody"]).map(post => {
+                        var parsedCExt = post.CommentsExt;
                         //console.log(parsedCExt);
                         var user = cookie.get('user');
 
@@ -55,8 +50,10 @@ class Timeline extends React.Component {
                         if (post.Username == user['UserName']) {
                             isOwner = true;
                         }
+
+                       
                         return (
-                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} IsLiked={post.LikeStatus} Comments={post.Comments} CExt={post.CommentsExt} isOwner={isOwner} GetTL={() => this.GetTL()} />
+                            <Post key={post.PostId} PostId={post.PostId} Username={post.Username} CreateDateTime={post.CreateDateTime} Body={post.Body} Attachments={post.Attachments} Likes={post.Likes} IsLiked={post.LikeStatus} Comments={post.Comments} CExt={JSON.parse(post.CommentsExt)} isOwner={isOwner} GetTL={() => this.GetTL()} />
                         )
                     })
                     this.setState({ posts: postList })

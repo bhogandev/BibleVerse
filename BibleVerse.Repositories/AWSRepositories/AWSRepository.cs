@@ -64,7 +64,7 @@ namespace BibleVerse.Repositories
                         };
 
                         // Invoke AWSHelper Here
-                        bool photoUploaded = AWSHelper.UploadPhotoToDb(newPhoto);
+                        bool photoUploaded = AWSHelper.UploadPhotoToDb(newPhoto, _context);
 
                         PostsRelations newRelation = new PostsRelations()
                         {
@@ -75,7 +75,7 @@ namespace BibleVerse.Repositories
                         };
 
                         //AWSHelper here
-                        bool relationUploaded = AWSHelper.CreateNewPostRelationship(newRelation);
+                        bool relationUploaded = AWSHelper.CreateNewPostRelationship(newRelation, _context);
 
                         uploadsSuccessful = photoUploaded && relationUploaded ? newRelation : null;
 
@@ -113,7 +113,7 @@ namespace BibleVerse.Repositories
                         };
 
                         // Invoke AWSHelper Here
-                        bool videoUploaded = AWSHelper.UploadVideoToDb(newVideo);
+                        bool videoUploaded = AWSHelper.UploadVideoToDb(newVideo, _context);
 
                         PostsRelations newRelation = new PostsRelations()
                         {
@@ -124,7 +124,7 @@ namespace BibleVerse.Repositories
                         };
 
                         //AWSHelper here
-                        bool relationUploaded = AWSHelper.CreateNewPostRelationship(newRelation);
+                        bool relationUploaded = AWSHelper.CreateNewPostRelationship(newRelation, _context);
 
                         uploadsSuccessful = videoUploaded && relationUploaded ? newRelation : null;
                     }

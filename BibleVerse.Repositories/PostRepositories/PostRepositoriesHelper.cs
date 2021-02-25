@@ -18,6 +18,8 @@ namespace BibleVerse.Repositories.PostRepositories
             bool hasAttachments = false;
             string entType = String.Empty;
             string entObj = String.Empty;
+            bool historyWrite = false;
+            bool postWrite = false;
 
             //Determine if user included attachments with post
             if ((_newPost.Images != null && _newPost.Images.Count > 0) || (_newPost.Videos != null && _newPost.Videos.Count > 0))
@@ -116,11 +118,11 @@ namespace BibleVerse.Repositories.PostRepositories
                     };
                     if (userPost.Body != null || userPost.Attachments != null)
                     {
-                     entType = userPost.GetType().FullName;
+                     entType = userPost.GetType().Name;
 
                      entObj = JsonConvert.SerializeObject(userPost);
 
-                    BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                    postWrite = BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
                     }
                 }
                 else
@@ -138,11 +140,11 @@ namespace BibleVerse.Repositories.PostRepositories
 
                     if (userPost.Body != null || userPost.Attachments != null)
                     {
-                     entType = userPost.GetType().FullName;
+                     entType = userPost.GetType().Name;
 
                      entObj = JsonConvert.SerializeObject(userPost);
 
-                    BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                     postWrite = BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
                 }
                 }
 
@@ -154,27 +156,27 @@ namespace BibleVerse.Repositories.PostRepositories
                 CreateDateTime = DateTime.Now
             };
 
-             entType = userHistory.GetType().FullName;
+             entType = userHistory.GetType().Name;
 
              entObj = JsonConvert.SerializeObject(userHistory);
 
-            BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+             historyWrite = BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
-            return "Success";
+            return historyWrite && postWrite ? "Success" : "Failure";
 
         }
 
-        public static string DeleteUserPost(BibleVerse.DTO.Posts _removablePost, BibleVerse.DTO.Users _user)
+        public static string DeleteUserPost(BibleVerse.DTO.Posts _removablePost, BibleVerse.DTO.Users _user, BibleVerse.DALV2.BVIdentityContext _context)
         {
             if (_removablePost.Username == _user.UserName)
             {
                 _removablePost.IsDeleted = true;
 
-                string entType = _removablePost.GetType().FullName;
+                string entType = _removablePost.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(_removablePost);
 
-                bool postIsDeleted = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj);
+                bool postIsDeleted = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj, _context);
 
                 return postIsDeleted ? "Success" : "Failure";
             }

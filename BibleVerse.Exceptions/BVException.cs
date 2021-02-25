@@ -6,7 +6,11 @@ namespace BibleVerse.Exceptions
 { 
 
     public class BVException : Exception
-    { 
+    {
+        private readonly BibleVerse.DALV2.BVIdentityContext _context;
+
+
+
         //Remove reference from BibleVerse.DTO
         public class TempELog
         {
@@ -30,8 +34,9 @@ namespace BibleVerse.Exceptions
         protected TempELog _log;
 
 
-        public BVException()
+        public BVException(BibleVerse.DALV2.BVIdentityContext context)
         {
+            this._context = context;
             Initialize(string.Empty, string.Empty, 0);
             LogException();
         }
@@ -124,7 +129,7 @@ namespace BibleVerse.Exceptions
                 }
 
                 _log = log;
-                bool result = BVExceptionHelper.LogException(log);
+                bool result = BVExceptionHelper.LogException(log, _context);
 
                 if (!result) 
                 {

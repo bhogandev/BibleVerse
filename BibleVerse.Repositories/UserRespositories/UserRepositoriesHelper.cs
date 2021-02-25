@@ -14,17 +14,17 @@ namespace BibleVerse.Repositories.UserRespositories
 
         #region User Relationships
         //For Sending Relationships (Initiation)
-        public static bool ProcessUserRelationshipSend(BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.RelationshipRequestModel _request)
+        public static bool ProcessUserRelationshipSend(BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DALV2.BVIdentityContext _context)
         {
             try
             {
-                string entType = _relationship.GetType().FullName;
+                string entType = _relationship.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(_relationship);
 
-                bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
-                bool userHistoryResult = LogActionInUserHistory("UserRequest", ReturnActionMessageForSend(_request.RequestType, _request));
+                bool userHistoryResult = LogActionInUserHistory("UserRequest", ReturnActionMessageForSend(_request.RequestType, _request, _context), _context);
 
                 return userHistoryResult;
 
@@ -38,28 +38,28 @@ namespace BibleVerse.Repositories.UserRespositories
                     CreateDateTime = DateTime.Now
                 };
 
-                string entType = exception.GetType().FullName;
+                string entType = exception.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(exception);
 
-                BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                 return false;
             }
         }
 
         //To cancel prior relationship request
-        public static bool ProcessUserRelationshipCancel(BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.Notifications _removableNotification)
+        public static bool ProcessUserRelationshipCancel(BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.Notifications _removableNotification, BibleVerse.DALV2.BVIdentityContext _context)
         {
             try
             {
-                string entType = _relationship.GetType().FullName;
+                string entType = _relationship.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(_relationship);
 
-                bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
-                bool userHistoryResult = LogActionInUserHistory("UserRequest", ReturnActionMessageForCancel(_request.RequestType, _request, _removableNotification, _relationship));
+                bool userHistoryResult = LogActionInUserHistory("UserRequest", ReturnActionMessageForCancel(_request.RequestType, _request, _removableNotification, _relationship, _context), _context);
 
                 return userHistoryResult;
 
@@ -73,28 +73,28 @@ namespace BibleVerse.Repositories.UserRespositories
                     CreateDateTime = DateTime.Now
                 };
 
-                string entType = exception.GetType().FullName;
+                string entType = exception.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(exception);
 
-                BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                 return false;
             }
         }
 
         //To accept prior relationship request
-        public static bool ProcessUserRelationshipAccept(BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.Users _firstUser, BibleVerse.DTO.Users _secondUser)
+        public static bool ProcessUserRelationshipAccept(BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.Users _firstUser, BibleVerse.DTO.Users _secondUser, BibleVerse.DALV2.BVIdentityContext _context)
         {
             try
             {
-                string entType = _relationship.GetType().FullName;
+                string entType = _relationship.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(_relationship);
 
-                bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
-                bool userHistoryResult = LogActionInUserHistory("UserRequest", ReturnActionMessageForAccept(_request.RequestType, _request, _relationship, _firstUser, _secondUser));
+                bool userHistoryResult = LogActionInUserHistory("UserRequest", ReturnActionMessageForAccept(_request.RequestType, _request, _relationship, _firstUser, _secondUser, _context), _context);
 
                 return userHistoryResult;
 
@@ -109,11 +109,11 @@ namespace BibleVerse.Repositories.UserRespositories
                     CreateDateTime = DateTime.Now
                 };
 
-                string entType = exception.GetType().FullName;
+                string entType = exception.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(exception);
 
-                BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                 return false;
             }
@@ -131,7 +131,7 @@ namespace BibleVerse.Repositories.UserRespositories
 
         #region Private Methods
 
-        private static string ReturnActionMessageForSend(string _requestType, BibleVerse.DTO.RelationshipRequestModel _request)
+        private static string ReturnActionMessageForSend(string _requestType, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DALV2.BVIdentityContext _context)
         {
             try
             {
@@ -141,7 +141,7 @@ namespace BibleVerse.Repositories.UserRespositories
                     {
                         case "Send friend request":
                             //Create user notification for friend request
-                            BibleVerse.Events.NotificationEvent notificationEvent = new Events.NotificationEvent();
+                            BibleVerse.Events.NotificationEvent notificationEvent = new Events.NotificationEvent(_context);
                             notificationEvent.CreateNotification(_request.SecondUser, _request.FirstUser, _request.FirstUser + " has sent you a friend request.", "Friend Request", "");
                             return String.Format("{0} sent {1} a friend request.", _request.FirstUser, _request.SecondUser);
 
@@ -172,17 +172,17 @@ namespace BibleVerse.Repositories.UserRespositories
                     CreateDateTime = DateTime.Now
                 };
 
-                string entType = exception.GetType().FullName;
+                string entType = exception.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(exception);
 
-                BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                 return String.Empty;
             }
         }
 
-        private static string ReturnActionMessageForCancel(string _requestType, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.Notifications _removableNotifiation, BibleVerse.DTO.UserRelationships _removeRelationship)
+        private static string ReturnActionMessageForCancel(string _requestType, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.Notifications _removableNotifiation, BibleVerse.DTO.UserRelationships _removeRelationship, BibleVerse.DALV2.BVIdentityContext _context)
         {
             try
             {
@@ -193,16 +193,16 @@ namespace BibleVerse.Repositories.UserRespositories
                         case "Cancel friend request":
                             
                             //Remove Relationship
-                            string entType = _removeRelationship.GetType().FullName;
+                            string entType = _removeRelationship.GetType().Name;
                             string entObj = JsonConvert.SerializeObject(_removeRelationship);
-                            bool result = BVCommon.BVContextFunctions.DeleteFromDb(entType, entObj);
+                            bool result = BVCommon.BVContextFunctions.DeleteFromDb(entType, entObj, _context);
 
                             if (result)
                             {
                                 //Remove Notification
-                                entType = _removableNotifiation.GetType().FullName;
+                                entType = _removableNotifiation.GetType().Name;
                                 entObj = JsonConvert.SerializeObject(_removableNotifiation);
-                                result = BVCommon.BVContextFunctions.DeleteFromDb(entType, entObj);
+                                result = BVCommon.BVContextFunctions.DeleteFromDb(entType, entObj, _context);
                                 return result == true ? String.Format("{0} canceled a friend request to {1}.", _request.FirstUser, _request.SecondUser) : "";
                             }
                             else
@@ -234,17 +234,17 @@ namespace BibleVerse.Repositories.UserRespositories
                     CreateDateTime = DateTime.Now
                 };
 
-                string entType = exception.GetType().FullName;
+                string entType = exception.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(exception);
 
-                BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                 return String.Empty;
             }
         }
 
-        private static string ReturnActionMessageForAccept(string _requestType, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.Users _firstUser, BibleVerse.DTO.Users _secondUser)
+        private static string ReturnActionMessageForAccept(string _requestType, BibleVerse.DTO.RelationshipRequestModel _request, BibleVerse.DTO.UserRelationships _relationship, BibleVerse.DTO.Users _firstUser, BibleVerse.DTO.Users _secondUser, BibleVerse.DALV2.BVIdentityContext _context)
         {
             try
             {
@@ -254,27 +254,27 @@ namespace BibleVerse.Repositories.UserRespositories
                     {
                         case "Accept friend request":
                             _relationship.SecondUserConfirmed = true; // Confirm friend request for second user
-                            string entType = _relationship.GetType().FullName;
+                            string entType = _relationship.GetType().Name;
                             string entObj = JsonConvert.SerializeObject(_relationship);
-                            bool relationshipWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj);
+                            bool relationshipWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj, _context);
 
                             if (relationshipWasUpdated)
                             {
                                 //Create Notification for Accepting
-                                BibleVerse.Events.NotificationEvent notificationEvent = new Events.NotificationEvent();
+                                BibleVerse.Events.NotificationEvent notificationEvent = new Events.NotificationEvent(_context);
                                 notificationEvent.CreateNotification(_request.SecondUser, _request.FirstUser, _request.FirstUser + " has accepted your friend request.", "Friend Request", "");
 
                                 //Increment users Friend counts
                                 _firstUser.Friends++;
                                 _secondUser.Friends++;
 
-                                entType = _firstUser.GetType().FullName;
+                                entType = _firstUser.GetType().Name;
                                 entObj = JsonConvert.SerializeObject(_firstUser);
-                                bool FirstUserWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj);
+                                bool FirstUserWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj, _context);
 
-                                entType = _secondUser.GetType().FullName;
+                                entType = _secondUser.GetType().Name;
                                 entObj = JsonConvert.SerializeObject(_secondUser);
-                                bool SecondUserWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj);
+                                bool SecondUserWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj, _context);
 
                                 if(FirstUserWasUpdated && SecondUserWasUpdated)
                                 {
@@ -286,9 +286,9 @@ namespace BibleVerse.Repositories.UserRespositories
                                         CreateDateTime = DateTime.Now
                                     };
 
-                                    entType = actionLogRelation.GetType().FullName;
+                                    entType = actionLogRelation.GetType().Name;
                                     entObj = JsonConvert.SerializeObject(actionLogRelation);
-                                    bool actionLogWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj);
+                                    bool actionLogWasUpdated = BVCommon.BVContextFunctions.UpdateToDb(entType, entObj, _context);
 
                                     if(!actionLogWasUpdated)
                                     {
@@ -337,18 +337,18 @@ namespace BibleVerse.Repositories.UserRespositories
                     CreateDateTime = DateTime.Now
                 };
 
-                string entType = exception.GetType().FullName;
+                string entType = exception.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(exception);
 
-                BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                 return String.Empty;
             }
         }
 
         //For All Other Requests
-        private static bool LogActionInUserHistory(string _actionType, string _actionMessage)
+        private static bool LogActionInUserHistory(string _actionType, string _actionMessage, BibleVerse.DALV2.BVIdentityContext _context)
         {
             try
             {
@@ -362,11 +362,11 @@ namespace BibleVerse.Repositories.UserRespositories
                         ChangeDateTime = DateTime.Now
                     };
 
-                    string entType = userHistoryEntry.GetType().FullName;
+                    string entType = userHistoryEntry.GetType().Name;
 
                     string entObj = JsonConvert.SerializeObject(userHistoryEntry);
 
-                    bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                    bool result = BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                     return result;
                 } else
@@ -388,11 +388,11 @@ namespace BibleVerse.Repositories.UserRespositories
                     CreateDateTime = DateTime.Now
                 };
 
-                string entType = exception.GetType().FullName;
+                string entType = exception.GetType().Name;
 
                 string entObj = JsonConvert.SerializeObject(exception);
 
-                BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+                BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
 
                 return false;
             }

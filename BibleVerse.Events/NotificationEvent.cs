@@ -7,9 +7,11 @@ namespace BibleVerse.Events
 {
     public class NotificationEvent : Event
     {
-        public NotificationEvent()
-        {
+        private readonly BibleVerse.DALV2.BVIdentityContext _context;
 
+        public NotificationEvent(BibleVerse.DALV2.BVIdentityContext context)
+        {
+            this._context = context;
         }
 
         public void CreateNotification(string RecipientUserID, string SenderID, string Message, string NotificationType, string DirectURL)
@@ -26,7 +28,7 @@ namespace BibleVerse.Events
                 CreateDateTime = DateTime.Now
             };
 
-            bool result = BVNotificationHelper.LogNotification(newNotification);
+            bool result = BVNotificationHelper.LogNotification(newNotification, _context);
 
             if (!result)
             {

@@ -16,12 +16,12 @@ class Post extends React.Component {
             p: null,
             videos: null,
             v: null,
-            attachments: JSON.parse(this.props.Attachments),
+            attachments: this.props.Attachments,
             IsLiked: this.props.IsLiked,
             postUpdate: false,
             likes: this.props.Likes,
             comments: this.props.Comments,
-            CExt: JSON.parse(this.props.CExt),
+            CExt: this.props.CExt,
             coms: null,
             isOwner: this.props.isOwner,
             showModal: false
@@ -122,7 +122,7 @@ class Post extends React.Component {
 
         try {
 
-            let res = await (await fetch("https://localhost:5001/api/Post/Interact", {
+            let res = await (await fetch("https://localhost:44307/api/Post/Interact", {
                 method: 'post',
                 headers: {
                     'Accept': 'application/json',
@@ -182,7 +182,7 @@ class Post extends React.Component {
 
         try {
 
-            let res = await (await fetch("https://localhost:5001/api/Post/DeletePost", {
+            let res = await (await fetch("https://localhost:44307/api/Post/DeletePost", {
                 method: 'post',
                 headers: {
                     'Accept': 'application/json',

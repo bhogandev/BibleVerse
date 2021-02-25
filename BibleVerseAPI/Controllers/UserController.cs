@@ -56,5 +56,34 @@ namespace BibleVerseAPI.Controllers
                 return BadRequest("An Unexpected Error Occured");
             }
         }
+
+        [HttpGet]
+        [ActionName("GetProfile")]
+        public IActionResult GetProfile()
+        {
+            //Get JWT from Request Header
+            var token = Request.Headers["Token"];
+            var refreshToken = Request.Headers["RefreshToken"];
+            var profileUserName = Request.Headers["UserName"];
+
+
+           Task<ApiResponseModel> response = _repository.GetUserProfile(token, refreshToken, profileUserName);
+
+            if(response.IsCompleted && response.Result != null)
+            {
+                if(response.Result.ResponseMessage == "Success")
+                {
+                    return Ok(response.Result);
+                }
+                else
+                {
+                    return Conflict(response.Result);
+                }
+            }
+            else
+            {
+                return BadRequest("An Error Occured");
+            }
+        }
     }
 }

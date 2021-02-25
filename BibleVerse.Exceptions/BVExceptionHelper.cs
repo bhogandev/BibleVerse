@@ -7,15 +7,15 @@ namespace BibleVerse.Exceptions
 {
     public class BVExceptionHelper
     {
-        public static bool LogException(BibleVerse.Exceptions.BVException.TempELog _tempElog)
+        public static bool LogException(BibleVerse.Exceptions.BVException.TempELog _tempElog, BibleVerse.DALV2.BVIdentityContext _context)
         {
             BibleVerse.DTO.ELog _elog = TempELogToELogConvert(_tempElog);
 
-            string entType = _elog.GetType().FullName;
+            string entType = _elog.GetType().Name;
 
             string entObj = JsonConvert.SerializeObject(_elog);
 
-            return BVCommon.BVContextFunctions.WriteToDb(entType, entObj);
+            return BVCommon.BVContextFunctions.WriteToDb(entType, entObj, _context);
         }
 
         //Convert BVException TempELog -> Workable ELog

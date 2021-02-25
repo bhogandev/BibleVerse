@@ -31,7 +31,7 @@ class CreateCommentForm extends React.Component {
 
        try {
 
-           let res = await (await fetch("https://localhost:5001/api/Post/Interact", {
+           let res = await (await fetch("https://localhost:44307/api/Post/Interact", {
                method: 'post',
                headers: {
                    'Accept': 'application/json',

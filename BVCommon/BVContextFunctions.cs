@@ -9,18 +9,18 @@ namespace BVCommon
     {
         private static BibleVerse.DALV2.BVIdentityContext context;
 
-        public static bool WriteToDb(string entityType, string entityObject)
+        public static bool WriteToDb(string entityType, string entityObject, BibleVerse.DALV2.BVIdentityContext _context)
         {
             //Determine Entity Type
             Type t = BVContextHelper.GetType(entityType);
 
-            bool result = BVContextHelper.WriteObject(context, t, entityObject);
+            bool result = BVContextHelper.WriteObject(_context, t, entityObject);
 
             return result;
             
         }
 
-        public static bool DeleteFromDb(string entityType, string entityObject)
+        public static bool DeleteFromDb(string entityType, string entityObject, BibleVerse.DALV2.BVIdentityContext _context)
         {
             //Determine Entity Type
             Type t = BVContextHelper.GetType(entityType);
@@ -30,12 +30,12 @@ namespace BVCommon
             return result;
         }
 
-        public static bool UpdateToDb(string entityType, string entityObject)
+        public static bool UpdateToDb(string entityType, string entityObject, BibleVerse.DALV2.BVIdentityContext _context)
         {
             //Determine Entity Type
             Type t = BVContextHelper.GetType(entityType);
 
-            bool result = BVContextHelper.UpdateObject(context, t, entityObject);
+            bool result = BVContextHelper.UpdateObject(_context, t, entityObject);
 
             return result;
         }

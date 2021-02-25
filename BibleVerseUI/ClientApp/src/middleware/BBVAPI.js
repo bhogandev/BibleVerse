@@ -148,17 +148,13 @@ class bbvapi {
                 },
                 validateStatus: () => true,
                 credentials: 'same-origin'
-            }).then(data => {
-                resOk = res.OK ? true : false;
-                return data.json();
             }));
 
-            console.log(await res);
+            //await console.log(await res.json());
 
-            if (res != null && resOk) {
+            if (await res != null && await res.ok) {
                 
-                var result = await JSON.parse(await res.json());
-               await console.log(result);
+                var result = await res.json();
                 return result;
 
             } else if (res && res.status == "409") {
@@ -167,7 +163,55 @@ class bbvapi {
             //find a way to return errrors and loading state
             //this.setState({ errors: result["ResponseErrors"], loading: false });
 
-            return res;
+            return await res;
+            } else {
+            //find a way to return errrors and loading state
+            var defaultError = [{
+                "Description": "An Unexpected Error Has Occured, Please try again!"
+            }]
+
+            //this.setState({ errors: defaultError, loading: false });
+            return defaultError;
+        }
+
+        } catch (ex) {
+
+        }
+    }
+
+    async getProfile(t, rt, username){
+        
+        const cookies = new Cookies();
+        var resOk = false;
+
+        try {
+            let res = await (await fetch(this.apiBase + "User/GetProfile", {
+                method: 'get',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Token': t,
+                    'RefreshToken': rt,
+                    'UserName': username
+                },
+                validateStatus: () => true,
+                credentials: 'same-origin'
+            }));
+
+            //await console.log(await res.json());
+
+            if (await res != null && await res.ok) {
+                
+                var result = await res.json();
+                return result;
+
+            } else if (res && res.status == "409") {
+            var result = await res;
+
+            //find a way to return errrors and loading state
+            //this.setState({ errors: result["ResponseErrors"], loading: false });
+
+            return await res;
             } else {
             //find a way to return errrors and loading state
             var defaultError = [{

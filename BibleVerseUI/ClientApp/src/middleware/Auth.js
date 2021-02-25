@@ -56,7 +56,7 @@ class Auth {
     }
 
     isAuthenticated() {
-        return this.authenticated;
+        return this.refreshAuth();
     }
 
 }

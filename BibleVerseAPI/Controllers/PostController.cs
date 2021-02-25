@@ -85,7 +85,7 @@ namespace BibleVerseAPI.Controllers
                     ApiResponseModel response = new ApiResponseModel();
                     response.ResponseBody = new List<string>();
                     response.ResponseErrors = new List<string>();
-
+                    response.ResponseMessage = "Success";
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userPosts));
 
                     return Ok(response);
@@ -110,7 +110,11 @@ namespace BibleVerseAPI.Controllers
         [ActionName("Profile")]
         public IActionResult Profile(string userID, string currUserName)
         {
-            ApiResponseModel userProfile = _repository.GetUserProfile(userID, currUserName).Result;
+            var token = Request.Headers["Token"];
+            var refreshToken = Request.Headers["RefreshToken"];
+            var userName = Request.Headers["UserName"];
+
+            ApiResponseModel userProfile = _repository.GetUserProfile(token, refreshToken, userName).Result;
 
             if (userProfile != null)
             {
