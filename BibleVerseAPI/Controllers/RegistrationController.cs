@@ -52,12 +52,12 @@ namespace BibleVerseAPI.Controllers
             //Pass valid token here
             ApiResponseModel response = await _repository.FUFAT(token);
 
-            if (response.ResponseMessage == "Success")
+            if (response.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
             {
                 return Ok(response);
 
             }
-            else if (response.ResponseMessage == "Failure")
+            else if (response.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
             {
                 return Conflict(response);
             }
@@ -75,11 +75,11 @@ namespace BibleVerseAPI.Controllers
         {
             ApiResponseModel response = await _repository.FindUser(username, user);
 
-            if(response.ResponseMessage == "Success")
+            if(response.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
             {
                 return Ok(response);
 
-            } else if (response.ResponseMessage == "Failure")
+            } else if (response.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
             {
                 return Conflict(response);
             }
@@ -98,7 +98,7 @@ namespace BibleVerseAPI.Controllers
 
             var apiResponse = await _repository.CreateUser(newU);
 
-            if(apiResponse.ResponseMessage == "Success")
+            if(apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
             {
                 //Send ConfirmationEmail Token
                 SendConfirmationEmail(apiResponse.User.UserId, apiResponse.User.Email, apiResponse.Misc);
@@ -107,7 +107,7 @@ namespace BibleVerseAPI.Controllers
 
                 var awsresult = await _awsrepository.CreateUserDir(apiResponse.User);
 
-                if (awsresult.ResponseMessage == "Success")
+                if (awsresult.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     //Do something here
                 }
@@ -119,7 +119,7 @@ namespace BibleVerseAPI.Controllers
 
                 return Ok(apiResponse);
 
-            } else if(apiResponse.ResponseMessage == "Failure")
+            } else if(apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
             {
                 return Conflict(apiResponse);
             } else if(apiResponse.ResponseMessage == "Email already exists")
@@ -140,10 +140,10 @@ namespace BibleVerseAPI.Controllers
 
             var apiResponse = await _repository.CreateOrganization(newOrg);
 
-            if(apiResponse.ResponseMessage == "Success")
+            if(apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
             {
                 return Ok(apiResponse);
-            } else if(apiResponse.ResponseMessage == "Failure")
+            } else if(apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
             {
                 return Conflict(apiResponse);
             } else

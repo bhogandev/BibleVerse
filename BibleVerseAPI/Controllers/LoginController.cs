@@ -59,7 +59,7 @@ namespace BibleVerseAPI.Controllers
 
             if (loginResponse.IsCompletedSuccessfully)
             {
-                if (loginResponse.Result.ResponseStatus == "Success")
+                if (loginResponse.Result.ResponseStatus == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(lr);
                 }
@@ -91,7 +91,7 @@ namespace BibleVerseAPI.Controllers
 
             if (response.IsCompletedSuccessfully)
             {
-                if (response.Result.ResponseMessage == "Success")
+                if (response.Result.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(response.Result.ResponseBody);
                 }

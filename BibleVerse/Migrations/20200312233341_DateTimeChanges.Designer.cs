@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BibleVerse.Migrations
 {
-    [DbContext(typeof(BVContext))]
+    [DbContext(typeof(BibleVerse.DALV2.BVIdentityContext))]
     [Migration("20200312233341_DateTimeChanges")]
     partial class DateTimeChanges
     {

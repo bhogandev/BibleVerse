@@ -6,22 +6,95 @@ using Microsoft.AspNetCore.Mvc;
 using BibleVerse.Repositories;
 using BibleVerse.DTO;
 using Newtonsoft.Json;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace BibleVerseAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class PostController : Controller
+    public class PostController : BVController
     {
         private readonly BibleVerse.Repositories.UserRepositories.UserActionRepository _repository;
         private readonly JWTSettings _jwtSettings;
         private readonly JWTRepository _jWTRepository;
+        private readonly APIHelperV1 _apihelper;
         private string serviceBase = "Post";
         private string context = String.Empty;
 
-        public PostController(BibleVerse.Repositories.UserRepositories.UserActionRepository repository) => _repository = repository;
+        public PostController(BibleVerse.Repositories.UserRepositories.UserActionRepository repository, APIHelperV1 apiHelper)
+        { 
+            _repository = repository;
+            _apihelper = apiHelper;
+            //Initialize();
+        }
 
+        private void Initialize()
+        {
+            try
+            {
+                VerifyToken();
+                RecordTransaction();
+            }
+            catch (ArgumentNullException nullEx)
+            {
+
+            }
+            catch (Exception ex)
+            {
+                //Log Exception In DB
+            }
+        }
+
+        //Verify that call provided token and refresh token
+        private void VerifyToken()
+        {
+            if (Request != null)
+            {
+                string token = string.Empty;
+                string refreshToken = string.Empty;
+
+                if ((String.IsNullOrEmpty(Request.Headers["token"]) || Request.Headers["token"] == "undefined") || (String.IsNullOrEmpty(Request.Headers["refreshToken"]) || Request.Headers["RefreshToken"] == "undefined"))
+                    throw new ArgumentNullException("Null Value Provided For Token");
+            }
+        }
+
+        private void RecordTransaction()
+        {
+            if (Request != null)
+            {
+                string device = string.Empty;
+                string identity = string.Empty;
+                string version = string.Empty;
+                string requestBody = string.Empty;
+
+                if (!string.IsNullOrEmpty(Request.Headers["device"]))
+                    device = Request.Headers["device"];
+
+                if (!string.IsNullOrEmpty(Request.Headers["identity"]))
+                    identity = Request.Headers["identity"];
+
+                if (!string.IsNullOrEmpty(Request.Headers["version"]))
+                    version = Request.Headers["version"];
+
+                if (Request.Body != null)
+                    requestBody = Request.Body.ToString();
+
+                BibleVerse.DTO.Transactions transaction = new BibleVerse.DTO.Transactions()
+                {
+                    ClientAddress = !string.IsNullOrEmpty(HttpContext.Connection.RemoteIpAddress.ToString()) ? HttpContext.Connection.RemoteIpAddress.ToString() : "",
+                    ClientDevice = device,
+                    ClientIdentity = identity,
+                    ClientVersion = version,
+                    TransactionController = Request.Path,
+                    TransactionType = Request.Method,
+                    TransactionPayload = requestBody,
+                    TransactionTime = DateTime.Now,
+                };
+
+
+                _apihelper.RecordTransaction(transaction);
+            }
+        }
 
         //Get All Of User's Posts
         [HttpGet]
@@ -70,9 +143,12 @@ namespace BibleVerseAPI.Controllers
         //Get Timeline Posts
         //Get All Of User's Posts
         [HttpGet]
+        //[Authorize]
         [ActionName("GetTimeline")]
         public IActionResult GetTimeline()
         {
+            Initialize();
+
             var token = Request.Headers["Token"];
             var refreshToken = Request.Headers["RefreshToken"];
 
@@ -85,7 +161,7 @@ namespace BibleVerseAPI.Controllers
                     ApiResponseModel response = new ApiResponseModel();
                     response.ResponseBody = new List<string>();
                     response.ResponseErrors = new List<string>();
-                    response.ResponseMessage = "Success";
+                    response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userPosts));
 
                     return Ok(response);
@@ -151,11 +227,11 @@ namespace BibleVerseAPI.Controllers
 
             if (response != null)
             {
-                if (response.Result.ResponseMessage == "Success")
+                if (response.Result.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(responseResult);
                 }
-                else if (response.Result.ResponseMessage == "Failed")
+                else if (response.Result.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
                 {
                     return Conflict(responseResult);
                 }
@@ -185,7 +261,7 @@ namespace BibleVerseAPI.Controllers
 
             if (postResponse != null)
             {
-                if (postResponse.Result.ToString() == "Success")
+                if (postResponse.Result.ToString() == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(pr);
                 }
@@ -229,11 +305,11 @@ namespace BibleVerseAPI.Controllers
 
                 if (response != null)
                 {
-                    if (response.Result.ToString() == "Success")
+                    if (response.Result.ToString() == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                     {
                         return Ok();
                     }
-                    else if (response.Result.ToString() == "Failure")
+                    else if (response.Result.ToString() == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
                     {
                         return Conflict();
                     }else {
@@ -270,7 +346,7 @@ namespace BibleVerseAPI.Controllers
 
                 if (deleteResponse != null)
                 {
-                    if (deleteResponse.Result.ToString() == "Success")
+                    if (deleteResponse.Result.ToString() == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                     {
                         //return success
                         return Ok();
@@ -303,7 +379,7 @@ namespace BibleVerseAPI.Controllers
 
             if (uploadResponse != null)
             {
-                if (uploadResponse.Result.ToString() == "Success")
+                if (uploadResponse.Result.ToString() == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok();
                 }

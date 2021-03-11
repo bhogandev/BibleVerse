@@ -37,7 +37,7 @@ namespace BibleVerseAPI.Controllers
             {
                 if (logoutResponse.Result == "User Successfully Updated")
                 {
-                    return Ok("Success");
+                    return Ok(APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success));
                 }
                 else if (logoutResponse.Result.Contains("Error")) //If Error is returned
                 {

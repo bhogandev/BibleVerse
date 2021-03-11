@@ -36,7 +36,7 @@ class Timeline extends React.Component {
             if (typeof (await response) == typeof ('')) {
                 //return error to timeline
             } else {
-                if (await response['responseMessage'] != 'Success') {
+                if (await response['responseMessage'] != 'Success'.toUpperCase()) {
                     console.log(await response['responseMessage']);
                     cookie.remove('token');
                     window.location.reload();

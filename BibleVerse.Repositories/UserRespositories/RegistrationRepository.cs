@@ -91,9 +91,7 @@ namespace BibleVerse.Repositories
 
         public async Task<ApiResponseModel> FUFAT(string token)
         {
-            ApiResponseModel apiResponse = new ApiResponseModel();
-            apiResponse.ResponseBody = new List<string>();
-            apiResponse.ResponseErrors = new List<string>();
+            ApiResponseModel apiResponse = APIHelperV1.InitializeAPIResponse();
 
             //Get user based on access token
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -126,11 +124,11 @@ namespace BibleVerse.Repositories
                     {
                         var user = u.FirstOrDefault();
 
-                    apiResponse.ResponseMessage = "Success";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                     apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(user));
                     }else
                 {
-                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     apiResponse.ResponseErrors.Add("Invalid Token");
                 }
 
@@ -144,9 +142,7 @@ namespace BibleVerse.Repositories
         public async Task<ApiResponseModel> FindUser(string username, string user)
         {
             IQueryable<Users> foundUsers;
-            ApiResponseModel apiResponse = new ApiResponseModel();
-            apiResponse.ResponseBody = new List<string>();
-            apiResponse.ResponseErrors = new List<string>();
+            ApiResponseModel apiResponse = APIHelperV1.InitializeAPIResponse();
             List<SearchViewModel> searchResults = new List<SearchViewModel>();
             List<Profiles> searchProfiles = new List<Profiles>();
 
@@ -173,7 +169,7 @@ namespace BibleVerse.Repositories
                     SearchViewModel uviewmodel = new SearchViewModel()
                     {
                         UserName = u.UserName,
-                        ProfileURL = "" //Create anchor link for user profile
+                        ProfileURL = string.Format("/profile/{0}", u.UserName) //Create anchor link for user profile
                     };
 
                     if(uProfile.FirstOrDefault() != null)
@@ -189,12 +185,12 @@ namespace BibleVerse.Repositories
                     searchResults.Add(uviewmodel);
                 }
 
-                apiResponse.ResponseMessage = "Success";
+                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                 apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(searchResults));
             }
             else
             {
-                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                 apiResponse.ResponseErrors.Add("No users found");
             }
 
@@ -210,9 +206,7 @@ namespace BibleVerse.Repositories
             bool idCreated = false;
             bool orgExistsAlready = false;
             int retryTimes = 0;
-            ApiResponseModel apiResponse = new ApiResponseModel();
-            apiResponse.ResponseErrors = new List<string>();
-            apiResponse.ResponseBody = new List<string>();
+            ApiResponseModel apiResponse = APIHelperV1.InitializeAPIResponse();
 
             //See if Organization Exists already
             var org = from c in _context.Organization
@@ -330,7 +324,7 @@ namespace BibleVerse.Repositories
                                                 refCodeCreated = true;
 
                                                 //Set api response to success and add data to pass
-                                                apiResponse.ResponseMessage = "Success";
+                                                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                                                 apiResponse.ResponseBody.Add(genOrgID);
                                                 apiResponse.ResponseBody.Add(refCode);
                                                 return apiResponse;
@@ -348,12 +342,12 @@ namespace BibleVerse.Repositories
                 }
             } else
             {
-                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                 apiResponse.ResponseErrors.Add("An organization with this email already exists.");
                 return apiResponse;
             }
 
-            apiResponse.ResponseMessage = "Failure";
+            apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
             apiResponse.ResponseErrors.Add("Organization Creation Failed. Please try again.");
             return apiResponse;
         }
@@ -417,22 +411,22 @@ namespace BibleVerse.Repositories
 
                                     } else if(genRefCode.isUsed == true)
                                     {
-                                        apiResponse.ResponseMessage = "Failure";
+                                        apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                                         apiResponse.ResponseErrors.Add("Referral Code Has Already Been Used!");
                                     }else if (genRefCode.isExpired == true) //Compare to Expire Date?
                                     {
-                                        apiResponse.ResponseMessage = "Failure";
+                                        apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                                         apiResponse.ResponseErrors.Add("Referral Code Has Expired. Please Request Another Or Customer Support");
                                     }
                                     else
                                     {
-                                        apiResponse.ResponseMessage = "Failure";
+                                        apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                                         apiResponse.ResponseErrors.Add("Referral Code is Invalid");
                                         return apiResponse;
                                     }
                                 } else
                                 {
-                                    apiResponse.ResponseMessage = "Failure";
+                                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                                     apiResponse.ResponseErrors.Add("Referral Code is Invalid");
                                     return apiResponse;
                                 }
@@ -476,14 +470,14 @@ namespace BibleVerse.Repositories
                                 _context.SaveChanges();
 
                                 idCreated = true;
-                                apiResponse.ResponseMessage = "Success";
+                                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                                 apiResponse.Misc = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
                                 apiResponse.User = newUser;
                             }
                             else
                             {
                                 //Check against error codes. If normal error, return to user, otherwise Log error in Elog and return generic error
-                                apiResponse.ResponseMessage = "Failure";
+                                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                                 foreach (IdentityError e in res.Errors.ToList())
                                 {
                                     apiResponse.ResponseErrors.Add(e.Description);
@@ -501,7 +495,7 @@ namespace BibleVerse.Repositories
                 }
                 else
                 {
-                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     apiResponse.ResponseErrors.Add("Organization Not Found");
                 }
 
@@ -528,17 +522,17 @@ namespace BibleVerse.Repositories
                 if (!user.EmailConfirmed)
                 {
                     //resend user confirmation link
-                    apiResponse.ResponseMessage = "Success";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                     apiResponse.ConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
                     apiResponse.UserId = user.Id;
                 } else
                 {
-                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     apiResponse.ResponseErrors.Add("User Already Confirmed");
                 }
             } else
             {
-                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                 apiResponse.ResponseErrors.Add("User Not Found!");
             }
 
@@ -669,7 +663,7 @@ namespace BibleVerse.Repositories
 
                             if (userUpdate.Succeeded)
                             {
-                                loginResponse.ResponseStatus = "Success";
+                                loginResponse.ResponseStatus = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                                 cu.PasswordHash = "";
                                 cu.AccessToken = _jwtrepository.GenerateAccessToken(cu.UserId);
                                 cu.RefreshToken = rt.Token;

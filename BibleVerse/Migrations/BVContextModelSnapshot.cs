@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BibleVerse.Migrations
 {
-    [DbContext(typeof(BVContext))]
+    [DbContext(typeof(BibleVerse.DALV2.BVIdentityContext))]
     partial class BVContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

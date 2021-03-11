@@ -136,9 +136,7 @@ namespace BibleVerse.Repositories
         public async Task<ApiResponseModel> CreateUserDir(Users user)
         {
             string userDir = user.UserId.ToLower();
-            ApiResponseModel apiResponse = new ApiResponseModel();
-            apiResponse.ResponseErrors = new List<string>();
-            apiResponse.ResponseBody = new List<string>();
+            ApiResponseModel apiResponse = APIHelperV1.InitializeAPIResponse();
 
             try
             {
@@ -182,7 +180,7 @@ namespace BibleVerse.Repositories
 
                         if((pubResponse.HttpStatusCode == HttpStatusCode.OK) && (privResponse.HttpStatusCode == HttpStatusCode.OK))
                         {
-                            apiResponse.ResponseMessage = "Success";
+                            apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                             UserAWS useraws = new UserAWS()
                             {
                                 ID = user.UserId,
@@ -214,9 +212,8 @@ namespace BibleVerse.Repositories
         public async Task<ApiResponseModel> CreateOrgBucket(Organization org)
         {
             string orgBucket = org.OrganizationId.ToLower();
-            ApiResponseModel apiResponse = new ApiResponseModel();
-            apiResponse.ResponseErrors = new List<string>();
-            apiResponse.ResponseBody = new List<string>();
+            ApiResponseModel apiResponse = APIHelperV1.InitializeAPIResponse();
+
             try
             {
                 if (await AmazonS3Util.DoesS3BucketExistV2Async(_client, orgBucket) == false)
@@ -243,7 +240,7 @@ namespace BibleVerse.Repositories
 
                         var initResponse = await _client.PutObjectAsync(putdirRequest);
 
-                        apiResponse.ResponseMessage = "Success";
+                        apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                         //Add bucket information to tables
 
                         var dbOrg = from c in _context.Organization

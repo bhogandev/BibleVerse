@@ -54,6 +54,7 @@ namespace BibleVerse.DALV2
             mb.Entity<Likes>();
             mb.Entity<Comments>();
             mb.Entity<Event>();
+            mb.Entity<Transactions>();
         }
 
         public virtual DbSet<Users> BVUsers { get; set; }
@@ -81,5 +82,6 @@ namespace BibleVerse.DALV2
         public virtual DbSet<Likes> Likes { get; set; }
         public virtual DbSet<Comments> Comments { get; set; }
         public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<Transactions> Transactions { get; set; }
     }
 }

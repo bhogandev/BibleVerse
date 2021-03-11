@@ -39,7 +39,8 @@ namespace BVCommon
                 {"USERCOURSES",  typeof(BibleVerse.DTO.UserCourses)},
                 {"USERHISTORY",  typeof(BibleVerse.DTO.UserHistory)},
                 {"VIDEOS",  typeof(BibleVerse.DTO.Videos)},
-                {"USERRELATIONSHIPS",  typeof(BibleVerse.DTO.UserRelationships)}
+                {"USERRELATIONSHIPS",  typeof(BibleVerse.DTO.UserRelationships)},
+                {"TRANSACTIONS", typeof(BibleVerse.DTO.Transactions)}
             };
 
             return dbTypes[s] != null ? dbTypes[s] : typeof(Exception);
@@ -180,6 +181,12 @@ namespace BVCommon
                     context.UserRelationships.Add(newUserRelationship);
                     context.SaveChanges();
                     return context.UserRelationships.Find(newUserRelationship.RelationshipID) != null ? true : false;
+
+                case "BibleVerse.DTO.Transactions":
+                    BibleVerse.DTO.Transactions newTransaction = JsonConvert.DeserializeObject<BibleVerse.DTO.Transactions>(entObject);
+                    context.Transactions.Add(newTransaction);
+                    context.SaveChanges();
+                    return context.Transactions.Find(newTransaction.TransactionUID) != null ? true : false;
 
                 default:
                     return false;

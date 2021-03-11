@@ -28,7 +28,7 @@ namespace BibleVerseAPI.Controllers
 
             if (apiResponse != null)
             {
-                if (apiResponse.ResponseMessage == "Success")
+                if (apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(apiResponse);
                 }
@@ -53,7 +53,7 @@ namespace BibleVerseAPI.Controllers
 
             if (apiResponse != null)
             {
-                if (apiResponse.ResponseMessage == "Success")
+                if (apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(apiResponse);
                 }

@@ -45,12 +45,12 @@ namespace BibleVerse.Repositories.UserRepositories
 
                 if (userOrg.FirstOrDefault() != null)
                 {
-                    response.ResponseMessage = "Success";
+                    response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userOrg.FirstOrDefault()));
                 }
                 else
                 {
-                    response.ResponseMessage = "Failure";
+                    response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     response.ResponseErrors.Add("Organization Not Found!");
                 }
 
@@ -65,7 +65,7 @@ namespace BibleVerse.Repositories.UserRepositories
                     EventLog.WriteEntry("BibleVerse.BVExceptionData", e.Message);
                 }
 
-                response.ResponseMessage = "Failure";
+                response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                 response.ResponseErrors.Add("An Error Occurred");
                 return response;
             }
@@ -201,7 +201,7 @@ namespace BibleVerse.Repositories.UserRepositories
                         //Create the user post
                         string createPost = PostRepositories.PostRepositoriesHelper.CreateUserPost(newPost, user, genPostID, _context);
 
-                        if (createPost != "Success")
+                        if (createPost != APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                         {
                             BibleVerse.Exceptions.BVException exception = new Exceptions.BVException(createPost, StackTraceRoot, 00001);
 
@@ -209,17 +209,17 @@ namespace BibleVerse.Repositories.UserRepositories
                         }
 
                             idexists = true;
-                            return "Success";
+                            return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);;
                     }
                     else
                     {
                         retryTimes++;
                     }
                 }
-                return "Failure";
+                return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);;
             }catch(Exception ex)
             {
-                return "Failure";
+                return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);;
             }
             }
 
@@ -266,7 +266,7 @@ namespace BibleVerse.Repositories.UserRepositories
                     suvm.UserName = userName;
                     suvm.Profile = userProfile;
 
-                    response.ResponseMessage = "Success";
+                    response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                     response.ResponseBody.Add(JsonConvert.SerializeObject(userProfiles.First()));
                     response.ResponseBody.Add(JsonConvert.SerializeObject(suvm));
                     response.ResponseBody.Add(userRelationType);
@@ -278,7 +278,7 @@ namespace BibleVerse.Repositories.UserRepositories
                 }
             }
 
-            response.ResponseMessage = "Failure";
+            response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);;
             response.ResponseErrors.Add("User Profile Not Found");
             return response;
         }
@@ -312,16 +312,16 @@ namespace BibleVerse.Repositories.UserRepositories
 
                     bool relationshipRequestSent = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipSend(newRelationship, request, _context);
 
-                    response.ResponseMessage = relationshipRequestSent ? "Success" : "Failure";
+                    response.ResponseMessage = relationshipRequestSent ? APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success) : APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
 
-                    if (response.ResponseMessage == "Success")
+                    if (response.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                     {
                         response.ResponseBody.Add("Friend Request Sent!");
                     }
                 }
                 else
                 {
-                    response.ResponseMessage = "Failure";
+                    response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     response.ResponseErrors.Add("Relationship Already Exists");
                 }
             }
@@ -347,7 +347,7 @@ namespace BibleVerse.Repositories.UserRepositories
                     {
                         bool requestWasCancelled = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipCancel(friendRequest.FirstOrDefault(), request, requestNotifcation.FirstOrDefault(), _context);
 
-                        response.ResponseMessage = requestWasCancelled ? "Success" : "Failure";
+                        response.ResponseMessage = requestWasCancelled ? APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success) : APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     }
                 }
 
@@ -380,11 +380,11 @@ namespace BibleVerse.Repositories.UserRepositories
                         bool processRelationship = BibleVerse.Repositories.UserRespositories.UserRepositoriesHelper.ProcessUserRelationshipAccept(friendRequest.FirstOrDefault(), request, firstUserFound, secondUserFound, _context);
 
 
-                        response.ResponseMessage = processRelationship ? "Success" : "Failure";
+                        response.ResponseMessage = processRelationship ? APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success) : APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     }
                     else
                     {
-                        response.ResponseMessage = "Failure";
+                        response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);;
                         response.ResponseErrors.Add("Request not found");
                     }
                 }
@@ -518,11 +518,11 @@ namespace BibleVerse.Repositories.UserRepositories
                                     _context.SaveChanges();
 
                                     idexists = true;
-                                    return "Success";
+                                    return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                                 } else
                                 {
                                     idexists = true;
-                                    return "Success";
+                                    return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                                 }
                             }
                             else
@@ -537,7 +537,7 @@ namespace BibleVerse.Repositories.UserRepositories
 
                 }
             } 
-            return "Failure";
+            return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);;
 
 
         }
@@ -589,7 +589,7 @@ namespace BibleVerse.Repositories.UserRepositories
                     };
 
 
-                return "Success";
+                return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                 }
             }
             else
@@ -629,11 +629,11 @@ namespace BibleVerse.Repositories.UserRepositories
                     _context.UserHistory.Add(uhLog);
                     _context.SaveChanges();
 
-                    return "Success";
+                    return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                 }
             }
 
-            return "Failure";
+            return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
         }
 
         public async Task<string> InteractWithPostComments(Comments comment, RefreshRequest r) 
@@ -670,10 +670,10 @@ namespace BibleVerse.Repositories.UserRepositories
                 _context.UserHistory.Add(uhLog);
                 _context.SaveChanges();
 
-                return "Success";
+                return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
             }
 
-            return "Failure";
+            return APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
 
         }
 
@@ -723,7 +723,8 @@ namespace BibleVerse.Repositories.UserRepositories
                         SearchViewModel searchView = new SearchViewModel()
                         {
                             UserName = user.UserName,
-                            OrgName = "User"
+                            OrgName = "User",
+                            ProfileURL = string.Format("/profile/{0}", user.UserName)
                         };
 
                         searchViews.Add(searchView);
@@ -744,7 +745,8 @@ namespace BibleVerse.Repositories.UserRepositories
                         SearchViewModel searchView = new SearchViewModel()
                         {
                             UserName = org.Name,
-                            OrgName = "Group"
+                            OrgName = "Group",
+                            ProfileURL = string.Format("/profile/{0}", org.Name)
                         };
 
                         searchViews.Add(searchView);
@@ -766,7 +768,8 @@ namespace BibleVerse.Repositories.UserRepositories
                         SearchViewModel searchView = new SearchViewModel()
                         {
                             UserName = user.UserName,
-                            OrgName = "User"
+                            OrgName = "User",
+                            ProfileURL = string.Format("/profile/{0}", user.UserName)
                         };
 
                         searchViews.Add(searchView);
@@ -800,11 +803,11 @@ namespace BibleVerse.Repositories.UserRepositories
 
             if(searchViews.Count > 0)
             {
-                response.ResponseMessage = "Success";
+                response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                 response.ResponseBody.Add(JsonConvert.SerializeObject(searchViews));
             }else
             {
-                response.ResponseMessage = "Success";
+                response.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
 
                 SearchViewModel errsvm = new SearchViewModel()
                 {

@@ -43,10 +43,10 @@ class Profile extends React.Component {
             if(typeof (await response) == typeof ('')){
                 //send user to error page
             } else {
-                if (await response['responseMessage'] != 'Success'){
+                if (await response['responseMessage'] != 'Success'.toUpperCase()){
                     console.log(await response['responseMessage']);
                     cookie.remove('token');
-                    window.location.reload();
+                    //window.location.reload();
                 } else {
                     await this.setState({profile: response["responseBody"][0]});
 
@@ -62,10 +62,12 @@ class Profile extends React.Component {
     }
 
     componentDidUpdate(){
+        
         if(this.state.updateProfile){
             this.GetProfile();
             this.setState({updateProfile: false});
         }
+        
     }
 
     render(){
@@ -73,7 +75,7 @@ class Profile extends React.Component {
             return (
                 <Container style={{ textAlign: "left" }}>
                     <CreatePostForm tlUpdate={this.profileUpdate}/>
-                    <h1>{this.state.profile["ProfileId"]}</h1>
+                    <h1>{this.state.profile["UserName"]}</h1>
                 </Container>
             );
         }

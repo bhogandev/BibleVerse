@@ -1,6 +1,7 @@
 ﻿import axios from 'axios';
 import { data } from 'jquery';
 import Cookies from 'universal-cookie';
+import {determineDevice, browser} from '../js/browserMethods';
 
 class bbvapi {
     constructor() {
@@ -16,7 +17,10 @@ class bbvapi {
                 method: 'post',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Device': "Web",
+                    'Identity': determineDevice(),
+                    'Version': browser.version.toString()
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({
@@ -76,7 +80,10 @@ class bbvapi {
                 method: 'post',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Device': "Web",
+                    'Identity': determineDevice(),
+                    'Version': browser.version.toString()
                 },
                 credentials: 'same-origin',
                 body: JSON.stringify({
@@ -144,7 +151,10 @@ class bbvapi {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Token': t,
-                    'RefreshToken': rt
+                    'RefreshToken': rt,
+                    'Device': "Web",
+                    'Identity': determineDevice(),
+                    'Version': browser.version.toString()
                 },
                 validateStatus: () => true,
                 credentials: 'same-origin'
@@ -192,7 +202,10 @@ class bbvapi {
                     'Content-Type': 'application/json',
                     'Token': t,
                     'RefreshToken': rt,
-                    'UserName': username
+                    'UserName': username,
+                    'Device': "Web",
+                    'Identity': determineDevice(),
+                    'Version': browser.version.toString()
                 },
                 validateStatus: () => true,
                 credentials: 'same-origin'
@@ -238,7 +251,10 @@ class bbvapi {
                     'Content-Type': 'application/json',
                     'Token': cookies.get('token'),
                     'qFilter': range,
-                    'Query': val
+                    'Query': val,
+                    'Device': "Web",
+                    'Identity': determineDevice(),
+                    'Version': browser.version.toString()
                 },
                 credentials: 'same-origin'
             }));

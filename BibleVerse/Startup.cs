@@ -25,8 +25,8 @@ namespace BibleVerse
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<BVIdentityContext>();
-            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BVIdentityContext>();
+            services.AddDbContext<BibleVerse.DALV2.BVIdentityContext>();
+            services.AddIdentity<Users, IdentityRole>().AddEntityFrameworkStores<BibleVerse.DALV2.BVIdentityContext>();
             services.AddControllersWithViews();
             services.ConfigureApplicationCookie(option => option.LoginPath = "/BBV");
             services.AddSession(options =>

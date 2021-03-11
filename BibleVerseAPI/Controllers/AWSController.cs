@@ -31,20 +31,18 @@ namespace BibleVerseAPI.Controllers
         {
             context = serviceBase + "CreateUserDir";
 
-            var apiResponse = new ApiResponseModel();
-
             //Run Method in aws repository to create user dir in org bucket
             try
             {
                 Users nu = JsonConvert.DeserializeObject<Users>(newUser.ToString());
 
-                apiResponse = await _repository.CreateUserDir(nu);
+                var apiResponse = await _repository.CreateUserDir(nu);
 
-                if (apiResponse.ResponseMessage == "Success")
+                if (apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(apiResponse);
                 }
-                else if (apiResponse.ResponseMessage == "Failure")
+                else if (apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
                 {
                     return Conflict(apiResponse);
                 }
@@ -68,12 +66,13 @@ namespace BibleVerseAPI.Controllers
 
                 var eLogStore = _elogRepository.StoreELog(eLog);
 
-                if(!(eLogStore.Result == "Success"))
+                if(!(eLogStore.Result == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success)))
                 {
                     //Store in Event Viewer On Server
                 }
 
                 //Send back response
+                var apiResponse = APIHelperV1.InitializeAPIResponse();
                 apiResponse.ResponseMessage = "Error";
                 apiResponse.ResponseErrors = new List<string>();
                 apiResponse.ResponseErrors.Add("An Unexpected Error Occured. Please try again");
@@ -96,17 +95,17 @@ namespace BibleVerseAPI.Controllers
 
                  apiResponse = await _repository.CreateOrgBucket(newOrg);
 
-                if (apiResponse.ResponseMessage == "Success")
+                if (apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(apiResponse);
                 }
-                else if (apiResponse.ResponseMessage == "Failure")
+                else if (apiResponse.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
                 {
                     return Conflict(apiResponse);
                 }
                 else
                 {
-                    apiResponse.ResponseMessage = "BadRequest";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Conflict);
                     apiResponse.ResponseErrors = new List<string>();
                     apiResponse.ResponseErrors.Add("An Unexpected Error Occured. Please try again");
                     return BadRequest(apiResponse);
@@ -124,7 +123,7 @@ namespace BibleVerseAPI.Controllers
 
                 var eLogStore = _elogRepository.StoreELog(eLog);
 
-                if (!(eLogStore.Result == "Success"))
+                if (!(eLogStore.Result == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success)))
                 {
                     //Store in Event Viewer On Server
                 }

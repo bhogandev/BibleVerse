@@ -18,13 +18,16 @@ namespace BibleVerseAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class UserController : ControllerBase
+    public class UserController : BVController
     {
         private readonly BibleVerse.Repositories.UserRepositories.UserActionRepository _repository;
+        private readonly BibleVerse.Repositories.APIHelperV1 _apiHelper;
+        
 
-        public UserController(BibleVerse.Repositories.UserRepositories.UserActionRepository repository)
+        public UserController(BibleVerse.Repositories.UserRepositories.UserActionRepository repository, BibleVerse.Repositories.APIHelperV1 apiHelper)
         {
             this._repository = repository;
+            this._apiHelper = apiHelper;
         }
 
         [HttpGet]
@@ -32,21 +35,20 @@ namespace BibleVerseAPI.Controllers
         public IActionResult Index()
         {
             //Get JWT from Request Header
-            var token = Request.Headers["Token"];
             var qFilter = Request.Headers["qFilter"];
             var query = Request.Headers["Query"];
 
 
             //Pass valid token here
-            var response = _repository.Query(qFilter, token, query);
+            var response = _repository.Query(qFilter, Request.Headers["Token"], query);
 
             
-            if (response.Result.ResponseMessage == "Success")
+            if (response.Result.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
             {
                 return Ok(response);
 
             }
-            else if (response.Result.ResponseMessage == "Failure")
+            else if (response.Result.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
             {
                 return Conflict(response);
             }
@@ -61,28 +63,36 @@ namespace BibleVerseAPI.Controllers
         [ActionName("GetProfile")]
         public IActionResult GetProfile()
         {
-            //Get JWT from Request Header
-            var token = Request.Headers["Token"];
-            var refreshToken = Request.Headers["RefreshToken"];
-            var profileUserName = Request.Headers["UserName"];
-
-
-           Task<ApiResponseModel> response = _repository.GetUserProfile(token, refreshToken, profileUserName);
-
-            if(response.IsCompleted && response.Result != null)
+            try
             {
-                if(response.Result.ResponseMessage == "Success")
+                //Get JWT from Request Header
+                var profileUserName = Request.Headers["UserName"];
+
+                Task<ApiResponseModel> response = _repository.GetUserProfile(Request.Headers["Token"], Request.Headers["RefreshToken"], profileUserName);
+
+                if (response.IsCompleted && response.Result != null)
                 {
-                    return Ok(response.Result);
+                    if (response.Result.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
+                    {
+                        return Ok(response.Result);
+                    }
+                    else
+                    {
+                        return Conflict(response.Result);
+                    }
                 }
                 else
                 {
-                    return Conflict(response.Result);
+                    return BadRequest("An Error Occured");
                 }
-            }
-            else
+            }catch(ArgumentNullException nullEx)
             {
-                return BadRequest("An Error Occured");
+                //Record Exception
+                return BadRequest(BibleVerse.Exceptions.BVExErrorCodes.ExShortCut(BibleVerse.Exceptions.BVExErrorCodes.ShortCodes.KillCode));
+            }catch(Exception ex)
+            {
+                //Log Exception
+                return BadRequest();
             }
         }
     }

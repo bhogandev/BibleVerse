@@ -45,10 +45,10 @@ namespace BibleVerseAPI.Controllers
 
             var response = await _repository.ResendConfirmation(requestUser);
 
-                if(response.ResponseMessage == "Success")
+                if(response.ResponseMessage == APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success))
                 {
                     return Ok(response);
-                } else if(response.ResponseMessage ==  "Failure")
+                } else if(response.ResponseMessage ==  APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure))
                 {
                     return Conflict(response);
                 } else

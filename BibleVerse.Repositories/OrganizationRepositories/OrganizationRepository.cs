@@ -39,14 +39,6 @@ namespace BibleVerse.Repositories
             apiResponse.ResponseErrors = new List<string>();
             apiResponse.ResponseBody = new List<string>();
             bool userIsMember = false;
-            
-            /*
-             * Steps to complete:
-             * [x] find user
-             * [x] find organization being requested
-             * [x] see if user is a member of that organization
-             * [x] return org profile view with true or false of userIsMember
-             */
 
             //Find user
              var user = from x in userManager.Users
@@ -95,21 +87,21 @@ namespace BibleVerse.Repositories
                         Posts = rOrgPosts
                     };
 
-                    apiResponse.ResponseMessage = "Success";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                     apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(orgProfile)); //apiResponse.ResponseBody[0] = orgProfile
                     apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(userIsMember)); //apiResponse.ResponseBody[1] = userIsMember bool
                 }
                 else
                 {
                     //return error api response of org not found
-                    apiResponse.ResponseMessage = "Failure";
+                    apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                     apiResponse.ResponseErrors.Add("Organizaiton Not Found!");
                 }
             }
             else
             {
                 //return error api response of user not found
-                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                 apiResponse.ResponseErrors.Add("Request User Not Found!");
             }
 
@@ -147,12 +139,12 @@ namespace BibleVerse.Repositories
                     orgMembers.Add(searchView);
                 }
 
-                apiResponse.ResponseMessage = "Success";
+                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Success);
                 apiResponse.ResponseBody.Add(JsonConvert.SerializeObject(orgMembers));
             }
             else
             {
-                apiResponse.ResponseMessage = "Failure";
+                apiResponse.ResponseMessage = APIHelperV1.RetreieveResponseMessage(APIHelperV1.ResponseMessageEnum.Failure);
                 apiResponse.ResponseErrors.Add("An Error Occured While Retrieving Org Members");
             }
 
